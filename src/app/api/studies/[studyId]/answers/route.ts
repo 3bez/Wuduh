@@ -37,32 +37,53 @@ export async function POST(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'card_id and status are required' }, { status: 400 })
   }
 
-  // Upsert the answer (insert or update — never duplicate)
-  const { error: upsertError } = await supabase
+  // Try update first, then insert if not found (manual upsert to avoid type issues)
+  const { data: existing } = await supabase
     .from('answers')
-    .upsert(
-      {
-        study_id: studyId,
-        card_id,
-        answer: answer ?? null,
+    .select('id')
+    .eq('study_id', studyId)
+    .eq('card_id', card_id)
+    .single()
+
+  let upsertError = null
+
+  if (existing) {
+    // Update existing answer
+    const { error } = await supabase
+      .from('answers')
+      .update({
+        answer: answer as string ?? null,
         status,
         updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'study_id,card_id' }
-    )
+      })
+      .eq('study_id', studyId)
+      .eq('card_id', card_id)
+    upsertError = error
+  } else {
+    // Insert new answer
+    const { error } = await supabase
+      .from('answers')
+      .insert({
+        study_id: studyId,
+        card_id,
+        answer: answer as string ?? null,
+        status,
+      })
+    upsertError = error
+  }
 
   if (upsertError) {
     return NextResponse.json({ error: upsertError.message }, { status: 500 })
   }
 
   // Recalculate completion %
-  const { data: answers } = await supabase
+  const { data: allAnswers } = await supabase
     .from('answers')
     .select('card_id, status')
     .eq('study_id', studyId)
 
   const answeredIds = new Set(
-    (answers ?? []).filter(a => a.status === 'done').map(a => a.card_id)
+    (allAnswers ?? []).filter(a => a.status === 'done').map(a => a.card_id)
   )
   const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
   const completion = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
