@@ -1,0 +1,93 @@
+/* Wuduh color system
+   Depth, trust, precision. Navy dominant, gold accent, teal support.
+   Base ramps first, semantic aliases below. */
+
+:root {
+  /* ── Navy (brand / dominant) ───────────────────────────── */
+  --navy-950: #0A1622;
+  --navy-900: #0D1B2A; /* brand base */
+  --navy-800: #132A40;
+  --navy-700: #1B3A56;
+  --navy-600: #244C6E;
+  --navy-500: #305F86;
+  --navy-400: #4D7CA3;
+  --navy-300: #7BA0BF;
+  --navy-200: #AEC6D9;
+  --navy-100: #D7E3EC;
+  --navy-50:  #EEF3F7;
+
+  /* ── Gold (accent) ─────────────────────────────────────── */
+  --gold-700: #8A6F26;
+  --gold-600: #A6852F;
+  --gold-500: #C9A84C; /* accent base */
+  --gold-400: #D6BC72;
+  --gold-300: #E3CF9A;
+  --gold-200: #EEE0BF;
+  --gold-100: #F6EEDB;
+
+  /* ── Teal (supporting) ─────────────────────────────────── */
+  --teal-700: #0A6E66;
+  --teal-600: #0B8077;
+  --teal-500: #0D9488; /* support base */
+  --teal-400: #2EB3A6;
+  --teal-300: #6FCCC2;
+  --teal-200: #A9E0D9;
+  --teal-100: #D8F1EE;
+
+  /* ── Slate neutrals (cool, lean navy) ──────────────────── */
+  --white:    #FFFFFF;
+  --slate-50:  #F4F6F8;
+  --slate-100: #E8ECF1;
+  --slate-200: #D4DBE3;
+  --slate-300: #B4BFCB;
+  --slate-400: #8795A6;
+  --slate-500: #647183;
+  --slate-600: #4A5666;
+  --slate-700: #36404D;
+  --slate-800: #232C38;
+  --slate-900: #141A22;
+
+  /* Paper — warm surface for exported documents */
+  --paper:     #FAF7F0;
+  --paper-line:#EAE3D2;
+
+  /* ── Semantic statuses (warm-fit) ──────────────────────── */
+  --success-600: #11724E;
+  --success-500: #15805A;
+  --success-100: #DCEFE6;
+  --warning-600: #B4811E;
+  --warning-500: #D99A2B;
+  --warning-100: #F8ECCE;
+  --danger-600:  #A53D27;
+  --danger-500:  #C0492F;
+  --danger-100:  #F6E0DA;
+  --info-500:    #305F86;
+  --info-100:    #DCE7F0;
+
+  /* ── Semantic aliases ──────────────────────────────────── */
+  --brand:            var(--navy-900);
+  --accent:           var(--gold-500);
+  --accent-strong:    var(--gold-600);
+  --support:          var(--teal-500);
+
+  --surface-canvas:   #F6F8FA;
+  --surface-card:     var(--white);
+  --surface-sunken:   var(--slate-50);
+  --surface-inverse:  var(--navy-900);
+  --surface-inverse-2:var(--navy-800);
+  --surface-paper:    var(--paper);
+
+  --text-strong:      var(--navy-900);
+  --text-body:        var(--slate-700);
+  --text-muted:       var(--slate-500);
+  --text-subtle:      var(--slate-400);
+  --text-on-dark:     var(--navy-50);
+  --text-on-dark-muted: var(--navy-300);
+  --text-accent:      var(--gold-700);
+
+  --border:           var(--slate-200);
+  --border-strong:    var(--slate-300);
+  --border-on-dark:   rgba(174,198,217,0.18);
+  --ring:             var(--gold-500);
+  --focus-ring:       rgba(201,168,76,0.45);
+}

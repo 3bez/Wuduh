@@ -1,0 +1,56 @@
+<!-- @dsCard group="Brand" viewport="700x500" name="Mobile card UI in use" subtitle="The brand applied to a Wuduh question card" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0}
+  body{position:relative;height:500px;overflow:hidden;font-family:var(--font-sans);
+       background:var(--surface-inverse);display:flex;align-items:center;justify-content:center}
+  .net{position:absolute;inset:0}
+  .phone{position:relative;width:300px;background:var(--surface-canvas);border-radius:38px;
+         padding:14px;box-shadow:var(--shadow-xl);border:1px solid rgba(255,255,255,.06)}
+  .screen{background:var(--surface-canvas);border-radius:26px;overflow:hidden}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:18px 18px 6px}
+  .brand{display:flex;align-items:center;gap:8px}
+  .brand .w{font-family:var(--font-display);font-weight:600;font-size:16px;color:var(--text-strong)}
+  .count{font-family:var(--font-mono);font-size:12px;color:var(--text-muted);letter-spacing:.04em}
+  .bar{height:5px;border-radius:999px;background:var(--slate-200);margin:6px 18px 0;overflow:hidden}
+  .bar span{display:block;height:100%;width:33%;background:var(--gold-500);border-radius:999px}
+  .card{margin:18px;background:var(--surface-card);border:1px solid var(--border);
+        border-radius:var(--radius-xl);box-shadow:var(--shadow-md);padding:22px 20px 24px;min-height:190px;
+        display:flex;flex-direction:column}
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:var(--tracking-caps);
+           text-transform:uppercase;color:var(--text-accent)}
+  .q{font-family:var(--font-display);font-size:23px;line-height:1.25;color:var(--text-strong);
+     margin:12px 0 0;letter-spacing:-0.01em}
+  .help{font-size:13.5px;color:var(--text-muted);line-height:1.5;margin-top:10px}
+  .swipe{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px;
+         font-size:12px;color:var(--text-subtle);padding-top:18px}
+  .swipe .dot{width:6px;height:6px;border-radius:999px;background:var(--gold-500)}
+</style></head>
+<body>
+  <svg class="net" width="100%" height="100%"><defs>
+    <pattern id="m1" width="64" height="64" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke="#C9A84C" stroke-width="1" stroke-opacity="0.4">
+        <rect x="16" y="16" width="32" height="32"/>
+        <rect x="22.6" y="22.6" width="32" height="32" transform="rotate(45 32 32)" stroke-opacity="0.24"/>
+        <path d="M32 0 L32 16 M32 48 L32 64 M0 32 L16 32 M48 32 L64 32" stroke-opacity="0.26"/>
+      </g>
+    </pattern></defs><rect width="100%" height="100%" fill="url(#m1)"/></svg>
+  <div class="phone"><div class="screen">
+    <div class="top">
+      <div class="brand">
+        <svg width="22" height="22" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>
+        <span class="w">Wuduh</span>
+      </div>
+      <span class="count">04 / 12</span>
+    </div>
+    <div class="bar"><span></span></div>
+    <div class="card">
+      <span class="eyebrow">Market · Question 4</span>
+      <h2 class="q">Who is your first customer, and where do they already look for a solution?</h2>
+      <p class="help">Be specific. One clear segment beats three vague ones — we'll size it next.</p>
+      <div class="swipe"><span class="dot"></span> Swipe right when you're done</div>
+    </div>
+  </div></div>
+</body></html>

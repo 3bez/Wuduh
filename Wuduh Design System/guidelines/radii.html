@@ -1,0 +1,20 @@
+<!-- @dsCard group="Spacing" viewport="700x180" name="Radii" subtitle="Precise, never pill-soft. Swipe cards at 22px." -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-mono);background:var(--surface-card);padding:20px 24px;display:flex;gap:22px;align-items:flex-end}
+  .item{display:flex;flex-direction:column;align-items:center;gap:9px}
+  .box{width:84px;height:64px;background:var(--navy-50);border:1.5px solid var(--navy-300);border-top-left-radius:0;border-top-right-radius:0}
+  .t{font-size:10px;color:var(--text-muted)}
+</style></head>
+<body>
+  <div class="item"><div class="box" style="border-radius:4px"></div><span class="t">xs · 4</span></div>
+  <div class="item"><div class="box" style="border-radius:8px"></div><span class="t">sm · 8</span></div>
+  <div class="item"><div class="box" style="border-radius:12px"></div><span class="t">md · 12</span></div>
+  <div class="item"><div class="box" style="border-radius:16px"></div><span class="t">lg · 16</span></div>
+  <div class="item"><div class="box" style="border-radius:22px"></div><span class="t">xl · 22</span></div>
+  <div class="item"><div class="box" style="border-radius:28px"></div><span class="t">2xl · 28</span></div>
+  <div class="item"><div class="box" style="border-radius:999px"></div><span class="t">full</span></div>
+</body></html>

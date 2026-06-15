@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wuduh — Your Clear Path to Investors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy-900:#0D1B2A;--navy-800:#132A40;--navy-700:#1B3A56;--navy-600:#244C6E;
+  --navy-400:#4D7CA3;--navy-300:#7BA0BF;--navy-200:#AEC6D9;--navy-100:#D7E3EC;--navy-50:#EEF3F7;
+  --gold-700:#8A6F26;--gold-600:#A6852F;--gold-500:#C9A84C;--gold-400:#D6BC72;
+  --gold-300:#E3CF9A;--gold-200:#EEE0BF;--gold-100:#F6EEDB;
+  --teal-700:#0A6E66;--teal-600:#0B8077;--teal-500:#0D9488;--teal-400:#2EB3A6;
+  --teal-300:#6FCCC2;--teal-200:#A9E0D9;--teal-100:#D8F1EE;
+  --slate-50:#F4F6F8;--slate-100:#E8ECF1;--slate-200:#D4DBE3;--slate-300:#B4BFCB;
+  --slate-400:#8795A6;--slate-500:#647183;--slate-600:#4A5666;--slate-700:#36404D;
+  --paper:#FAF7F0;--paper-line:#EAE3D2;
+  --fd:'IBM Plex Serif',serif;--fs:'IBM Plex Sans',sans-serif;
+  --fm:'IBM Plex Mono',monospace;--fa:'IBM Plex Sans Arabic',sans-serif;
+}
+body{font-family:var(--fs);background:#fff;color:var(--slate-700);line-height:1.6}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:rgba(13,27,42,0.97);backdrop-filter:blur(8px);border-bottom:1px solid rgba(174,198,217,0.1);padding:0 40px;height:60px;display:flex;align-items:center;gap:20px}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-name{font-family:var(--fd);font-weight:600;font-size:18px;color:#fff;letter-spacing:-0.01em}
+.nav-links{display:flex;gap:24px;margin-left:auto;margin-right:20px}
+.nav-link{font-size:13px;color:var(--navy-200);text-decoration:none;letter-spacing:0.01em;transition:color 140ms}
+.nav-link:hover{color:#fff}
+.nav-cta{font-family:var(--fs);font-size:13px;font-weight:500;background:var(--gold-500);color:var(--navy-900);border:none;border-radius:7px;padding:8px 18px;cursor:pointer;transition:background 140ms;text-decoration:none;display:inline-block}
+.nav-cta:hover{background:var(--gold-400)}
+
+/* HERO */
+.hero{background:var(--navy-900);min-height:580px;display:grid;grid-template-columns:1fr 1fr;align-items:center;padding:72px 64px;position:relative;overflow:hidden}
+.hero-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.hero-left{position:relative;z-index:2;padding-right:40px}
+.hero-eyebrow{font-family:var(--fm);font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-500);margin-bottom:20px}
+.hero-h1{font-family:var(--fd);font-weight:500;font-size:46px;line-height:1.08;letter-spacing:-0.025em;color:#fff;margin-bottom:18px}
+.hero-h1 em{color:var(--gold-400);font-style:normal}
+.hero-sub{font-size:16px;line-height:1.65;color:var(--navy-200);max-width:440px;margin-bottom:32px}
+.hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.btn-accent{display:inline-flex;align-items:center;gap:8px;background:var(--gold-500);color:var(--navy-900);font-family:var(--fs);font-size:15px;font-weight:600;border:none;border-radius:9px;padding:13px 26px;cursor:pointer;transition:background 140ms,box-shadow 140ms;box-shadow:0 4px 16px rgba(201,168,76,0.25);text-decoration:none}
+.btn-accent:hover{background:var(--gold-400);box-shadow:0 8px 24px rgba(201,168,76,0.35)}
+.btn-ghost-light{display:inline-flex;align-items:center;gap:6px;background:transparent;color:var(--navy-100);font-family:var(--fs);font-size:14px;border:1.5px solid rgba(174,198,217,0.3);border-radius:9px;padding:12px 22px;cursor:pointer;transition:border-color 140ms,color 140ms;text-decoration:none}
+.btn-ghost-light:hover{border-color:rgba(174,198,217,0.6);color:#fff}
+.hero-proof{margin-top:36px;display:flex;align-items:center;gap:16px;font-family:var(--fm);font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--navy-400);flex-wrap:wrap}
+.hero-proof-dot{width:4px;height:4px;border-radius:50%;background:var(--navy-600)}
+
+/* PHONE */
+.hero-right{position:relative;z-index:2;display:flex;justify-content:center;align-items:center}
+.phone-frame{width:268px;background:var(--slate-50);border-radius:36px;padding:12px;box-shadow:0 32px 64px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.06)}
+.phone-screen{background:var(--slate-50);border-radius:26px;overflow:hidden;display:flex;flex-direction:column}
+.phone-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;background:#fff;border-bottom:1px solid var(--slate-100)}
+.phone-brand{display:flex;align-items:center;gap:7px}
+.phone-brand-name{font-family:var(--fd);font-weight:600;font-size:14px;color:var(--navy-900)}
+.phone-count{font-family:var(--fm);font-size:10px;color:var(--slate-400);letter-spacing:0.04em}
+.phone-progress{height:3px;background:var(--slate-100);margin:0 16px;border-radius:99px;overflow:hidden}
+.phone-progress-fill{height:100%;background:var(--gold-500);border-radius:99px;transition:width 600ms cubic-bezier(0.22,0.61,0.36,1)}
+.phone-card-wrap{padding:14px 14px 18px}
+.phone-card{background:#fff;border:1px solid var(--slate-200);border-radius:18px;box-shadow:0 4px 12px rgba(13,27,42,0.08);padding:18px 16px 20px;min-height:188px;display:flex;flex-direction:column;transition:opacity 300ms,transform 300ms}
+.phone-card.fade-out{opacity:0;transform:translateY(8px)}
+.phone-cat{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-700);margin-bottom:12px;background:var(--gold-100);padding:3px 8px;border-radius:99px;display:inline-block}
+.phone-q{font-family:var(--fd);font-size:16px;line-height:1.28;letter-spacing:-0.01em;color:var(--navy-900);margin-bottom:10px;font-weight:500}
+.phone-help{font-size:11.5px;color:var(--slate-400);line-height:1.5;margin-bottom:14px;flex:1}
+.phone-swipe{display:flex;align-items:center;justify-content:space-between;padding-top:12px;border-top:1px solid var(--slate-100)}
+.phone-skip{font-size:10.5px;color:var(--slate-400)}
+.phone-next{font-size:10.5px;font-weight:500;background:var(--navy-900);color:#fff;padding:5px 12px;border-radius:6px;font-family:var(--fs)}
+
+/* HOW */
+.how{background:#fff;padding:88px 64px}
+.how-inner{max-width:920px;margin:0 auto}
+.section-eyebrow{font-family:var(--fm);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-600);margin-bottom:14px}
+.section-h2{font-family:var(--fd);font-weight:500;font-size:38px;line-height:1.12;letter-spacing:-0.02em;color:var(--navy-900);margin-bottom:12px}
+.section-sub{font-size:16px;color:var(--slate-500);max-width:520px;line-height:1.65;margin-bottom:56px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.step{position:relative;padding-top:4px}
+.step-num{font-family:var(--fm);font-size:11px;letter-spacing:0.1em;color:var(--gold-500);margin-bottom:12px;display:block}
+.step-title{font-family:var(--fd);font-size:20px;font-weight:500;color:var(--navy-900);margin-bottom:8px;line-height:1.2}
+.step-body{font-size:14px;color:var(--slate-500);line-height:1.65}
+.step-divider{position:absolute;top:28px;right:-20px;width:40px;height:1px;background:var(--slate-200)}
+
+/* EXPORT */
+.export-section{background:var(--slate-50);padding:88px 64px;border-top:1px solid var(--slate-100);border-bottom:1px solid var(--slate-100)}
+.export-inner{max-width:920px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.export-doc{background:var(--paper);border-radius:8px;box-shadow:0 24px 56px rgba(13,27,42,0.14),0 4px 12px rgba(13,27,42,0.06);overflow:hidden;position:relative}
+.export-doc-net{position:absolute;inset:0;opacity:0.5;pointer-events:none}
+.export-doc-inner{position:relative;padding:32px 36px}
+.export-doc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--paper-line)}
+.export-doc-brand{display:flex;align-items:center;gap:8px}
+.export-doc-brand-name{font-family:var(--fd);font-weight:600;font-size:13px;color:var(--navy-900)}
+.export-doc-label{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate-400)}
+.export-doc-eyebrow{font-family:var(--fm);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-600);margin-bottom:6px}
+.export-doc-title{font-family:var(--fd);font-weight:600;font-size:20px;line-height:1.2;letter-spacing:-0.01em;color:var(--navy-900);margin-bottom:4px}
+.export-doc-rule{width:40px;height:3px;background:var(--gold-500);border-radius:99px;margin:14px 0 18px}
+.export-section-block{margin-bottom:16px}
+.export-section-head{font-family:var(--fs);font-weight:600;font-size:11px;color:var(--navy-900);margin-bottom:8px}
+.export-line{height:5px;border-radius:99px;background:var(--paper-line);margin-bottom:6px}
+.check-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.check-li{display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--slate-600);line-height:1.5}
+.check-circle{width:20px;height:20px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:var(--gold-100);color:var(--gold-700)}
+
+/* WHO */
+.for-section{background:#fff;padding:88px 64px}
+.for-inner{max-width:920px;margin:0 auto}
+.for-cards{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:52px}
+.for-card{border:1px solid var(--slate-200);border-radius:16px;padding:32px 32px 36px}
+.for-card-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;font-size:22px}
+.for-card-icon.founder{background:var(--gold-100);color:var(--gold-700)}
+.for-card-icon.accel{background:var(--teal-100);color:var(--teal-700)}
+.for-card-label{font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px}
+.for-card-label.founder{color:var(--gold-600)}
+.for-card-label.accel{color:var(--teal-600)}
+.for-card-title{font-family:var(--fd);font-size:21px;font-weight:500;color:var(--navy-900);margin-bottom:12px;line-height:1.2}
+.for-card-body{font-size:14px;color:var(--slate-500);line-height:1.7;margin-bottom:22px}
+.for-card-list{list-style:none;display:flex;flex-direction:column;gap:9px}
+.for-card-li{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:var(--slate-600);line-height:1.5}
+.for-card-check{width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.for-card-check.founder{background:var(--gold-100);color:var(--gold-700)}
+.for-card-check.accel{background:var(--teal-100);color:var(--teal-700)}
+
+/* STATS */
+.stats{background:var(--navy-900);padding:72px 64px;position:relative;overflow:hidden}
+.stats-net{position:absolute;inset:0;pointer-events:none;opacity:0.25}
+.stats-inner{max-width:920px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:40px;position:relative}
+.stat{text-align:center}
+.stat-num{font-family:var(--fd);font-size:52px;font-weight:500;color:#fff;letter-spacing:-0.03em;line-height:1;margin-bottom:10px}
+.stat-num span{color:var(--gold-500)}
+.stat-label{font-size:14px;color:var(--navy-300);line-height:1.5}
+
+/* CTA */
+.cta-section{background:var(--slate-50);padding:88px 64px;border-top:1px solid var(--slate-100)}
+.cta-inner{max-width:640px;margin:0 auto;text-align:center}
+.cta-arabic{font-family:var(--fa);font-size:15px;color:var(--slate-400);direction:rtl;margin-bottom:24px}
+.cta-h2{font-family:var(--fd);font-weight:500;font-size:38px;line-height:1.1;letter-spacing:-0.02em;color:var(--navy-900);margin-bottom:14px}
+.cta-sub{font-size:15px;color:var(--slate-500);margin-bottom:32px;line-height:1.65}
+.cta-form{display:flex;gap:10px;max-width:440px;margin:0 auto 14px}
+.cta-input{flex:1;border:1.5px solid var(--slate-200);border-radius:9px;padding:12px 16px;font-family:var(--fs);font-size:14px;color:var(--navy-900);background:#fff;outline:none;transition:border-color 140ms}
+.cta-input:focus{border-color:var(--gold-400)}
+.cta-disclaimer{font-size:12px;color:var(--slate-400);margin-top:10px}
+
+/* FOOTER */
+.footer{background:var(--navy-900);padding:44px 64px;border-top:1px solid rgba(174,198,217,0.08)}
+.footer-inner{max-width:920px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-brand{display:flex;align-items:center;gap:10px}
+.footer-brand-name{font-family:var(--fd);font-weight:600;font-size:16px;color:#fff}
+.footer-arabic{font-family:var(--fa);font-size:14px;color:var(--gold-400);direction:rtl}
+.footer-links{display:flex;gap:22px}
+.footer-link{font-size:13px;color:var(--navy-400);text-decoration:none;transition:color 140ms}
+.footer-link:hover{color:var(--navy-200)}
+.footer-copy{font-family:var(--fm);font-size:11px;color:var(--navy-600);letter-spacing:0.04em}
+
+/* SVG LOGO */
+.logo-svg{flex-shrink:0}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="#">
+    <svg class="logo-svg" width="28" height="28" viewBox="0 0 96 96" fill="none">
+      <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/>
+      <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#AEC6D9" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-name">Wuduh</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#how">How it works</a>
+    <a class="nav-link" href="#for">For accelerators</a>
+    <a class="nav-link" href="#cta">About</a>
+  </div>
+  <a class="nav-cta" href="#cta">Start your study</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <svg class="hero-net" viewBox="0 0 900 580" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs><pattern id="hn" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke="#C9A84C" stroke-width="1" stroke-opacity="0.2">
+        <rect x="16" y="16" width="32" height="32"/>
+        <rect x="22.6" y="22.6" width="32" height="32" transform="rotate(45 32 32)" stroke-opacity="0.12"/>
+        <path d="M32 0L32 16M32 48L32 64M0 32L16 32M48 32L64 32" stroke-opacity="0.13"/>
+      </g>
+    </pattern></defs>
+    <rect width="100%" height="100%" fill="url(#hn)"/>
+  </svg>
+  <div class="hero-left">
+    <p class="hero-eyebrow">Feasibility study builder · Saudi Arabia & GCC</p>
+    <h1 class="hero-h1">Let's figure this<br>out, <em>together.</em></h1>
+    <p class="hero-sub">Answer one question at a time. When you're done, Wuduh assembles your answers into a feasibility study you'll be proud to send to investors.</p>
+    <div class="hero-actions">
+      <a class="btn-accent" href="#cta">Start your study &rarr;</a>
+      <a class="btn-ghost-light" href="#how">See how it works</a>
+    </div>
+    <div class="hero-proof">
+      <span>52 cards</span><span class="hero-proof-dot"></span>
+      <span>8 sections</span><span class="hero-proof-dot"></span>
+      <span>Arabic & English</span><span class="hero-proof-dot"></span>
+      <span>Investor-ready export</span>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="phone-frame">
+      <div class="phone-screen">
+        <div class="phone-bar">
+          <div class="phone-brand">
+            <svg width="18" height="18" viewBox="0 0 96 96" fill="none">
+              <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/>
+              <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span class="phone-brand-name">Wuduh</span>
+          </div>
+          <span class="phone-count" id="phone-count">04 / 52</span>
+        </div>
+        <div class="phone-progress"><div class="phone-progress-fill" id="phone-prog" style="width:7%"></div></div>
+        <div class="phone-card-wrap">
+          <div class="phone-card" id="phone-card">
+            <span class="phone-cat" id="phone-cat">Market</span>
+            <h3 class="phone-q" id="phone-q">Who is your first customer?</h3>
+            <p class="phone-help" id="phone-help">Be specific — one clear segment beats three vague ones.</p>
+            <div class="phone-swipe">
+              <span class="phone-skip">&larr; Skip for now</span>
+              <span class="phone-next">Done &rarr;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <p class="section-eyebrow">How it works</p>
+    <h2 class="section-h2">Simple input.<br>Professional output.</h2>
+    <p class="section-sub">Every card asks one question. Your answer stays yours. Wuduh structures it into a document that looks like it cost SAR 5,000 to produce.</p>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01 ——</span>
+        <h3 class="step-title">Choose your language</h3>
+        <p class="step-body">Arabic or English — the entire journey, every hint, and the export follows your choice. Full RTL support, not a translation.</p>
+        <div class="step-divider"></div>
+      </div>
+      <div class="step">
+        <span class="step-num">02 ——</span>
+        <h3 class="step-title">Answer card by card</h3>
+        <p class="step-body">Swipe right when you're done, left to skip and return later. A hint on every card explains what investors want to see.</p>
+        <div class="step-divider"></div>
+      </div>
+      <div class="step">
+        <span class="step-num">03 ——</span>
+        <h3 class="step-title">Export &amp; share</h3>
+        <p class="step-body">One click produces a professional PDF built entirely from your own data — no AI-generated filler, no generic templates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPORT PREVIEW -->
+<section class="export-section">
+  <div class="export-inner">
+    <div>
+      <p class="section-eyebrow">The output</p>
+      <h2 class="section-h2">A study you'll be proud to send.</h2>
+      <p class="section-sub" style="margin-bottom:24px">The export looks institutional — because the structure is. Your data, our format, their confidence.</p>
+      <ul class="check-list">
+        <li class="check-li"><span class="check-circle">✓</span>Professional cover page with your logo and name</li>
+        <li class="check-li"><span class="check-circle">✓</span>8 structured sections matching investor expectations</li>
+        <li class="check-li"><span class="check-circle">✓</span>Competitor and team tables rendered automatically</li>
+        <li class="check-li"><span class="check-circle">✓</span>Arabic RTL or English LTR — matches your study language</li>
+        <li class="check-li"><span class="check-circle">✓</span>Incomplete sections flagged with a clear disclaimer</li>
+      </ul>
+    </div>
+    <div class="export-doc">
+      <svg class="export-doc-net" viewBox="0 0 400 520" xmlns="http://www.w3.org/2000/svg">
+        <defs><pattern id="en2" width="48" height="48" patternUnits="userSpaceOnUse">
+          <g fill="none" stroke="#0D1B2A" stroke-width="1" stroke-opacity="0.18">
+            <rect x="12" y="12" width="24" height="24"/>
+            <rect x="16.9" y="16.9" width="24" height="24" transform="rotate(45 24 24)" stroke-opacity="0.1"/>
+          </g>
+        </pattern></defs>
+        <rect width="100%" height="100%" fill="url(#en2)"/>
+      </svg>
+      <div class="export-doc-inner">
+        <div class="export-doc-header">
+          <div class="export-doc-brand">
+            <svg width="18" height="18" viewBox="0 0 96 96" fill="none">
+              <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/>
+              <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+            </svg>
+            <span class="export-doc-brand-name">Wuduh</span>
+          </div>
+          <span class="export-doc-label">Feasibility Study</span>
+        </div>
+        <div class="export-doc-eyebrow">Layla Al-Rashid &middot; June 2026</div>
+        <div class="export-doc-title">Inventory clarity for independent cafés in Riyadh</div>
+        <div class="export-doc-rule"></div>
+        <div class="export-section-block"><div class="export-section-head">01 &nbsp; Problem &amp; opportunity</div><div class="export-line" style="width:100%"></div><div class="export-line" style="width:100%"></div><div class="export-line" style="width:68%"></div></div>
+        <div class="export-section-block"><div class="export-section-head">02 &nbsp; Solution</div><div class="export-line" style="width:100%"></div><div class="export-line" style="width:82%"></div></div>
+        <div class="export-section-block"><div class="export-section-head">03 &nbsp; Market analysis</div><div class="export-line" style="width:100%"></div><div class="export-line" style="width:100%"></div><div class="export-line" style="width:55%"></div></div>
+        <div class="export-section-block"><div class="export-section-head">04 &nbsp; Business model</div><div class="export-line" style="width:100%"></div><div class="export-line" style="width:74%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO -->
+<section class="for-section" id="for">
+  <div class="for-inner">
+    <p class="section-eyebrow">Who it's for</p>
+    <h2 class="section-h2">Built for founders.<br>Trusted by accelerators.</h2>
+    <div class="for-cards">
+      <div class="for-card">
+        <div class="for-card-icon founder">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <p class="for-card-label founder">For founders</p>
+        <h3 class="for-card-title">Your first study shouldn't look like your first study.</h3>
+        <p class="for-card-body">You have the idea, the drive, and the knowledge. Wuduh gives you the structure — so what you send looks like it came from someone who has done this before.</p>
+        <ul class="for-card-list">
+          <li class="for-card-li"><span class="for-card-check founder">✓</span>No blank page — guided from the first question</li>
+          <li class="for-card-li"><span class="for-card-check founder">✓</span>Your data, never AI-generated filler</li>
+          <li class="for-card-li"><span class="for-card-check founder">✓</span>Arabic and English, both first-class</li>
+          <li class="for-card-li"><span class="for-card-check founder">✓</span>Export when you're ready, refine anytime</li>
+        </ul>
+      </div>
+      <div class="for-card" style="border-color:var(--teal-200)">
+        <div class="for-card-icon accel">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <p class="for-card-label accel">For accelerators</p>
+        <h3 class="for-card-title">Give every cohort the same strong foundation.</h3>
+        <p class="for-card-body">Wuduh brings all your founders to the same baseline — structured thinking, credible documentation — before they pitch. Your program looks stronger when your founders do.</p>
+        <ul class="for-card-list">
+          <li class="for-card-li"><span class="for-card-check accel">✓</span>Cohort licensing — one agreement, every founder</li>
+          <li class="for-card-li"><span class="for-card-check accel">✓</span>Standardised output across your program</li>
+          <li class="for-card-li"><span class="for-card-check accel">✓</span>Reduces mentor time on basics</li>
+          <li class="for-card-li"><span class="for-card-check accel">✓</span>White-labeling available for your brand</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <svg class="stats-net" viewBox="0 0 900 220" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs><pattern id="sn" width="64" height="64" patternUnits="userSpaceOnUse">
+      <g fill="none" stroke="#C9A84C" stroke-width="1" stroke-opacity="0.5">
+        <rect x="16" y="16" width="32" height="32"/>
+        <rect x="22.6" y="22.6" width="32" height="32" transform="rotate(45 32 32)" stroke-opacity="0.3"/>
+      </g>
+    </pattern></defs>
+    <rect width="100%" height="100%" fill="url(#sn)"/>
+  </svg>
+  <div class="stats-inner">
+    <div class="stat"><div class="stat-num">52<span>.</span></div><div class="stat-label">Focused cards — one question at a time, nothing overwhelming</div></div>
+    <div class="stat"><div class="stat-num">8<span>.</span></div><div class="stat-label">Sections covering everything an investor needs to see</div></div>
+    <div class="stat"><div class="stat-num">2<span>.</span></div><div class="stat-label">Languages — Arabic and English, both fully native</div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <div class="cta-inner">
+    <p class="cta-arabic">وضوح في كل خطوة</p>
+    <h2 class="cta-h2">Your threshold to investors starts here.</h2>
+    <p class="cta-sub">Join founders across Saudi Arabia and the GCC who are building their first investor-ready study — one card at a time.</p>
+    <div class="cta-form">
+      <input class="cta-input" type="email" placeholder="Your email address">
+      <a class="btn-accent" href="#" style="white-space:nowrap">Get early access</a>
+    </div>
+    <p class="cta-disclaimer">No credit card required. Available in Arabic and English.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <svg width="24" height="24" viewBox="0 0 96 96" fill="none">
+        <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/>
+        <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#AEC6D9" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+      </svg>
+      <span class="footer-brand-name">Wuduh</span>
+      <span class="footer-arabic">وضوح</span>
+    </div>
+    <div class="footer-links">
+      <a class="footer-link" href="#">Privacy</a>
+      <a class="footer-link" href="#">Terms</a>
+      <a class="footer-link" href="#">Contact</a>
+    </div>
+    <span class="footer-copy">&copy; 2026 Wuduh &middot; Saudi Arabia</span>
+  </div>
+</footer>
+
+<script>
+const cards=[
+  {cat:'Problem',n:'01',pct:2,q:'What problem are you solving?',help:'Be specific — a vague problem produces a vague study.'},
+  {cat:'Market',n:'04',pct:7,q:'Who is your first customer?',help:'Be specific — one clear segment beats three vague ones.'},
+  {cat:'Solution',n:'08',pct:15,q:'What is your solution in one sentence?',help:'If you need more than one sentence, keep working on it.'},
+  {cat:'Team',n:'19',pct:36,q:'Why are you the right team to solve this?',help:'Investors back people first. Name your unfair advantage.'},
+  {cat:'Risks',n:'47',pct:90,q:'What could kill this business in year 1?',help:'The question most founders avoid — answer it honestly.'},
+];
+let ci=0;
+function rotate(){
+  const card=document.getElementById('phone-card');
+  card.classList.add('fade-out');
+  setTimeout(()=>{
+    ci=(ci+1)%cards.length;
+    const c=cards[ci];
+    document.getElementById('phone-cat').textContent=c.cat;
+    document.getElementById('phone-q').textContent=c.q;
+    document.getElementById('phone-help').textContent=c.help;
+    document.getElementById('phone-count').textContent=c.n+' / 52';
+    document.getElementById('phone-prog').style.width=c.pct+'%';
+    card.classList.remove('fade-out');
+  },300);
+}
+setInterval(rotate,2800);
+</script>
+</body>
+</html>

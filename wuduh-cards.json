@@ -1,0 +1,1408 @@
+{
+  "_meta": {
+    "product": "Wuduh",
+    "version": "1.0.0",
+    "description": "Complete card configuration for the Wuduh feasibility study builder. 52 cards across 8 sections plus a cover page. This file is the single source of truth for all card content. Any change to a prompt, hint, or example is made here and takes effect immediately without a code change.",
+    "total_cards": 52,
+    "mandatory_cards": 43,
+    "optional_cards": 11,
+    "sections": 8,
+    "languages": ["en", "ar"],
+    "card_types": ["lang", "upload", "text", "table"],
+    "last_updated": "2026-06-15"
+  },
+
+  "sections": [
+    {
+      "id": "cover",
+      "order": 0,
+      "en": { "label": "Cover" },
+      "ar": { "label": "الغلاف" }
+    },
+    {
+      "id": "s1",
+      "order": 1,
+      "en": { "label": "Problem & Opportunity" },
+      "ar": { "label": "المشكلة والفرصة" }
+    },
+    {
+      "id": "s2",
+      "order": 2,
+      "en": { "label": "Solution" },
+      "ar": { "label": "الحل" }
+    },
+    {
+      "id": "s3",
+      "order": 3,
+      "en": { "label": "Market Analysis" },
+      "ar": { "label": "تحليل السوق" }
+    },
+    {
+      "id": "s4",
+      "order": 4,
+      "en": { "label": "Business Model" },
+      "ar": { "label": "نموذج الأعمال" }
+    },
+    {
+      "id": "s5",
+      "order": 5,
+      "en": { "label": "Competitive Landscape" },
+      "ar": { "label": "المشهد التنافسي" }
+    },
+    {
+      "id": "s6",
+      "order": 6,
+      "en": { "label": "Go-To-Market" },
+      "ar": { "label": "استراتيجية الوصول للسوق" }
+    },
+    {
+      "id": "s7",
+      "order": 7,
+      "en": { "label": "Team" },
+      "ar": { "label": "الفريق" }
+    },
+    {
+      "id": "s8",
+      "order": 8,
+      "en": { "label": "Risks & Mitigation" },
+      "ar": { "label": "المخاطر والتخفيف" }
+    }
+  ],
+
+  "cards": [
+
+    {
+      "id": "C0",
+      "section": "cover",
+      "order": 0,
+      "type": "lang",
+      "required": true,
+      "export_visible": false,
+      "en": {
+        "category": "Setup",
+        "prompt": "Choose your language",
+        "helper": "This sets the language of every card, hint, and export.",
+        "hint": "Your entire study — every card, every hint, and the exported PDF — will be in the language you choose. You can change this from your profile settings later, but existing studies keep their original language.",
+        "example": null
+      },
+      "ar": {
+        "category": "الإعداد",
+        "prompt": "اختر لغتك",
+        "helper": "هذا يحدد لغة كل بطاقة وتلميح وتصدير.",
+        "hint": "ستكون دراستك بالكاملة — كل بطاقة وكل تلميح وملف PDF المُصدَّر — باللغة التي تختارها. يمكنك تغيير هذا من إعدادات ملفك الشخصي لاحقاً، لكن الدراسات الموجودة تحتفظ بلغتها الأصلية.",
+        "example": null
+      },
+      "options": [
+        { "value": "en", "label_en": "English", "label_ar": "الإنجليزية", "dir": "ltr" },
+        { "value": "ar", "label_en": "Arabic", "label_ar": "العربية", "dir": "rtl" }
+      ]
+    },
+
+    {
+      "id": "C1",
+      "section": "cover",
+      "order": 1,
+      "type": "upload",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "cover_logo",
+      "en": {
+        "category": "Cover",
+        "prompt": "Upload your logo",
+        "helper": "It appears on the cover page of your exported study.",
+        "hint": "Upload a PNG, SVG, or JPG. Square logos work best — they scale cleanly at any size. You can change it anytime from your study settings; the latest version appears in every new export.",
+        "example": null
+      },
+      "ar": {
+        "category": "الغلاف",
+        "prompt": "ارفع شعارك",
+        "helper": "سيظهر على صفحة الغلاف في دراستك المُصدَّرة.",
+        "hint": "ارفع ملف PNG أو SVG أو JPG. الشعارات المربعة تعمل بشكل أفضل — تظهر بوضوح في أي حجم. يمكنك تغييره في أي وقت من إعدادات الدراسة؛ أحدث نسخة ستظهر في كل تصدير جديد.",
+        "example": null
+      },
+      "upload_config": {
+        "accept": "image/png,image/jpeg,image/svg+xml",
+        "max_mb": 5,
+        "preview": true
+      }
+    },
+
+    {
+      "id": "C2",
+      "section": "cover",
+      "order": 2,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "cover_startup_name",
+      "max_length": 80,
+      "en": {
+        "category": "Cover",
+        "prompt": "What is your startup name?",
+        "helper": "This appears on the cover page of your study.",
+        "hint": "Use the name you will pitch with — not a holding company name or a working title. If your brand name is different from your legal entity, use the brand name here.",
+        "example": "Saffa"
+      },
+      "ar": {
+        "category": "الغلاف",
+        "prompt": "ما اسم شركتك الناشئة؟",
+        "helper": "سيظهر هذا على صفحة الغلاف في دراستك.",
+        "hint": "استخدم الاسم الذي ستقدم به مشروعك — وليس اسم الشركة القابضة أو الاسم المؤقت. إذا كان اسم علامتك التجارية مختلفاً عن الكيان القانوني، استخدم اسم العلامة التجارية هنا.",
+        "example": "صفّا"
+      }
+    },
+
+    {
+      "id": "C3",
+      "section": "cover",
+      "order": 3,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "cover_founder_name",
+      "max_length": 100,
+      "en": {
+        "category": "Cover",
+        "prompt": "What is your full name?",
+        "helper": "The founder name on the cover page.",
+        "hint": "If there are multiple founders, add the lead founder here. You can mention co-founders in the Team section. Use the name you sign documents with.",
+        "example": "Layla Al-Rashid"
+      },
+      "ar": {
+        "category": "الغلاف",
+        "prompt": "ما اسمك الكامل؟",
+        "helper": "اسم المؤسس على صفحة الغلاف.",
+        "hint": "إذا كان هناك مؤسسون متعددون، أضف المؤسس الرئيسي هنا. يمكنك ذكر المؤسسين المشاركين في قسم الفريق. استخدم الاسم الذي توقع به المستندات.",
+        "example": "ليلى الراشد"
+      }
+    },
+
+    {
+      "id": "1.1",
+      "section": "s1",
+      "order": 4,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s1_overview",
+      "max_length": 500,
+      "en": {
+        "category": "Problem",
+        "prompt": "What is your project? Give a brief overview.",
+        "helper": "Introduce what you are building before explaining the problem it solves.",
+        "hint": "One paragraph is enough. Think of this as the first sentence you would say to a stranger at a networking event who asks 'what do you do?' Keep it simple enough that someone outside your industry would understand it.",
+        "example": "Saffa is a mobile inventory and waste-tracking tool for independent café owners in Saudi Arabia who currently manage stock through WhatsApp groups and handwritten lists."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "ما هو مشروعك؟ قدّم نظرة عامة موجزة.",
+        "helper": "قدّم ما تبنيه قبل شرح المشكلة التي يحلها.",
+        "hint": "فقرة واحدة كافية. فكر في هذا كأول جملة ستقولها لشخص غريب في فعالية تواصل يسألك 'ماذا تفعل؟' اجعلها بسيطة بما يكفي ليفهمها شخص من خارج مجالك.",
+        "example": "صفّا هي أداة متنقلة لتتبع المخزون والهدر لأصحاب المقاهي المستقلة في المملكة العربية السعودية الذين يديرون مخزونهم حالياً عبر مجموعات واتساب والقوائم المكتوبة بخط اليد."
+      }
+    },
+
+    {
+      "id": "1.2",
+      "section": "s1",
+      "order": 5,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s1_problem",
+      "max_length": 500,
+      "en": {
+        "category": "Problem",
+        "prompt": "What problem are you solving?",
+        "helper": "Be specific. A vague problem produces a vague study.",
+        "hint": "The best problem statements name the person suffering, what they are trying to do, and what is stopping them. Avoid 'the market lacks...' — say who feels the pain and how much it costs them. Investors fund solutions to real, felt pain — not abstract gaps.",
+        "example": "Independent café owners in Riyadh lose 12–18% of monthly revenue to spoilage and over-ordering because they have no affordable, Arabic-language tool to track daily stock levels."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "ما المشكلة التي تحلها؟",
+        "helper": "كن محدداً. المشكلة الغامضة تنتج دراسة غامضة.",
+        "hint": "أفضل بيانات المشكلة تسمّي الشخص المتضرر، وما يحاول فعله، وما يعيقه. تجنب 'السوق يفتقر إلى...' — قل من يشعر بالألم وكم يكلفه ذلك. المستثمرون يموّلون حلولاً لألم حقيقي ومحسوس — لا لثغرات مجردة.",
+        "example": "يخسر أصحاب المقاهي المستقلة في الرياض 12-18% من إيراداتهم الشهرية بسبب التلف والطلب الزائد لأنه لا توجد أداة ميسورة التكلفة وباللغة العربية لتتبع مستويات المخزون اليومية."
+      }
+    },
+
+    {
+      "id": "1.3",
+      "section": "s1",
+      "order": 6,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s1_who",
+      "max_length": 400,
+      "en": {
+        "category": "Problem",
+        "prompt": "Who experiences this problem?",
+        "helper": "Describe the person, not a demographic segment.",
+        "hint": "'Founders' is too broad. 'First-time founders in Saudi Arabia preparing for their first investor meeting with no prior experience building a business plan' is specific. The more specific you are, the more credible everything that follows becomes.",
+        "example": "First or second-generation Saudi entrepreneurs running 1–3 independent café locations in Riyadh, aged 24–38, digitally comfortable but without formal operations training."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "من يعاني من هذه المشكلة؟",
+        "helper": "صف الشخص، وليس فئة ديموغرافية.",
+        "hint": "'المؤسسون' واسع جداً. 'المؤسسون لأول مرة في المملكة العربية السعودية الذين يستعدون لأول اجتماع مع مستثمر دون خبرة سابقة في بناء خطة عمل' هذا محدد. كلما كنت أكثر تحديداً، كلما أصبح كل ما يلي أكثر مصداقية.",
+        "example": "رواد أعمال سعوديون من الجيل الأول أو الثاني يديرون 1-3 مواقع مقاهي مستقلة في الرياض، تتراوح أعمارهم بين 24-38 عاماً، مرتاحون رقمياً لكن دون تدريب رسمي في العمليات."
+      }
+    },
+
+    {
+      "id": "1.4",
+      "section": "s1",
+      "order": 7,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s1_current_solution",
+      "max_length": 400,
+      "en": {
+        "category": "Problem",
+        "prompt": "How are they solving it today?",
+        "helper": "What do people do right now when this problem hits them?",
+        "hint": "This question uncovers your real competition — which is never 'nothing'. It might be a spreadsheet, a consultant, a generic template, a WhatsApp group, or asking a friend. Name it honestly. Investors always ask 'why not just use Excel?' — have a real answer ready.",
+        "example": "WhatsApp messages to staff for stock counts. Manual Excel tracking updated weekly. Occasional POS reports that are too broad to be actionable. Most owners reconcile at month end and accept the loss."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "كيف يحلون المشكلة اليوم؟",
+        "helper": "ماذا يفعل الناس الآن عندما تواجههم هذه المشكلة؟",
+        "hint": "هذا السؤال يكشف منافسيك الحقيقيين — وهو ليس 'لا شيء' أبداً. قد يكون جدول بيانات، أو استشاري، أو نموذج عام، أو مجموعة واتساب، أو سؤال صديق. سمّه بصدق. المستثمرون يسألون دائماً 'لماذا لا تستخدم Excel فقط؟' — كن مستعداً بإجابة حقيقية.",
+        "example": "رسائل واتساب للموظفين لحساب المخزون. تتبع يدوي في Excel يُحدَّث أسبوعياً. تقارير نقاط البيع العرضية التي تكون شاملة جداً لتكون قابلة للتنفيذ. معظم أصحاب المقاهي يُسوّون في نهاية الشهر ويقبلون الخسارة."
+      }
+    },
+
+    {
+      "id": "1.5",
+      "section": "s1",
+      "order": 8,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s1_why_failing",
+      "max_length": 400,
+      "en": {
+        "category": "Problem",
+        "prompt": "Why are current solutions failing them?",
+        "helper": "What is broken about how the problem is solved today?",
+        "hint": "This is your opening. If current solutions worked, there would be no opportunity. Be honest — if they mostly work, your case is harder. Focus on the specific gaps: wrong price, wrong language, wrong audience, wrong workflow, missing feature that matters most.",
+        "example": "Enterprise tools like Lightspeed are English-only, priced for chains (SAR 800+/month), and require implementation support. Excel breaks down with multiple staff and produces no alerts. Neither is designed for the daily rhythm of a single-location operator."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "لماذا تفشل الحلول الحالية في مساعدتهم؟",
+        "helper": "ما الخطأ في كيفية حل المشكلة اليوم؟",
+        "hint": "هذه فرصتك. إذا كانت الحلول الحالية تعمل، لن تكون هناك فرصة. كن صادقاً — إذا كانت تعمل في معظمها، فقضيتك أصعب. ركز على الثغرات المحددة: السعر الخاطئ، اللغة الخاطئة، الجمهور الخاطئ، سير العمل الخاطئ، الميزة المفقودة الأكثر أهمية.",
+        "example": "أدوات المؤسسات مثل Lightspeed باللغة الإنجليزية فقط، مسعّرة للسلاسل (أكثر من 800 ريال/شهر)، وتتطلب دعم تطبيق. Excel ينهار مع وجود موظفين متعددين ولا ينتج تنبيهات. لا شيء منها مصمم لإيقاع عمل موقع مستقل واحد."
+      }
+    },
+
+    {
+      "id": "1.6",
+      "section": "s1",
+      "order": 9,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s1_scale",
+      "max_length": 400,
+      "en": {
+        "category": "Problem",
+        "prompt": "How big is this problem? (frequency + severity)",
+        "helper": "How often does it happen, and how much does it hurt when it does?",
+        "hint": "A problem that happens daily and causes real financial loss is a strong investment case. One that happens rarely or causes mild inconvenience is a harder sell. Investors want to see both axes: frequency (how often?) and severity (how much does it cost in time, money, or opportunity?).",
+        "example": "Café owners face stock-related decisions every single day. The average independent café loses SAR 1,800–3,200/month to preventable wastage and over-ordering — 12–18% of monthly revenue."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "ما حجم هذه المشكلة؟ (التكرار + الشدة)",
+        "helper": "كم مرة تحدث، وكم تؤلم عندما تحدث؟",
+        "hint": "المشكلة التي تحدث يومياً وتسبب خسارة مالية حقيقية هي حجة استثمارية قوية. التي تحدث نادراً أو تسبب إزعاجاً طفيفاً أصعب للبيع. يريد المستثمرون رؤية المحورين: التكرار (كم مرة؟) والشدة (كم يكلف بالوقت أو المال أو الفرصة؟).",
+        "example": "يواجه أصحاب المقاهي قرارات متعلقة بالمخزون كل يوم. يخسر المقهى المستقل المتوسط 1,800-3,200 ريال/شهر بسبب الهدر القابل للوقاية والطلب الزائد — 12-18% من الإيرادات الشهرية."
+      }
+    },
+
+    {
+      "id": "1.7",
+      "section": "s1",
+      "order": 10,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s1_trigger",
+      "max_length": 400,
+      "en": {
+        "category": "Problem",
+        "prompt": "What triggered you to work on this?",
+        "helper": "Optional — but founder origin stories carry real weight with investors.",
+        "hint": "'I experienced this problem myself' is one of the most credible things a founder can say. If that is true, say it directly. If not, describe what you observed that made this feel urgent enough to build a company around. Authenticity matters more than polish here.",
+        "example": "I ran operations for a 9-branch café chain in Riyadh for four years. Every month-end the same conversation: 'where did the margin go?' We had no visibility. I built a spreadsheet to solve it. Fifteen café owners in my network asked for a copy."
+      },
+      "ar": {
+        "category": "المشكلة",
+        "prompt": "ما الذي دفعك للعمل على هذا؟",
+        "helper": "اختياري — لكن قصص منشأ المؤسسين تحمل ثقلاً حقيقياً مع المستثمرين.",
+        "hint": "'لقد عانيت من هذه المشكلة بنفسي' هو أحد أكثر الأشياء مصداقية التي يمكن لمؤسس قولها. إذا كان ذلك صحيحاً، قله مباشرة. إذا لم يكن كذلك، صف ما لاحظته الذي جعل هذا يبدو ملحاً بما يكفي لبناء شركة حوله. الأصالة تهم أكثر من الأناقة هنا.",
+        "example": "أدرت العمليات لسلسلة مقاهي مكونة من 9 فروع في الرياض لمدة أربع سنوات. في كل نهاية شهر نفس المحادثة: 'أين ذهت الهامش؟' لم يكن لدينا رؤية. بنيت جدول بيانات لحل المشكلة. طلب مني خمسة عشر صاحب مقهى في شبكتي نسخة منه."
+      }
+    },
+
+    {
+      "id": "2.1",
+      "section": "s2",
+      "order": 11,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s2_one_sentence",
+      "max_length": 200,
+      "en": {
+        "category": "Solution",
+        "prompt": "What is your solution in one sentence?",
+        "helper": "If you need more than one sentence, keep working on it.",
+        "hint": "Try this format: '[Product name] is a [what] that helps [who] [do what] by [how].' Then cut any word that does not earn its place. The best one-liners make the problem and solution both visible in a single breath.",
+        "example": "Saffa is a mobile inventory and waste tracker that helps independent café owners in Saudi Arabia stop losing revenue to spoilage by giving them daily stock visibility in under five minutes."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "ما هو حلك في جملة واحدة؟",
+        "helper": "إذا احتجت أكثر من جملة واحدة، استمر في العمل عليها.",
+        "hint": "جرب هذا التنسيق: '[اسم المنتج] هو [ماذا] يساعد [من] على [فعل ماذا] من خلال [كيف].' ثم احذف أي كلمة لا تستحق مكانها. أفضل الجمل الموجزة تجعل المشكلة والحل كليهما مرئيَين في نفَس واحد.",
+        "example": "صفّا هي أداة متنقلة لتتبع المخزون والهدر تساعد أصحاب المقاهي المستقلة في المملكة العربية السعودية على التوقف عن خسارة الإيرادات بسبب التلف من خلال منحهم رؤية يومية للمخزون في أقل من خمس دقائق."
+      }
+    },
+
+    {
+      "id": "2.2",
+      "section": "s2",
+      "order": 12,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s2_how_it_works",
+      "max_length": 500,
+      "en": {
+        "category": "Solution",
+        "prompt": "How does your solution work? Step by step from the user's perspective.",
+        "helper": "Walk through what a user actually does — not how your system works internally.",
+        "hint": "Start at the moment the user first opens your product and end at the moment they get the value they came for. Use plain language — no technical jargon. If you find yourself describing your database or your API, you have gone too deep. Describe what the user sees and does.",
+        "example": "The owner opens the app each morning and scans QR tags on shelves to log opening stock (2 minutes). Throughout the day, staff log waste by tapping a category. At 11pm the owner receives a summary: what was used, what was wasted, what to order. Monthly reports export to PDF for the accountant."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "كيف يعمل حلك؟ خطوة بخطوة من منظور المستخدم.",
+        "helper": "اشرح ما يفعله المستخدم فعلياً — وليس كيف يعمل نظامك داخلياً.",
+        "hint": "ابدأ من اللحظة التي يفتح فيها المستخدم منتجك لأول مرة وانتهِ باللحظة التي يحصل فيها على القيمة التي جاء من أجلها. استخدم لغة بسيطة — لا مصطلحات تقنية. إذا وجدت نفسك تصف قاعدة البيانات أو API الخاص بك، فقد ذهبت عمقاً جداً. صف ما يراه المستخدم ويفعله.",
+        "example": "يفتح المالك التطبيق كل صباح ويمسح علامات QR على الرفوف لتسجيل مخزون الافتتاح (دقيقتان). طوال اليوم، يسجل الموظفون الهدر بالنقر على فئة. في الساعة 11 مساءً يتلقى المالك ملخصاً: ما استُخدم، ما هدر، ما يجب طلبه. تقارير شهرية تُصدَّر كـ PDF للمحاسب."
+      }
+    },
+
+    {
+      "id": "2.3",
+      "section": "s2",
+      "order": 13,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s2_differentiation",
+      "max_length": 400,
+      "en": {
+        "category": "Solution",
+        "prompt": "What makes your solution different from what exists today?",
+        "helper": "Specific differences beat vague claims of superiority.",
+        "hint": "'Better', 'faster', and 'cheaper' are not differentiation on their own. What can you say that a competitor cannot? Think about the combination of audience, language, price point, workflow, and feature set that makes you the only real option for your specific customer.",
+        "example": "Saffa is the only inventory tool designed specifically for Arabic-speaking independent café operators. It costs SAR 149/month versus SAR 800+ for enterprise alternatives. It requires no training and no implementation partner. It surfaces daily waste visibility — no competitor focuses on this."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "ما الذي يجعل حلك مختلفاً عما هو موجود اليوم؟",
+        "helper": "الفروق المحددة تتفوق على ادعاءات التفوق الغامضة.",
+        "hint": "'أفضل' و'أسرع' و'أرخص' ليست تمييزاً في حد ذاتها. ما الذي يمكنك قوله ولا يستطيع منافس قوله؟ فكر في مجموعة الجمهور واللغة والسعر وسير العمل ومجموعة الميزات التي تجعلك الخيار الحقيقي الوحيد لعميلك المحدد.",
+        "example": "صفّا هي أداة المخزون الوحيدة المصممة خصيصاً لأصحاب المقاهي المستقلة الناطقين بالعربية. تكلف 149 ريال/شهر مقارنة بـ 800+ ريال للبدائل المؤسسية. لا تتطلب تدريباً أو شريك تطبيق. توفر رؤية يومية للهدر — لا يركز أي منافس على هذا."
+      }
+    },
+
+    {
+      "id": "2.4",
+      "section": "s2",
+      "order": 14,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s2_value_prop",
+      "max_length": 300,
+      "en": {
+        "category": "Solution",
+        "prompt": "What is your core value proposition?",
+        "helper": "What does the user gain, lose, or feel differently after using your product?",
+        "hint": "Three lenses: Gains (what they get that they did not have), Pain relieved (what frustration disappears), Jobs done (what they can now accomplish that they could not before). Pick the strongest one and lead with it. Investors remember one clear value promise — not a list.",
+        "example": "Café owners recover 8–14% of previously invisible monthly losses within the first 30 days. The product pays for itself in week one."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "ما هو عرض القيمة الأساسي لديك؟",
+        "helper": "ماذا يكسب المستخدم، أو يفقد، أو يشعر بشكل مختلف بعد استخدام منتجك؟",
+        "hint": "ثلاثة محاور: المكاسب (ما يحصلون عليه لم يكن لديهم)، الألم المُزال (ما الإحباط الذي يختفي)، الوظائف المنجزة (ما يمكنهم الآن إنجازه ولم يكن بمقدورهم من قبل). اختر الأقوى وابدأ به. المستثمرون يتذكرون وعد قيمة واحد واضح — وليس قائمة.",
+        "example": "يستعيد أصحاب المقاهي 8-14% من الخسائر الشهرية التي لم تكن مرئية سابقاً خلال الثلاثين يوماً الأولى. المنتج يدفع تكلفته في الأسبوع الأول."
+      }
+    },
+
+    {
+      "id": "2.5",
+      "section": "s2",
+      "order": 15,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s2_stage",
+      "max_length": 300,
+      "en": {
+        "category": "Solution",
+        "prompt": "What stage is your solution at?",
+        "helper": "Idea / Prototype / MVP / Live",
+        "hint": "Be honest. Investors can handle any stage — they cannot handle being misled about it. If you have a Figma mockup, say so. If you have 3 paying customers, say so. If you have an idea and a conviction, say that. The stage shapes what they will offer you, not whether they will talk to you.",
+        "example": "Functional MVP live. Currently piloting with 3 café owners in Al-Olaya, Riyadh. First paying customer signed at SAR 149/month. 78% daily active use after week 2 of pilot."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "في أي مرحلة يوجد حلك؟",
+        "helper": "فكرة / نموذج أولي / منتج أدنى / مباشر",
+        "hint": "كن صادقاً. المستثمرون يمكنهم التعامل مع أي مرحلة — لا يمكنهم التعامل مع التضليل بشأنها. إذا كان لديك نموذج Figma، قل ذلك. إذا كان لديك 3 عملاء يدفعون، قل ذلك. إذا كانت لديك فكرة وقناعة، قل ذلك. المرحلة تشكل ما سيقدمونه لك، وليس ما إذا كانوا سيتحدثون إليك.",
+        "example": "منتج أدنى وظيفي مباشر. يُجرَّب حالياً مع 3 أصحاب مقاهي في العليا، الرياض. أول عميل يدفع وقّع بـ 149 ريال/شهر. نسبة الاستخدام اليومي النشط 78% بعد أسبوعين من التجربة."
+      }
+    },
+
+    {
+      "id": "2.6",
+      "section": "s2",
+      "order": 16,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s2_features",
+      "max_length": 400,
+      "en": {
+        "category": "Solution",
+        "prompt": "What are the key features or components of your solution?",
+        "helper": "List the things your product does that directly address the problem.",
+        "hint": "Focus on features that exist because of the problem you described — not nice-to-haves you might add later. Three strong, problem-connected features beat eight weak ones. Each feature should have a clear link back to a specific pain point you named.",
+        "example": "1. Daily QR-scan stock logging (replaces WhatsApp counting). 2. Real-time wastage tap-log with category breakdown. 3. Automated daily summary and weekly trend report in Arabic. 4. Low-stock alert 48 hours before predicted stockout."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "ما هي الميزات أو المكونات الرئيسية لحلك؟",
+        "helper": "اذكر الأشياء التي يفعلها منتجك والتي تعالج المشكلة مباشرة.",
+        "hint": "ركز على الميزات التي توجد بسبب المشكلة التي وصفتها — وليس الميزات الجميلة التي قد تضيفها لاحقاً. ثلاث ميزات قوية مرتبطة بالمشكلة تتفوق على ثماني ميزات ضعيفة. يجب أن تكون لكل ميزة رابط واضح بنقطة ألم محددة سمّيتها.",
+        "example": "1. تسجيل مخزون يومي بمسح QR (يحل محل عد واتساب). 2. سجل نقر فوري للهدر مع تفصيل حسب الفئة. 3. ملخص يومي تلقائي وتقرير اتجاهات أسبوعي بالعربية. 4. تنبيه نقص المخزون قبل 48 ساعة من نفاد المخزون المتوقع."
+      }
+    },
+
+    {
+      "id": "2.7",
+      "section": "s2",
+      "order": 17,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s2_not_doing",
+      "max_length": 300,
+      "en": {
+        "category": "Solution",
+        "prompt": "What does your solution NOT do? Define your boundaries.",
+        "helper": "Optional — but knowing your limits signals maturity to investors.",
+        "hint": "Founders who know what they are not building are more credible than those who claim to do everything. Your constraints reveal your focus. Name the most obvious things people might assume you do, and clearly state they are out of scope. This also protects you from feature creep in investor conversations.",
+        "example": "Saffa is not a POS system and does not handle payments, payroll, or supplier management. It does not replace your accountant or produce VAT filings. It is a focused daily stock and waste visibility tool only."
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "ما الذي لا يفعله حلك؟ حدد حدودك.",
+        "helper": "اختياري — لكن معرفة حدودك تدل على النضج للمستثمرين.",
+        "hint": "المؤسسون الذين يعرفون ما لا يبنونه أكثر مصداقية من أولئك الذين يدّعون فعل كل شيء. قيودك تكشف تركيزك. سمّ الأشياء الأكثر وضوحاً التي قد يفترض الناس أنك تفعلها، وانصّ بوضوح على أنها خارج النطاق. هذا يحميك أيضاً من زحف الميزات في محادثات المستثمرين.",
+        "example": "صفّا ليست نظام نقاط بيع ولا تتعامل مع المدفوعات أو الرواتب أو إدارة الموردين. لا تحل محل محاسبك أو تنتج إقرارات ضريبة القيمة المضافة. إنها أداة رؤية يومية مركّزة للمخزون والهدر فقط."
+      }
+    },
+
+    {
+      "id": "2.8",
+      "section": "s2",
+      "order": 18,
+      "type": "upload",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s2_visuals",
+      "en": {
+        "category": "Solution",
+        "prompt": "Do you have any visuals, mockups, or demos to attach?",
+        "helper": "Optional — images make the export significantly richer.",
+        "hint": "Even a hand-drawn sketch photographed on your phone is better than nothing. A Figma screenshot is better. A screen recording converted to a still is best. This appears in the Solution section of your export and gives investors something to react to beyond words.",
+        "example": null
+      },
+      "ar": {
+        "category": "الحل",
+        "prompt": "هل لديك أي صور مرئية أو نماذج أولية أو عروض توضيحية لإرفاقها؟",
+        "helper": "اختياري — الصور تجعل التصدير أكثر ثراءً بشكل ملحوظ.",
+        "hint": "حتى رسم باليد مصوّر بهاتفك أفضل من لا شيء. لقطة شاشة من Figma أفضل. تسجيل شاشة محوّل إلى صورة ثابتة هو الأفضل. يظهر هذا في قسم الحل في تصديرك ويمنح المستثمرين شيئاً يتفاعلون معه بما يتجاوز الكلمات.",
+        "example": null
+      },
+      "upload_config": {
+        "accept": "image/png,image/jpeg,image/svg+xml,image/webp",
+        "max_mb": 10,
+        "preview": true,
+        "max_files": 3
+      }
+    },
+
+    {
+      "id": "3.1",
+      "section": "s3",
+      "order": 19,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s3_target_customer",
+      "max_length": 400,
+      "en": {
+        "category": "Market",
+        "prompt": "Who is your target customer? Be specific.",
+        "helper": "One clear segment beats three vague ones.",
+        "hint": "The more specific you are, the more credible your market sizing becomes. 'SMEs in Saudi Arabia' is not a segment. 'Independent café owners in Riyadh with 1–3 locations who currently track inventory manually' is a segment. Specificity is not a weakness — it is proof you understand your customer.",
+        "example": "Independent café owners operating 1–3 locations in Riyadh, Jeddah, and Dammam. Owner-operated, not franchised. Annual F&B revenue between SAR 800,000 and SAR 2,500,000. Digitally comfortable but without formal operations training."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "من هو عميلك المستهدف؟ كن محدداً.",
+        "helper": "شريحة واحدة واضحة تتفوق على ثلاث شرائح غامضة.",
+        "hint": "كلما كنت أكثر تحديداً، كلما أصبح تحديد حجم سوقك أكثر مصداقية. 'المنشآت الصغيرة والمتوسطة في المملكة العربية السعودية' ليست شريحة. 'أصحاب المقاهي المستقلة في الرياض الذين يديرون 1-3 مواقع ويتتبعون المخزون يدوياً حالياً' هذه شريحة. التحديد ليس ضعفاً — إنه دليل على فهمك لعميلك.",
+        "example": "أصحاب المقاهي المستقلة الذين يديرون 1-3 مواقع في الرياض وجدة والدمام. يُدار من قبل المالك، وليس امتيازاً. الإيرادات السنوية من المأكولات والمشروبات بين 800,000 و2,500,000 ريال. مرتاحون رقمياً لكن دون تدريب رسمي في العمليات."
+      }
+    },
+
+    {
+      "id": "3.2",
+      "section": "s3",
+      "order": 20,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s3_market_size",
+      "max_length": 500,
+      "en": {
+        "category": "Market",
+        "prompt": "What is the size of your target market? (TAM, SAM, SOM)",
+        "helper": "TAM = total market. SAM = the portion you can serve. SOM = what you can realistically capture.",
+        "hint": "TAM: the total national or global demand for your category. SAM: filtered by geography, language, customer type, or channel. SOM: your realistic 3-year target based on your GTM plan. A defensible SAR 50M SOM beats an undefendable SAR 50B TAM. Show your working — say how you calculated each number.",
+        "example": "TAM: SAR 480M (all independent F&B operators needing stock management in KSA). SAM: SAR 86M (~3,800 independent cafés in Riyadh, Jeddah & Dammam at SAR 149/month). SOM: SAR 8.6M (10% of SAM in 3 years via accelerator and direct channel)."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "ما حجم سوقك المستهدف؟ (TAM, SAM, SOM)",
+        "helper": "TAM = إجمالي السوق. SAM = الجزء الذي يمكنك خدمته. SOM = ما يمكنك الاستحواذ عليه بشكل واقعي.",
+        "hint": "TAM: إجمالي الطلب الوطني أو العالمي على فئتك. SAM: مفلتر حسب الجغرافيا واللغة ونوع العميل أو القناة. SOM: هدفك الواقعي لثلاث سنوات بناءً على خطة الوصول للسوق. SOM بـ 50 مليون ريال قابل للدفاع عنه يتفوق على TAM بـ 50 مليار ريال لا يمكن الدفاع عنه. أظهر عملك الحسابي — قل كيف حسبت كل رقم.",
+        "example": "TAM: 480 مليون ريال (جميع مشغلي المأكولات والمشروبات المستقلين الذين يحتاجون إدارة المخزون في المملكة). SAM: 86 مليون ريال (~3,800 مقهى مستقل في الرياض وجدة والدمام بـ 149 ريال/شهر). SOM: 8.6 مليون ريال (10% من SAM في 3 سنوات عبر قناة المسرّعات والمباشرة)."
+      }
+    },
+
+    {
+      "id": "3.3",
+      "section": "s3",
+      "order": 21,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s3_location",
+      "max_length": 300,
+      "en": {
+        "category": "Market",
+        "prompt": "Where are your customers located?",
+        "helper": "Geography shapes distribution, language, regulation, and pricing.",
+        "hint": "Be specific about which cities or regions you are starting in. Expanding to new geographies later is fine and expected — investors want to know your entry point, not your ultimate vision. 'Saudi Arabia' is a region. 'Al-Olaya and Malaz districts of Riyadh' is an entry point.",
+        "example": "Starting in Riyadh (Al-Olaya, Malaz, Hittin districts) where the pilot was conducted. Expanding to Jeddah in month 6, Dammam in month 12."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "أين يتواجد عملاؤك؟",
+        "helper": "الجغرافيا تشكّل التوزيع واللغة والتنظيم والتسعير.",
+        "hint": "كن محدداً بشأن المدن أو المناطق التي تبدأ فيها. التوسع إلى جغرافيات جديدة لاحقاً أمر جيد ومتوقع — يريد المستثمرون معرفة نقطة دخولك، وليس رؤيتك النهائية. 'المملكة العربية السعودية' منطقة. 'أحياء العليا والملز في الرياض' نقطة دخول.",
+        "example": "البداية في الرياض (أحياء العليا والملز والحتين) حيث أُجريت التجربة. التوسع إلى جدة في الشهر السادس، والدمام في الشهر الثاني عشر."
+      }
+    },
+
+    {
+      "id": "3.4",
+      "section": "s3",
+      "order": 22,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s3_characteristics",
+      "max_length": 400,
+      "en": {
+        "category": "Market",
+        "prompt": "What are your customer's main characteristics?",
+        "helper": "Age, behavior, income, digital habits, pain intensity.",
+        "hint": "Think about what makes your customer recognizable beyond their job title. What do they read? Where do they spend time online? What do they already pay for that is adjacent to your solution? What is their relationship with technology? The richer this picture, the more credible your GTM plan becomes.",
+        "example": "Age 24–38. Smartphone-first, uses WhatsApp for everything business-related. Annual personal income SAR 180,000–400,000. Already pays for a POS system, an accountant, and a food delivery aggregator. Reads Instagram and Twitter for business advice. Time-constrained — values tools that take under 5 minutes."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "ما هي الخصائص الرئيسية لعملائك؟",
+        "helper": "العمر والسلوك والدخل والعادات الرقمية وشدة الألم.",
+        "hint": "فكر فيما يجعل عميلك يمكن التعرف عليه بما يتجاوز مسمّاه الوظيفي. ماذا يقرأ؟ أين يقضي الوقت عبر الإنترنت؟ ما الذي يدفع مقابله بالفعل وهو مجاور لحلك؟ ما علاقته بالتكنولوجيا؟ كلما كانت الصورة أغنى، كلما أصبحت خطة الوصول للسوق أكثر مصداقية.",
+        "example": "العمر 24-38. يعتمد على الهاتف الذكي أولاً، يستخدم واتساب في كل شيء يتعلق بالأعمال. الدخل الشخصي السنوي 180,000-400,000 ريال. يدفع بالفعل لنظام نقاط بيع ومحاسب ومجمّع توصيل طعام. يقرأ إنستغرام وتويتر للحصول على نصائح تجارية. محدود بالوقت — يقدّر الأدوات التي تستغرق أقل من 5 دقائق."
+      }
+    },
+
+    {
+      "id": "3.5",
+      "section": "s3",
+      "order": 23,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s3_persona",
+      "max_length": 400,
+      "en": {
+        "category": "Market",
+        "prompt": "What does your typical customer look like? Describe one person.",
+        "helper": "Optional — a persona makes your study more vivid and memorable.",
+        "hint": "Give them a name, a role, a daily frustration, and a goal. The best personas feel like someone you could call on the phone. 'Layla, 28, runs a single-location café in Al-Olaya, tracks inventory in a WhatsApp group with her two staff' is a real person an investor can picture.",
+        "example": "Mohammed, 31, owns a specialty coffee shop in Hittin, Riyadh. Opens at 7am, closes at midnight. Employs 4 staff. His biggest frustration: finding out on Saturday that he ran out of oat milk on Thursday. He currently texts his head barista every morning for a stock count."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "كيف يبدو عميلك النموذجي؟ صف شخصاً واحداً.",
+        "helper": "اختياري — الشخصية تجعل دراستك أكثر حيوية ولا تُنسى.",
+        "hint": "امنحه اسماً ودوراً وإحباطاً يومياً وهدفاً. أفضل الشخصيات تشعر وكأنك تستطيع الاتصال بها عبر الهاتف. 'ليلى، 28 عاماً، تدير مقهى واحداً في العليا، تتتبع المخزون في مجموعة واتساب مع موظفيها الاثنين' هي شخص حقيقي يمكن للمستثمر تصوّره.",
+        "example": "محمد، 31 عاماً، يمتلك محل قهوة متخصصة في الحتين، الرياض. يفتح في الساعة 7 صباحاً ويغلق في منتصف الليل. يوظف 4 موظفين. أكبر إحباطاته: اكتشاف يوم السبت أنه نفد حليب الشوفان يوم الخميس. يُرسل رسالة نصية لرئيس الباريستا كل صباح للحصول على حساب للمخزون."
+      }
+    },
+
+    {
+      "id": "3.6",
+      "section": "s3",
+      "order": 24,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s3_validation",
+      "max_length": 400,
+      "en": {
+        "category": "Market",
+        "prompt": "Have you talked to any potential customers? What did they say?",
+        "helper": "Optional — but the strongest signal in this entire section.",
+        "hint": "Even three honest conversations beat any market research report. Quote what they said directly if you can. 'One founder told me she spent three days on a study that still looked unprofessional' is worth more than a citation from a McKinsey report. Real words from real people are what investors remember.",
+        "example": "Conducted 14 interviews with café owners in Riyadh. 11 of 14 described the same core problem unprompted. Three agreed to a paid pilot before the MVP was complete. Direct quote: 'I know I'm losing money in the kitchen — I just can't see where.'"
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "هل تحدثت مع أي عملاء محتملين؟ ماذا قالوا؟",
+        "helper": "اختياري — لكنه أقوى إشارة في هذا القسم بأكمله.",
+        "hint": "حتى ثلاث محادثات صادقة تتفوق على أي تقرير بحثي عن السوق. اقتبس ما قالوه مباشرة إذا استطعت. 'أخبرتني إحدى المؤسسين أنها أمضت ثلاثة أيام على دراسة لا تزال تبدو غير احترافية' يساوي أكثر من اقتباس من تقرير ماكنزي. الكلمات الحقيقية من أناس حقيقيين هي ما يتذكره المستثمرون.",
+        "example": "أجريت 14 مقابلة مع أصحاب مقاهي في الرياض. 11 من أصل 14 وصفوا نفس المشكلة الجوهرية دون توجيه. ثلاثة وافقوا على تجربة مدفوعة قبل اكتمال المنتج الأدنى. اقتباس مباشر: 'أعرف أنني أخسر أموالاً في المطبخ — فقط لا أستطيع رؤية أين.'"
+      }
+    },
+
+    {
+      "id": "4.1",
+      "section": "s4",
+      "order": 25,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s4_revenue_mechanism",
+      "max_length": 400,
+      "en": {
+        "category": "Model",
+        "prompt": "How does your business make money?",
+        "helper": "Describe the mechanism — not the aspiration.",
+        "hint": "'We charge café owners SAR 149 per month per location for access to the Saffa platform' is a business model. 'We monetize our platform through value-added services' is not. Be specific about who pays, when, and for what. If you have multiple revenue streams, describe each one.",
+        "example": "Café owners pay SAR 149/month per location for full platform access. No setup fee. No contract. Cancel anytime. We also charge SAR 499 for a one-time onboarding session for owners who want hands-on training."
+      },
+      "ar": {
+        "category": "النموذج",
+        "prompt": "كيف يحقق عملك الإيرادات؟",
+        "helper": "صف الآلية — وليس التطلع.",
+        "hint": "'نفرض على أصحاب المقاهي 149 ريال في الشهر لكل موقع للوصول إلى منصة صفّا' هذا نموذج أعمال. 'نربح من منصتنا عبر خدمات ذات قيمة مضافة' ليس كذلك. كن محدداً بشأن من يدفع ومتى ولماذا. إذا كانت لديك مصادر إيرادات متعددة، صف كل واحدة.",
+        "example": "يدفع أصحاب المقاهي 149 ريال/شهر لكل موقع للوصول الكامل للمنصة. لا رسوم إعداد. لا عقد. الإلغاء في أي وقت. نفرض أيضاً 499 ريال لجلسة تهيئة لمرة واحدة لأصحاب المقاهي الذين يريدون تدريباً عملياً."
+      }
+    },
+
+    {
+      "id": "4.2",
+      "section": "s4",
+      "order": 26,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s4_pricing_model",
+      "max_length": 300,
+      "en": {
+        "category": "Model",
+        "prompt": "What is your pricing model?",
+        "helper": "Subscription / one-time / per-seat / freemium / commission / other.",
+        "hint": "Name the model and explain why it fits your customer. A monthly subscription works when the value is ongoing (daily stock visibility). A one-time fee works when the value is a single deliverable (a report). Freemium works when the cost of free users is low and conversion is predictable. Choose the model that matches how your customer experiences value.",
+        "example": "Monthly subscription at SAR 149/location/month. Chosen because the value — daily stock visibility — is delivered continuously, not once. Monthly billing with no annual commitment reduces adoption friction for first-time software buyers."
+      },
+      "ar": {
+        "category": "النموذج",
+        "prompt": "ما هو نموذج التسعير الخاص بك؟",
+        "helper": "اشتراك شهري / رسوم لمرة واحدة / لكل مقعد / freemium / عمولة / أخرى.",
+        "hint": "سمّ النموذج واشرح لماذا يناسب عميلك. الاشتراك الشهري يعمل عندما تكون القيمة مستمرة (رؤية المخزون اليومية). الرسوم لمرة واحدة تعمل عندما تكون القيمة تسليمة واحدة (تقرير). Freemium يعمل عندما تكون تكلفة المستخدمين المجانيين منخفضة والتحويل يمكن التنبؤ به. اختر النموذج الذي يتطابق مع كيفية تجربة عميلك للقيمة.",
+        "example": "اشتراك شهري بـ 149 ريال/موقع/شهر. اختير لأن القيمة — رؤية المخزون اليومية — تُسلَّم باستمرار، وليس مرة واحدة. الفوترة الشهرية بدون التزام سنوي يقلل من احتكاك التبني لمشتري البرامج لأول مرة."
+      }
+    },
+
+    {
+      "id": "4.3",
+      "section": "s4",
+      "order": 27,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s4_price_point",
+      "max_length": 300,
+      "en": {
+        "category": "Model",
+        "prompt": "How much will you charge per customer?",
+        "helper": "A specific number is better than a range. You can defend a number.",
+        "hint": "Anchor your price to the value you deliver, not your cost to build. If your product saves a café owner SAR 1,800/month in waste and costs SAR 149/month, the ROI is the pitch. Name the price, show the math, and explain what comparable tools cost so the investor can see the positioning.",
+        "example": "SAR 149/month per location. The average café owner saves SAR 1,800–3,200/month in waste reduction. ROI is 12–21x the subscription cost. Comparable enterprise tools (Lightspeed, Toast) cost SAR 800–1,500/month and require implementation support."
+      },
+      "ar": {
+        "category": "النموذج",
+        "prompt": "كم ستفرض على كل عميل؟",
+        "helper": "رقم محدد أفضل من نطاق. يمكنك الدفاع عن رقم.",
+        "hint": "ربط سعرك بالقيمة التي تقدمها، وليس بتكلفة البناء. إذا كان منتجك يوفر لصاحب المقهى 1,800 ريال/شهر في الهدر ويكلف 149 ريال/شهر، فعائد الاستثمار هو نقطة البيع. سمّ السعر وأظهر الحسابات واشرح ما تكلفه الأدوات المقارنة حتى يتمكن المستثمر من رؤية التموضع.",
+        "example": "149 ريال/شهر لكل موقع. يوفر صاحب المقهى المتوسط 1,800-3,200 ريال/شهر من تقليل الهدر. عائد الاستثمار 12-21 ضعف تكلفة الاشتراك. الأدوات المؤسسية المقارنة (Lightspeed, Toast) تكلف 800-1,500 ريال/شهر وتتطلب دعم تطبيق."
+      }
+    },
+
+    {
+      "id": "4.4",
+      "section": "s4",
+      "order": 28,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s4_costs",
+      "max_length": 400,
+      "en": {
+        "category": "Model",
+        "prompt": "What are your main costs?",
+        "helper": "Fixed costs (always there) and variable costs (per customer or per unit).",
+        "hint": "Fixed: hosting, salaries, tools, office (if any). Variable: payment processing fees (typically 1.8–2.5% of revenue in Saudi Arabia), support cost per user, infrastructure cost per customer. Understanding this lets you calculate when you break even and how margins change as you scale.",
+        "example": "Fixed: SAR 2,400/month (Vercel + Supabase hosting). Variable: 2% payment processing fee per transaction. One part-time customer success hire planned at month 4 (SAR 8,000/month). No office costs — fully remote."
+      },
+      "ar": {
+        "category": "النموذج",
+        "prompt": "ما هي تكاليفك الرئيسية؟",
+        "helper": "التكاليف الثابتة (موجودة دائماً) والتكاليف المتغيرة (لكل عميل أو وحدة).",
+        "hint": "الثابتة: الاستضافة والرواتب والأدوات والمكتب (إن وجد). المتغيرة: رسوم معالجة الدفع (عادة 1.8-2.5% من الإيرادات في المملكة)، وتكلفة الدعم لكل مستخدم، وتكلفة البنية التحتية لكل عميل. فهم هذا يتيح لك حساب متى ستتعادل وكيف تتغير الهوامش مع التوسع.",
+        "example": "ثابتة: 2,400 ريال/شهر (استضافة Vercel + Supabase). متغيرة: رسوم معالجة دفع 2% لكل معاملة. توظيف بدوام جزئي لنجاح العملاء مخطط في الشهر الرابع (8,000 ريال/شهر). لا تكاليف مكتب — عن بُعد بالكامل."
+      }
+    },
+
+    {
+      "id": "4.5",
+      "section": "s4",
+      "order": 29,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s4_existing_revenue",
+      "max_length": 300,
+      "en": {
+        "category": "Model",
+        "prompt": "Do you have any existing revenue or paying customers?",
+        "helper": "Optional — but if you do, this is the most important thing in your study.",
+        "hint": "Even one paying customer changes the entire conversation with an investor. If you have revenue, lead with it here — the exact amount, the date it started, and whether it is growing. If not, say when you expect to have your first paying customer and what milestone triggers that.",
+        "example": "First paying customer signed June 2026 at SAR 149/month. Currently 3 pilots — 2 converting to paid this month. MRR: SAR 149. Target: SAR 5,000 MRR by end of Q3 2026."
+      },
+      "ar": {
+        "category": "النموذج",
+        "prompt": "هل لديك أي إيرادات حالية أو عملاء يدفعون؟",
+        "helper": "اختياري — لكن إذا كان الأمر كذلك، فهذا أهم شيء في دراستك.",
+        "hint": "حتى عميل واحد يدفع يغير المحادثة بأكملها مع المستثمر. إذا كان لديك إيرادات، ابدأ بها هنا — المبلغ الدقيق وتاريخ البدء وما إذا كانت تنمو. إذا لم يكن كذلك، قل متى تتوقع حصولك على أول عميل يدفع وما هو الإنجاز الذي يطلق ذلك.",
+        "example": "أول عميل يدفع وقّع يونيو 2026 بـ 149 ريال/شهر. حالياً 3 تجارب — 2 يتحولان للدفع هذا الشهر. الإيرادات الشهرية المتكررة: 149 ريال. الهدف: 5,000 ريال MRR بنهاية الربع الثالث 2026."
+      }
+    },
+
+    {
+      "id": "5.1",
+      "section": "s5",
+      "order": 30,
+      "type": "table",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s5_competitor_table",
+      "max_length": null,
+      "en": {
+        "category": "Compete",
+        "prompt": "Who are your main competitors?",
+        "helper": "List up to 5. Be honest — pretending you have no competitors is a red flag.",
+        "hint": "Include direct competitors (same solution, same customer) and indirect ones (how the problem is solved today without you). An investor will find them anyway — it is far better to frame them yourself. Acknowledging strong competitors and explaining why you still win is more credible than claiming the space is empty.",
+        "example": null
+      },
+      "ar": {
+        "category": "المنافسة",
+        "prompt": "من هم منافسوك الرئيسيون؟",
+        "helper": "اذكر حتى 5. كن صادقاً — التظاهر بعدم وجود منافسين إشارة تحذير.",
+        "hint": "اشمل المنافسين المباشرين (نفس الحل ونفس العميل) وغير المباشرين (كيف تُحل المشكلة اليوم بدونك). سيجدهم المستثمر على أي حال — من الأفضل بكثير أن تؤطرهم بنفسك. الاعتراف بمنافسين أقوياء وشرح سبب فوزك لا يزال أكثر مصداقية من ادعاء أن الفضاء فارغ.",
+        "example": null
+      },
+      "table_columns": [
+        { "key": "competitor", "en": "Competitor", "ar": "المنافس", "width_pct": 22 },
+        { "key": "strength",   "en": "What they do well", "ar": "ما يفعلونه جيداً", "width_pct": 38 },
+        { "key": "weakness",   "en": "Where they fall short", "ar": "أين يقصّرون", "width_pct": 40 }
+      ],
+      "max_rows": 5
+    },
+
+    {
+      "id": "5.4",
+      "section": "s5",
+      "order": 31,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s5_unfair_advantage",
+      "max_length": 400,
+      "en": {
+        "category": "Compete",
+        "prompt": "What is your unfair advantage over them?",
+        "helper": "Something that is hard to copy — not just something you do slightly better.",
+        "hint": "Unfair advantages include: unique access (to customers, data, or distribution), unique knowledge (domain expertise no competitor has), unique network (relationships that took years to build), unique technology (a technical moat), or a structural cost advantage. 'We work harder' and 'we care more' are not unfair advantages.",
+        "example": "Four years running operations for a 9-branch café chain in Riyadh — the product is built from the inside, not observed from the outside. The first 3 pilot customers came through that network before the product was complete. No competitor has this domain depth in the Arabic independent café segment."
+      },
+      "ar": {
+        "category": "المنافسة",
+        "prompt": "ما هي ميزتك غير العادلة عليهم؟",
+        "helper": "شيء يصعب نسخه — وليس مجرد شيء تفعله أفضل قليلاً.",
+        "hint": "الميزات غير العادلة تشمل: وصول فريد (للعملاء أو البيانات أو التوزيع)، معرفة فريدة (خبرة في المجال لا يملكها أي منافس)، شبكة فريدة (علاقات استغرق بناؤها سنوات)، تقنية فريدة (خندق تقني)، أو ميزة تكلفة هيكلية. 'نعمل بجد أكبر' و'نهتم أكثر' ليستا ميزتين غير عادلتين.",
+        "example": "أربع سنوات في إدارة عمليات سلسلة مقاهي مكونة من 9 فروع في الرياض — المنتج مبني من الداخل، وليس مُلاحَظاً من الخارج. جاء أول 3 عملاء تجريبيين من خلال تلك الشبكة قبل اكتمال المنتج. لا يمتلك أي منافس هذا العمق في المجال في شريحة المقاهي المستقلة العربية."
+      }
+    },
+
+    {
+      "id": "5.5",
+      "section": "s5",
+      "order": 32,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s5_why_now",
+      "max_length": 400,
+      "en": {
+        "category": "Compete",
+        "prompt": "Why hasn't anyone solved this the way you are?",
+        "helper": "Optional — but a compelling answer here is powerful.",
+        "hint": "Timing, technology availability, regulatory change, or a shift in customer behavior often explains why a gap exists now that didn't before. 'This became possible because...' is a strong framing. If the honest answer is 'it is a small market that large players ignored' — that is also a valid and honest answer.",
+        "example": "Two things changed: Saudi Vision 2030 has driven a wave of independent café openings from founders without F&B operations backgrounds. And smartphone penetration in Saudi Arabia hit 98% in 2024 — making a mobile-first tool viable where it was not before."
+      },
+      "ar": {
+        "category": "المنافسة",
+        "prompt": "لماذا لم يحل أحد هذا بالطريقة التي تتبعها؟",
+        "helper": "اختياري — لكن إجابة مقنعة هنا قوية جداً.",
+        "hint": "التوقيت أو توافر التقنية أو التغيير التنظيمي أو تحول في سلوك العملاء غالباً ما يفسر لماذا توجد ثغرة الآن لم تكن موجودة من قبل. 'أصبح هذا ممكناً لأن...' إطار قوي. إذا كانت الإجابة الصادقة هي 'إنه سوق صغير تجاهله اللاعبون الكبار' — هذه أيضاً إجابة صحيحة وصادقة.",
+        "example": "تغير شيئان: دفعت رؤية 2030 موجة من افتتاح المقاهي المستقلة من مؤسسين بدون خلفيات في عمليات المأكولات والمشروبات. وبلغ تغلغل الهواتف الذكية في المملكة 98% في 2024 — مما جعل أداة تعتمد الهاتف الذكي أولاً مجدية حيث لم تكن كذلك من قبل."
+      }
+    },
+
+    {
+      "id": "6.1",
+      "section": "s6",
+      "order": 33,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s6_first_100",
+      "max_length": 400,
+      "en": {
+        "category": "GTM",
+        "prompt": "How will you reach your first 100 customers?",
+        "helper": "Specific channels and tactics — not aspirations.",
+        "hint": "'Through social media' is not a plan. 'By posting three times a week in the Saudi Restaurant Owners Facebook group and following up with direct messages to members who engage' is a plan. Name the channel, the action, the frequency, and the expected conversion. Investors fund plans, not dreams.",
+        "example": "Month 1–2: Direct outreach to café owners in Al-Olaya through founder's existing network (target: 10 paying). Month 3–4: Partnership with HRSD's small business support program (target: 30 paying). Month 5–6: Instagram and Twitter content marketing targeting café hashtags (target: 60 paying)."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "كيف ستصل إلى أول 100 عميل؟",
+        "helper": "قنوات وتكتيكات محددة — وليس تطلعات.",
+        "hint": "'عبر وسائل التواصل الاجتماعي' ليس خطة. 'بالنشر ثلاث مرات في الأسبوع في مجموعة فيسبوك لأصحاب المطاعم السعودية ومتابعة الأعضاء المتفاعلين برسائل مباشرة' هذه خطة. سمّ القناة والإجراء والتكرار والتحويل المتوقع. المستثمرون يموّلون الخطط، وليس الأحلام.",
+        "example": "الشهر 1-2: تواصل مباشر مع أصحاب المقاهي في العليا عبر شبكة المؤسس القائمة (الهدف: 10 عملاء يدفعون). الشهر 3-4: شراكة مع برنامج دعم الأعمال الصغيرة في وزارة الموارد البشرية (الهدف: 30 يدفعون). الشهر 5-6: تسويق بالمحتوى على إنستغرام وتويتر مستهدفاً وسوم المقاهي (الهدف: 60 يدفعون)."
+      }
+    },
+
+    {
+      "id": "6.2",
+      "section": "s6",
+      "order": 34,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s6_channels",
+      "max_length": 400,
+      "en": {
+        "category": "GTM",
+        "prompt": "What are your main marketing channels and why did you choose them?",
+        "helper": "Describe your channels in your own words. There is no wrong answer.",
+        "hint": "Choose channels where your customer already spends attention — not channels you are comfortable with. Where does a Saudi café owner go when they have a business question? Instagram DMs. Twitter. Café supplier WhatsApp groups. F&B Facebook groups. Physical visits during slow hours. The right channel is where your customer already is.",
+        "example": "Instagram: café owners follow supplier accounts and F&B hashtags daily. Twitter: active Saudi entrepreneur community — content spreads organically. Direct outreach: founder has 200+ café owner contacts from prior career. Each channel chosen because the customer is already there."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "ما هي قنوات التسويق الرئيسية لديك ولماذا اخترتها؟",
+        "helper": "صف قنواتك بكلماتك الخاصة. لا توجد إجابة خاطئة.",
+        "hint": "اختر القنوات التي يقضي فيها عميلك انتباهه بالفعل — وليس القنوات التي تشعر بالراحة معها. أين يذهب صاحب مقهى سعودي عندما تكون لديه سؤال تجاري؟ رسائل إنستغرام المباشرة. تويتر. مجموعات واتساب لموردي المقاهي. مجموعات فيسبوك للمأكولات والمشروبات. زيارات مباشرة خلال ساعات الهدوء. القناة الصحيحة هي حيث يوجد عميلك بالفعل.",
+        "example": "إنستغرام: أصحاب المقاهي يتابعون حسابات الموردين وهاشتاغات المأكولات والمشروبات يومياً. تويتر: مجتمع رواد الأعمال السعوديين النشط — المحتوى ينتشر عضوياً. التواصل المباشر: لدى المؤسس أكثر من 200 جهة اتصال من أصحاب المقاهي من مسيرته المهنية السابقة. كل قناة اختيرت لأن العميل موجود هناك بالفعل."
+      }
+    },
+
+    {
+      "id": "6.3",
+      "section": "s6",
+      "order": 35,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s6_sales_strategy",
+      "max_length": 400,
+      "en": {
+        "category": "GTM",
+        "prompt": "What is your sales strategy?",
+        "helper": "How do you move someone from aware to paying?",
+        "hint": "For B2B or B2SMB: who discovers the product, who decides to try it, who approves payment? For direct sales: what is the conversion moment? Walk through the steps a new customer takes from first hearing about Saffa to entering their credit card. Every step that requires a human action is a potential drop-off point — design for it.",
+        "example": "Awareness: Instagram post or referral from another café owner. Trial: 14-day free trial, no credit card required. Conversion: In-app prompt at day 10 showing waste saved during the trial. Payment: Moyasar payment link (supports MADA and Visa). Onboarding: WhatsApp message from founder on day 1 of trial."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "ما هي استراتيجية مبيعاتك؟",
+        "helper": "كيف تنقل شخصاً من الوعي إلى الدفع؟",
+        "hint": "للـ B2B أو B2SMB: من يكتشف المنتج، من يقرر تجربته، من يوافق على الدفع؟ للمبيعات المباشرة: ما هو لحظة التحويل؟ اشرح الخطوات التي يتخذها عميل جديد من سماعه لأول مرة عن صفّا إلى إدخاله لبيانات بطاقته الائتمانية. كل خطوة تتطلب إجراءً بشرياً هي نقطة انسحاب محتملة — صمّم لذلك.",
+        "example": "الوعي: منشور إنستغرام أو إحالة من صاحب مقهى آخر. التجربة: فترة تجريبية مجانية 14 يوماً، لا تتطلب بطاقة ائتمانية. التحويل: نافذة منبثقة في التطبيق في اليوم العاشر تظهر الهدر الذي تم توفيره خلال التجربة. الدفع: رابط دفع Moyasar (يدعم مدى وفيزا). التهيئة: رسالة واتساب من المؤسس في اليوم الأول من التجربة."
+      }
+    },
+
+    {
+      "id": "6.4",
+      "section": "s6",
+      "order": 36,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s6_year1_plan",
+      "max_length": 400,
+      "en": {
+        "category": "GTM",
+        "prompt": "What is your customer acquisition plan for year 1?",
+        "helper": "Numbers make this credible. How many customers, which channels, at what cost?",
+        "hint": "Even rough numbers are better than vague plans. Break it into quarters. Name the channel and the expected output from each. If you have a CAC estimate, include it. If not, say what you expect to learn from your first 10 customers that will let you calculate it. Investors react to numbers — they cannot react to intentions.",
+        "example": "Q1: 15 paying customers via founder network and pilot conversions. Q2: 40 paying via Instagram + direct outreach. Q3: 80 paying via HRSD partnership + word of mouth. Q4: 150 paying via referral program launch. Target year-end MRR: SAR 22,350."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "ما هي خطتك لاكتساب العملاء في السنة الأولى؟",
+        "helper": "الأرقام تجعل هذا ذا مصداقية. كم عميلاً، وأي قنوات، وبأي تكلفة؟",
+        "hint": "حتى الأرقام التقريبية أفضل من الخطط الغامضة. قسّمها إلى أرباع. سمّ القناة والناتج المتوقع من كل منها. إذا كان لديك تقدير لتكلفة الاكتساب، أضمنه. إذا لم يكن، قل ما تتوقع تعلمه من أول 10 عملاء الذي سيتيح لك حسابه. المستثمرون يتفاعلون مع الأرقام — لا يستطيعون التفاعل مع النوايا.",
+        "example": "الربع الأول: 15 عميلاً يدفعون عبر شبكة المؤسس وتحويلات التجارب. الربع الثاني: 40 يدفعون عبر إنستغرام + تواصل مباشر. الربع الثالث: 80 يدفعون عبر شراكة وزارة الموارد البشرية + الكلام الشفهي. الربع الرابع: 150 يدفعون عبر إطلاق برنامج الإحالات. الإيرادات الشهرية المتكررة المستهدفة في نهاية العام: 22,350 ريال."
+      }
+    },
+
+    {
+      "id": "6.5",
+      "section": "s6",
+      "order": 37,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s6_traction",
+      "max_length": 300,
+      "en": {
+        "category": "GTM",
+        "prompt": "Do you have any early traction?",
+        "helper": "Optional — waitlist, pilot users, signed LOIs, press coverage.",
+        "hint": "Traction is the strongest signal in any study. Even a waitlist of 50 people who signed up after seeing a landing page is traction worth mentioning. An LOI from a potential partner is traction. A mention in a local newspaper is traction. Name it, date it, and quantify it if possible.",
+        "example": "3 active pilots (June 2026). 1 paying customer at SAR 149/month. 47 waitlist signups from a single Instagram post. Mentioned in Riyadh Eats newsletter (12,000 subscribers)."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "هل لديك أي قوة دفع مبكرة؟",
+        "helper": "اختياري — قائمة انتظار، مستخدمو تجارب، خطابات نوايا موقعة، تغطية إعلامية.",
+        "hint": "قوة الدفع هي أقوى إشارة في أي دراسة. حتى قائمة انتظار من 50 شخصاً اشتركوا بعد رؤية صفحة هبوط هي قوة دفع تستحق الذكر. خطاب نوايا من شريك محتمل هو قوة دفع. ذكر في صحيفة محلية هو قوة دفع. سمّه وحدد تاريخه وقيّمه إذا أمكن.",
+        "example": "3 تجارب نشطة (يونيو 2026). عميل واحد يدفع بـ 149 ريال/شهر. 47 اشتراكاً في قائمة الانتظار من منشور إنستغرام واحد. ذُكر في نشرة Riyadh Eats الإخبارية (12,000 مشترك)."
+      }
+    },
+
+    {
+      "id": "6.6",
+      "section": "s6",
+      "order": 38,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s6_partnerships",
+      "max_length": 300,
+      "en": {
+        "category": "GTM",
+        "prompt": "Do you have any strategic partnerships planned or in place?",
+        "helper": "Optional — named partnerships are far more credible than plans.",
+        "hint": "A signed letter of intent is worth more than a paragraph about your partnership strategy. If you are in conversations with a specific organization, name them and describe the status. If you have a warm introduction to a potential partner, say so. Vague partnership plans are the most commonly empty claim in feasibility studies.",
+        "example": "In conversations with Saudi Food & Beverage Suppliers Association about co-promotion to their 800+ member café owners. Introduction made through pilot customer. Meeting scheduled for July 2026."
+      },
+      "ar": {
+        "category": "السوق",
+        "prompt": "هل لديك أي شراكات استراتيجية مخططة أو قائمة؟",
+        "helper": "اختياري — الشراكات المسمّاة أكثر مصداقية بكثير من الخطط.",
+        "hint": "خطاب نوايا موقع يساوي أكثر من فقرة عن استراتيجية شراكاتك. إذا كنت في محادثات مع منظمة محددة، سمّها وصف الوضع. إذا كان لديك تعريف دافئ لشريك محتمل، قل ذلك. خطط الشراكة الغامضة هي الادعاء الأكثر فراغاً في دراسات الجدوى.",
+        "example": "في محادثات مع جمعية موردي الغذاء والمشروبات السعودية حول الترويج المشترك لأكثر من 800 عضو من أصحاب المقاهي. التعريف تم من خلال عميل تجريبي. الاجتماع مجدول ليوليو 2026."
+      }
+    },
+
+    {
+      "id": "7.1",
+      "section": "s7",
+      "order": 39,
+      "type": "table",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s7_team_table",
+      "max_length": null,
+      "en": {
+        "category": "Team",
+        "prompt": "Who are the founders?",
+        "helper": "Name, role, and one-line background for each.",
+        "hint": "Keep each background to the single most relevant thing — the experience or credential that makes this person right for this specific problem. Everything else can go in a LinkedIn profile. Investors want to understand in five seconds why this team and not another.",
+        "example": null
+      },
+      "ar": {
+        "category": "الفريق",
+        "prompt": "من هم المؤسسون؟",
+        "helper": "الاسم والدور وسطر خلفية لكل منهم.",
+        "hint": "اجعل كل خلفية تقتصر على الشيء الواحد الأكثر صلة — الخبرة أو المؤهل الذي يجعل هذا الشخص مناسباً لهذه المشكلة المحددة. كل شيء آخر يمكن أن يذهب إلى ملف LinkedIn. يريد المستثمرون أن يفهموا في خمس ثوانٍ لماذا هذا الفريق وليس فريقاً آخر.",
+        "example": null
+      },
+      "table_columns": [
+        { "key": "name",       "en": "Name",       "ar": "الاسم",   "width_pct": 25 },
+        { "key": "role",       "en": "Role",       "ar": "الدور",   "width_pct": 25 },
+        { "key": "background", "en": "Background", "ar": "الخلفية", "width_pct": 50 }
+      ],
+      "max_rows": 5
+    },
+
+    {
+      "id": "7.2",
+      "section": "s7",
+      "order": 40,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s7_why_us",
+      "max_length": 400,
+      "en": {
+        "category": "Team",
+        "prompt": "Why are you the right team to solve this problem?",
+        "helper": "Investors back people first. What makes this team a credible bet?",
+        "hint": "Domain expertise, unfair access to the customer, previous relevant experience, or a personal connection to the problem — one compelling reason is enough. You do not need to claim perfection. You need to show that of all the people who could work on this problem, you have the highest probability of making progress.",
+        "example": "The founder ran operations for a 9-branch café chain for four years and personally experienced the problem Saffa solves. She has 200+ café owner contacts from that career. The product was validated by people who knew her work before it was built."
+      },
+      "ar": {
+        "category": "الفريق",
+        "prompt": "لماذا أنتم الفريق المناسب لحل هذه المشكلة؟",
+        "helper": "المستثمرون يراهنون على الأشخاص أولاً. ما الذي يجعل هذا الفريق رهاناً ذا مصداقية؟",
+        "hint": "الخبرة في المجال، أو الوصول غير العادل للعميل، أو الخبرة ذات الصلة السابقة، أو الارتباط الشخصي بالمشكلة — سبب واحد مقنع كافٍ. لا تحتاج إلى ادعاء الكمال. تحتاج إلى إظهار أنك من بين جميع الأشخاص الذين يمكنهم العمل على هذه المشكلة، لديك أعلى احتمالية لتحقيق تقدم.",
+        "example": "أدارت المؤسسة عمليات سلسلة مقاهي مكونة من 9 فروع لمدة أربع سنوات وعايشت شخصياً المشكلة التي تحلها صفّا. لديها أكثر من 200 جهة اتصال من أصحاب المقاهي من تلك المسيرة المهنية. تم التحقق من المنتج من قبل أشخاص يعرفون عملها قبل بنائه."
+      }
+    },
+
+    {
+      "id": "7.3",
+      "section": "s7",
+      "order": 41,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s7_skills_have",
+      "max_length": 400,
+      "en": {
+        "category": "Team",
+        "prompt": "What key skills does your team have that this project needs?",
+        "helper": "Match your team's skills to the skills this specific business requires.",
+        "hint": "List the 3–5 skills that matter most for this business, then say who on the team has them. Think about what it takes to build, sell, and operate this product. Domain knowledge, technical ability, sales experience, and operational know-how are the four typical buckets — name which ones you cover.",
+        "example": "Domain knowledge: 4 years café operations (founder). Sales and relationship: 200+ warm café owner network (founder). Technical: React Native and Node.js development (co-founder, 6 years). Arabic product design: native Arabic UX design (co-founder)."
+      },
+      "ar": {
+        "category": "الفريق",
+        "prompt": "ما المهارات الرئيسية التي يمتلكها فريقك والتي يحتاجها هذا المشروع؟",
+        "helper": "طابق مهارات فريقك مع المهارات التي يتطلبها هذا العمل المحدد.",
+        "hint": "اذكر المهارات الـ 3-5 الأكثر أهمية لهذا العمل، ثم قل من في الفريق يمتلكها. فكر فيما يستغرقه بناء هذا المنتج وبيعه وتشغيله. المعرفة بالمجال، والقدرة التقنية، وخبرة المبيعات، والمعرفة التشغيلية هي أربعة حاويات نموذجية — سمّ أيها تغطيه.",
+        "example": "المعرفة بالمجال: 4 سنوات في عمليات المقاهي (المؤسسة). المبيعات والعلاقات: شبكة دافئة من أكثر من 200 صاحب مقهى (المؤسسة). التقني: تطوير React Native وNode.js (المؤسس المشارك، 6 سنوات). تصميم المنتج بالعربية: تصميم تجربة مستخدم عربية أصيلة (المؤسس المشارك)."
+      }
+    },
+
+    {
+      "id": "7.4",
+      "section": "s7",
+      "order": 42,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s7_skills_missing",
+      "max_length": 400,
+      "en": {
+        "category": "Team",
+        "prompt": "What key skills are you currently missing?",
+        "helper": "Honesty here is a strength — investors expect gaps.",
+        "hint": "Investors do not expect a perfect team. They cannot handle surprises. Name the most critical skill gaps and say how you plan to fill them — a hire, an advisor, a freelancer, or a future co-founder. A founder who says 'we are missing a growth marketer and plan to hire one at month 6 when MRR reaches SAR 10,000' is more fundable than one who claims no gaps exist.",
+        "example": "Missing: a growth marketer with Arabic-language content experience. Plan: freelance content creator hired at month 3 (SAR 3,000/month). Also missing: finance and fundraising experience — addressing via Flat6Labs accelerator application."
+      },
+      "ar": {
+        "category": "الفريق",
+        "prompt": "ما المهارات الرئيسية التي تفتقدها حالياً؟",
+        "helper": "الصدق هنا قوة — المستثمرون يتوقعون ثغرات.",
+        "hint": "المستثمرون لا يتوقعون فريقاً مثالياً. لا يستطيعون التعامل مع المفاجآت. سمّ أكثر ثغرات المهارات أهمية وقل كيف تخطط لملءها — توظيف أو مستشار أو مستقل أو مؤسس مشارك مستقبلي. المؤسس الذي يقول 'نفتقر إلى متخصص في النمو ونخطط لتوظيفه في الشهر 6 عندما تبلغ الإيرادات الشهرية 10,000 ريال' قابل للتمويل أكثر ممن يدّعي عدم وجود ثغرات.",
+        "example": "مفقود: متخصص في النمو ذو خبرة في المحتوى باللغة العربية. الخطة: منشئ محتوى مستقل يُوظَّف في الشهر الثالث (3,000 ريال/شهر). أيضاً مفقود: خبرة في التمويل وجمع التبرعات — يُعالَج عبر التقدم لبرنامج Flat6Labs."
+      }
+    },
+
+    {
+      "id": "7.5",
+      "section": "s7",
+      "order": 43,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s7_advisors",
+      "max_length": 300,
+      "en": {
+        "category": "Team",
+        "prompt": "Do you have any advisors or mentors?",
+        "helper": "Optional — named advisors with relevant credentials add credibility.",
+        "hint": "One advisor who is genuinely involved is worth more than a list of famous names who have never seen your product. Describe their relevant background and what they specifically help you with. An advisor who reviews your product monthly and makes introductions is more valuable to mention than one who gave you one conversation at a conference.",
+        "example": "Ahmed Al-Zahrani — former COO of a 40-location F&B chain in Saudi Arabia. Meets monthly, reviews product roadmap, has made 8 café owner introductions."
+      },
+      "ar": {
+        "category": "الفريق",
+        "prompt": "هل لديك أي مستشارون أو موجهون؟",
+        "helper": "اختياري — المستشارون المسمّون ذوو الأوراق الاعتماد ذات الصلة يضيفون مصداقية.",
+        "hint": "مستشار واحد منخرط فعلاً يساوي أكثر من قائمة بأسماء مشهورة لم تر منتجك قط. صف خلفيتهم ذات الصلة وما يساعدونك به تحديداً. المستشار الذي يراجع منتجك شهرياً ويقدم لك تعريفات أكثر قيمة للذكر من الذي أجرى معك محادثة واحدة في مؤتمر.",
+        "example": "أحمد الزهراني — المدير التشغيلي السابق لسلسلة مأكولات ومشروبات مكونة من 40 موقعاً في المملكة العربية السعودية. يجتمع شهرياً، يراجع خارطة طريق المنتج، وقدّم 8 تعريفات بأصحاب مقاهٍ."
+      }
+    },
+
+    {
+      "id": "7.6",
+      "section": "s7",
+      "order": 44,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s7_hiring",
+      "max_length": 300,
+      "en": {
+        "category": "Team",
+        "prompt": "What roles are you planning to hire for first?",
+        "helper": "Optional — shows investors you know what you need to scale.",
+        "hint": "Your first hire should fill your most critical gap. If you are a solo non-technical founder building a software product, that answer is obvious — say it clearly. Include the timing (which month), the budget (monthly salary), and what hiring milestone triggers the hire (a revenue target, a funding close, a pilot completion).",
+        "example": "Month 3: Part-time Arabic content creator (SAR 3,000/month, triggered by 20 paying customers). Month 6: Full-time customer success (SAR 8,000/month, triggered by SAR 5,000 MRR). Month 9: Second developer (SAR 15,000/month, triggered by seed round close)."
+      },
+      "ar": {
+        "category": "الفريق",
+        "prompt": "ما الأدوار التي تخطط للتوظيف فيها أولاً؟",
+        "helper": "اختياري — يظهر للمستثمرين أنك تعرف ما تحتاجه للتوسع.",
+        "hint": "يجب أن يملأ أول توظيف لديك أكثر ثغراتك أهمية. إذا كنت مؤسساً منفرداً غير تقني تبني منتجاً برمجياً، فالإجابة واضحة — قلها بوضوح. اشمل التوقيت (أي شهر) والميزانية (الراتب الشهري) والإنجاز الذي يطلق التوظيف (هدف إيرادات، إغلاق تمويل، اكتمال تجربة).",
+        "example": "الشهر 3: منشئ محتوى عربي بدوام جزئي (3,000 ريال/شهر، يُطلق عند 20 عميلاً يدفعون). الشهر 6: نجاح عملاء بدوام كامل (8,000 ريال/شهر، يُطلق عند 5,000 ريال MRR). الشهر 9: مطور ثانٍ (15,000 ريال/شهر، يُطلق عند إغلاق جولة البذرة)."
+      }
+    },
+
+    {
+      "id": "8.1",
+      "section": "s8",
+      "order": 45,
+      "type": "table",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s8_risk_table",
+      "max_length": null,
+      "en": {
+        "category": "Risks",
+        "prompt": "What are the biggest risks facing your business?",
+        "helper": "List up to 5. Investors expect risks — a founder who sees none is the red flag.",
+        "hint": "Cover at least two risk categories: market risk (does anyone want this?), execution risk (can you build and ship it?), regulatory risk (will it be allowed?), competitive risk (can you be copied?). The Likelihood field should be High, Medium, or Low — be honest, not optimistic. Investors know the risks; they want to see that you know them too.",
+        "example": null
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "ما هي أكبر المخاطر التي تواجه عملك؟",
+        "helper": "اذكر حتى 5. المستثمرون يتوقعون المخاطر — المؤسس الذي لا يرى أياً منها هو إشارة التحذير.",
+        "hint": "غطِّ فئتين على الأقل من المخاطر: مخاطر السوق (هل يريد أحد هذا؟)، مخاطر التنفيذ (هل يمكنك بناءه وشحنه؟)، مخاطر تنظيمية (هل سيُسمح به؟)، مخاطر تنافسية (هل يمكن نسخك؟). يجب أن يكون حقل الاحتمالية عالٍ أو متوسط أو منخفض — كن صادقاً وليس متفائلاً. المستثمرون يعرفون المخاطر؛ يريدون رؤية أنك تعرفها أيضاً.",
+        "example": null
+      },
+      "table_columns": [
+        { "key": "risk",        "en": "Risk",         "ar": "الخطر",       "width_pct": 35 },
+        { "key": "likelihood",  "en": "Likelihood",   "ar": "الاحتمالية", "width_pct": 15 },
+        { "key": "mitigation",  "en": "Mitigation",   "ar": "التخفيف",    "width_pct": 50 }
+      ],
+      "max_rows": 5,
+      "likelihood_options": {
+        "en": ["High", "Medium", "Low"],
+        "ar": ["عالٍ", "متوسط", "منخفض"]
+      }
+    },
+
+    {
+      "id": "8.2",
+      "section": "s8",
+      "order": 46,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s8_year1_killer",
+      "max_length": 400,
+      "en": {
+        "category": "Risks",
+        "prompt": "What could kill this business in year 1?",
+        "helper": "The single biggest existential threat in the first 12 months.",
+        "hint": "This is the question most founders avoid answering. Answering it honestly — and showing you have a plan — is one of the most powerful things in a feasibility study. If you cannot name what could kill your business, you have not thought about it enough. Name it, own it, and say what you will do if it happens.",
+        "example": "If café owners do not form a daily logging habit, the product becomes shelfware and churns within 90 days. The entire retention strategy — the 11pm summary, the in-app waste savings display, the WhatsApp onboarding message — is designed to prevent exactly this."
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "ما الذي يمكن أن يقتل هذا العمل في السنة الأولى؟",
+        "helper": "التهديد الوجودي الأكبر في الـ 12 شهراً الأولى.",
+        "hint": "هذا هو السؤال الذي يتجنب معظم المؤسسين الإجابة عليه. الإجابة عليه بصدق — وإظهار أن لديك خطة — هو أحد أقوى الأشياء في دراسة الجدوى. إذا لم تستطع تسمية ما يمكن أن يقتل عملك، فلم تفكر في الأمر بما يكفي. سمّه، امتلكه، وقل ما ستفعله إذا حدث.",
+        "example": "إذا لم يكوّن أصحاب المقاهي عادة التسجيل اليومي، يصبح المنتج برمجيات مهجورة ويُلغى اشتراكه خلال 90 يوماً. استراتيجية الاحتفاظ بالكامل — ملخص الساعة 11 مساءً وعرض مدخرات الهدر داخل التطبيق ورسالة واتساب للتهيئة — مصممة لمنع هذا بالضبط."
+      }
+    },
+
+    {
+      "id": "8.4",
+      "section": "s8",
+      "order": 47,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s8_assumptions",
+      "max_length": 400,
+      "en": {
+        "category": "Risks",
+        "prompt": "What assumptions is your business built on that could be wrong?",
+        "helper": "Every business rests on assumptions. Name yours.",
+        "hint": "The best answer here names 3–5 assumptions and ranks them by criticality. 'We assume café owners will pay SAR 149/month' is an assumption. 'We assume daily logging takes less than 5 minutes' is an assumption. 'We assume the café owner is the decision-maker and buyer' is an assumption. Naming your assumptions shows intellectual honesty and makes your validation plan credible.",
+        "example": "1. Café owners will pay SAR 149/month once they see waste data (testing via 14-day trial). 2. Daily logging takes under 5 minutes — owners will tolerate this (testing via pilot data). 3. The owner is the decision-maker, not a hired manager (true for 11/14 interviewees). 4. QR scanning is more reliable than manual entry (assumption to test in pilot month 2)."
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "ما الافتراضات التي يُبنى عليها عملك والتي قد تكون خاطئة؟",
+        "helper": "كل عمل يستند إلى افتراضات. سمّ افتراضاتك.",
+        "hint": "أفضل إجابة هنا تسمّي 3-5 افتراضات وتصنّفها حسب الأهمية. 'نفترض أن أصحاب المقاهي سيدفعون 149 ريال/شهر' هو افتراض. 'نفترض أن التسجيل اليومي يستغرق أقل من 5 دقائق' هو افتراض. 'نفترض أن صاحب المقهى هو صانع القرار والمشتري' هو افتراض. تسمية افتراضاتك تُظهر الصدق الفكري وتجعل خطة التحقق من صحتها ذات مصداقية.",
+        "example": "1. سيدفع أصحاب المقاهي 149 ريال/شهر بمجرد رؤية بيانات الهدر (الاختبار عبر تجربة 14 يوماً). 2. التسجيل اليومي يستغرق أقل من 5 دقائق — سيتحمل المالك هذا (الاختبار عبر بيانات التجربة). 3. المالك هو صانع القرار وليس مديراً مستأجراً (صحيح لـ 11 من أصل 14 مُقابَلاً). 4. مسح QR أكثر موثوقية من الإدخال اليدوي (افتراض يُختبر في الشهر الثاني من التجربة)."
+      }
+    },
+
+    {
+      "id": "8.3",
+      "section": "s8",
+      "order": 48,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s8_mitigations",
+      "max_length": 400,
+      "en": {
+        "category": "Risks",
+        "prompt": "How will you mitigate your top risks?",
+        "helper": "For each major risk, what is your plan if it materializes?",
+        "hint": "You do not need to eliminate every risk — you need to show you have thought about each one. A good mitigation names the trigger (how you will know the risk is materializing), the response (what you will do), and the fallback (what happens if the response does not work). 'We will monitor churn weekly and trigger a personal outreach call if a customer goes 3 days without logging' is a real mitigation.",
+        "example": "Habit formation risk: 11pm daily summary push notification + in-app streak tracker + personal WhatsApp from founder on day 3 of inactivity. Competition risk: build switching costs through 90-day historical data that cannot be exported to a competitor. Price risk: ROI calculator shown during trial converts price-sensitive prospects before they churn."
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "كيف ستخفف من أبرز مخاطرك؟",
+        "helper": "لكل خطر رئيسي، ما خطتك إذا تحقق؟",
+        "hint": "لا تحتاج إلى القضاء على كل مخاطرة — تحتاج إلى إظهار أنك فكرت في كل منها. التخفيف الجيد يسمّي المحفز (كيف ستعرف أن الخطر يتحقق) والاستجابة (ما ستفعله) والخطة البديلة (ما يحدث إذا لم تنجح الاستجابة). 'سنراقب معدل الإلغاء أسبوعياً ونطلق مكالمة تواصل شخصية إذا مر عميل 3 أيام دون تسجيل' هو تخفيف حقيقي.",
+        "example": "مخاطرة تكوين العادة: إشعار دفع بالملخص اليومي الساعة 11 مساءً + متتبع سلسلة داخل التطبيق + واتساب شخصي من المؤسسة في اليوم الثالث من عدم النشاط. مخاطرة المنافسة: بناء تكاليف التحويل عبر بيانات تاريخية لـ 90 يوماً لا يمكن تصديرها لمنافس. مخاطرة السعر: حاسبة عائد الاستثمار المعروضة خلال التجربة تحوّل المحتملين الحساسين للسعر قبل إلغائهم."
+      }
+    },
+
+    {
+      "id": "8.5",
+      "section": "s8",
+      "order": 49,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s8_plan_b",
+      "max_length": 300,
+      "en": {
+        "category": "Risks",
+        "prompt": "What is your plan B if your main approach fails?",
+        "helper": "Optional — but shows strategic thinking.",
+        "hint": "The best founders have considered what they would do if their primary thesis is wrong. This is not admitting defeat — it is showing intellectual honesty and resilience. 'If café owners do not pay for this, we will pivot to selling the data aggregated across cafés to F&B suppliers who want market intelligence' is a real plan B.",
+        "example": "If direct-to-café SaaS does not achieve SAR 5,000 MRR by month 6, we pivot to a B2B2C model — selling through F&B equipment suppliers who bundle Saffa with hardware sales. Equipment suppliers are already trusted by our target customers and visit them monthly."
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "ما هي خطتك البديلة إذا فشل نهجك الرئيسي؟",
+        "helper": "اختياري — لكنه يُظهر التفكير الاستراتيجي.",
+        "hint": "أفضل المؤسسين فكّروا فيما سيفعلونه إذا كانت أطروحتهم الرئيسية خاطئة. هذا ليس اعترافاً بالهزيمة — إنه إظهار للصدق الفكري والمرونة. 'إذا لم يدفع أصحاب المقاهي مقابل هذا، سنحول لبيع البيانات المجمّعة عبر المقاهي لموردي المأكولات والمشروبات الذين يريدون ذكاء السوق' هو خطة بديلة حقيقية.",
+        "example": "إذا لم تحقق البرمجيات كخدمة المباشرة للمقاهي 5,000 ريال MRR بحلول الشهر السادس، نتحول إلى نموذج B2B2C — البيع عبر موردي معدات المأكولات والمشروبات الذين يدمجون صفّا مع مبيعات الأجهزة. الموردون موثوقون بالفعل من قِبل عملائنا المستهدفين ويزورونهم شهرياً."
+      }
+    },
+
+    {
+      "id": "8.6",
+      "section": "s8",
+      "order": 50,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s8_regulatory",
+      "max_length": 300,
+      "en": {
+        "category": "Risks",
+        "prompt": "Are there any regulatory or legal risks in your market?",
+        "helper": "Optional — important if you are in a regulated space.",
+        "hint": "Payment, health, food, education, and government-adjacent products often have regulatory requirements in Saudi Arabia. If your product touches any of these areas, name the specific regulations (ZATCA for VAT, SFDA for food safety, SAMA for payments) and say how you plan to navigate them. Regulatory awareness is a positive signal — it shows you understand the market.",
+        "example": "Saffa processes payment data via Moyasar, which is SAMA-licensed. No personal health data is stored. ZATCA compliance is built into monthly report exports — owners can hand the report to their accountant for VAT filing. No SFDA licensing required as Saffa is a tracking tool, not a food handler."
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "هل هناك أي مخاطر تنظيمية أو قانونية في سوقك؟",
+        "helper": "اختياري — مهم إذا كنت في مجال خاضع للتنظيم.",
+        "hint": "المدفوعات والصحة والغذاء والتعليم والمنتجات المجاورة للحكومة غالباً ما تخضع لمتطلبات تنظيمية في المملكة العربية السعودية. إذا كان منتجك يمس أياً من هذه المجالات، سمّ اللوائح المحددة (هيئة الزكاة والضريبة والجمارك لضريبة القيمة المضافة، الهيئة الغذائية والدوائية للسلامة الغذائية، مؤسسة النقد للمدفوعات) وقل كيف تخطط للتعامل معها. الوعي التنظيمي إشارة إيجابية — يُظهر أنك تفهم السوق.",
+        "example": "تعالج صفّا بيانات الدفع عبر Moyasar المرخّص من مؤسسة النقد. لا تُخزَّن أي بيانات صحية شخصية. الامتثال لهيئة الزكاة والضريبة والجمارك مدمج في تصدير التقارير الشهرية — يمكن للمالك تسليم التقرير لمحاسبه لتقديم إقرار ضريبة القيمة المضافة. لا يتطلب ترخيص الهيئة الغذائية والدوائية لأن صفّا أداة تتبع وليست مناولاً للغذاء."
+      }
+    },
+
+    {
+      "id": "8.7",
+      "section": "s8",
+      "order": 51,
+      "type": "text",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s8_key_assumption",
+      "max_length": 300,
+      "en": {
+        "category": "Risks",
+        "prompt": "What is the single most important thing that must be true for this business to succeed?",
+        "helper": "One honest sentence. This is the core bet.",
+        "hint": "Strip everything away and find the one thing. If this assumption is wrong, nothing else matters. If it is right, everything else becomes easier. This is often the thing that keeps founders up at night. Name it. Investors respect founders who can articulate the core bet clearly.",
+        "example": "Café owners must form a daily logging habit within the first two weeks. If they do, the product delivers undeniable value and churn drops to near zero. If they do not, no amount of features or price changes will save it."
+      },
+      "ar": {
+        "category": "المخاطر",
+        "prompt": "ما الشيء الأهم الذي يجب أن يكون صحيحاً لكي ينجح هذا العمل؟",
+        "helper": "جملة واحدة صادقة. هذا هو الرهان الأساسي.",
+        "hint": "جرّد كل شيء واعثر على الشيء الواحد. إذا كان هذا الافتراض خاطئاً، لا شيء آخر مهم. إذا كان صحيحاً، كل شيء آخر يصبح أسهل. غالباً ما يكون هذا هو الشيء الذي يُبقي المؤسسين مستيقظين في الليل. سمّه. المستثمرون يحترمون المؤسسين القادرين على صياغة الرهان الأساسي بوضوح.",
+        "example": "يجب أن يكوّن أصحاب المقاهي عادة التسجيل اليومي خلال الأسبوعين الأولين. إذا فعلوا ذلك، يقدم المنتج قيمة لا يمكن إنكارها ويقترب معدل الإلغاء من الصفر. إذا لم يفعلوا، لن ينقذه أي قدر من الميزات أو تغييرات السعر."
+      }
+    }
+
+  ]
+}

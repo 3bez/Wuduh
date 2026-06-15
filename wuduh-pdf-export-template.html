@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wuduh — PDF Export Template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy-900:#0D1B2A;--navy-800:#132A40;--navy-700:#1B3A56;--navy-600:#244C6E;
+  --navy-400:#4D7CA3;--navy-300:#7BA0BF;--navy-200:#AEC6D9;--navy-100:#D7E3EC;--navy-50:#EEF3F7;
+  --gold-700:#8A6F26;--gold-600:#A6852F;--gold-500:#C9A84C;--gold-400:#D6BC72;
+  --gold-300:#E3CF9A;--gold-200:#EEE0BF;--gold-100:#F6EEDB;
+  --teal-700:#0A6E66;--teal-600:#0B8077;--teal-500:#0D9488;--teal-100:#D8F1EE;
+  --slate-200:#D4DBE3;--slate-300:#B4BFCB;--slate-400:#8795A6;--slate-500:#647183;--slate-600:#4A5666;--slate-700:#36404D;
+  --paper:#FAF7F0;--paper-line:#EAE3D2;
+  --fd:'IBM Plex Serif',serif;--fs:'IBM Plex Sans',sans-serif;--fm:'IBM Plex Mono',monospace;
+}
+body{font-family:var(--fs);background:#D4DBE3;padding:32px 24px}
+
+/* CONTROLS */
+.controls{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap;background:#fff;border:1px solid var(--slate-200);border-radius:10px;padding:12px 16px;max-width:860px;margin-left:auto;margin-right:auto}
+.ctrl-label{font-family:var(--fm);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate-400);margin-right:4px}
+.ctrl-btn{font-family:var(--fs);font-size:12px;font-weight:500;padding:5px 14px;border-radius:6px;border:1px solid var(--slate-200);background:#fff;color:var(--slate-600);cursor:pointer;transition:all 140ms}
+.ctrl-btn:hover{border-color:var(--navy-300);color:var(--navy-900)}
+.ctrl-btn.active{background:var(--navy-900);color:#fff;border-color:var(--navy-900)}
+.ctrl-sep{width:1px;height:24px;background:var(--slate-200);margin:0 4px}
+.ctrl-export{margin-left:auto;font-family:var(--fs);font-size:12px;font-weight:500;padding:6px 16px;border-radius:6px;border:none;background:var(--gold-500);color:var(--navy-900);cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 140ms}
+.ctrl-export:hover{background:var(--gold-400)}
+
+/* PAGE */
+.page-wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:0}
+.page{background:var(--paper);width:100%;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(13,27,42,0.18),0 2px 8px rgba(13,27,42,0.08)}
+.page-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+/* COVER */
+.cover{min-height:520px;display:flex;flex-direction:column}
+.cover-header{background:var(--navy-900);padding:40px 56px 44px;position:relative;overflow:hidden}
+.cover-header-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.35}
+.cover-header-inner{position:relative;display:flex;align-items:flex-start;justify-content:space-between}
+.cover-brand{display:flex;align-items:center;gap:12px}
+.cover-brand-name{font-family:var(--fd);font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.01em}
+.cover-doc-type{font-family:var(--fm);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy-300);margin-top:14px;text-align:right}
+.cover-body{padding:52px 56px 56px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.cover-logo-slot{width:76px;height:76px;border-radius:14px;border:2px dashed var(--paper-line);display:flex;align-items:center;justify-content:center;margin-bottom:36px}
+.cover-logo-placeholder{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate-400)}
+.cover-eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-600);margin-bottom:10px}
+.cover-title{font-family:var(--fd);font-size:36px;font-weight:600;line-height:1.12;letter-spacing:-0.02em;color:var(--navy-900);margin-bottom:6px;max-width:520px}
+.cover-subtitle{font-family:var(--fd);font-style:italic;font-size:17px;color:var(--slate-500);line-height:1.4;max-width:460px}
+.cover-rule{width:56px;height:3px;background:var(--gold-500);border-radius:99px;margin:22px 0}
+.cover-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding-top:36px;border-top:1px solid var(--paper-line)}
+.cover-meta-label{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate-400);margin-bottom:4px}
+.cover-meta-value{font-family:var(--fs);font-size:13px;font-weight:500;color:var(--navy-900)}
+
+/* SECTION PAGES */
+.section-page{border-top:3px solid var(--paper-line)}
+.section-header{padding:30px 56px 24px;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid var(--paper-line)}
+.section-num{font-family:var(--fm);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-600);margin-bottom:6px}
+.section-title{font-family:var(--fd);font-size:23px;font-weight:500;letter-spacing:-0.015em;color:var(--navy-900)}
+.section-page-label{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate-400)}
+.section-body{padding:30px 56px 40px}
+
+/* CONTENT */
+.content-q{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate-400);margin-bottom:6px;margin-top:22px}
+.content-q:first-child{margin-top:0}
+.content-a{font-family:var(--fs);font-size:14px;line-height:1.7;color:var(--slate-700)}
+.content-divider{height:1px;background:var(--paper-line);margin:22px 0}
+
+/* TABLES */
+.comp-table,.risk-table{width:100%;border-collapse:collapse;margin-top:8px}
+.comp-table th,.risk-table th{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--slate-400);padding:8px 12px;text-align:left;border-bottom:1.5px solid var(--navy-900)}
+.comp-table td,.risk-table td{font-family:var(--fs);font-size:13px;color:var(--slate-700);padding:10px 12px;border-bottom:1px solid var(--paper-line);vertical-align:top;line-height:1.55}
+.comp-table tr:last-child td,.risk-table tr:last-child td{border-bottom:none}
+.comp-table tr:nth-child(even) td{background:rgba(234,227,210,0.3)}
+.risk-pill{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;font-weight:500}
+.risk-high{background:#F6E0DA;color:#A53D27}
+.risk-med{background:#F8ECCE;color:#B4811E}
+.risk-low{background:var(--teal-100);color:var(--teal-600)}
+
+/* MARKET CARDS */
+.market-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.market-card{border-radius:10px;padding:18px}
+.market-card.tam{background:var(--navy-50)}
+.market-card.sam{background:var(--gold-100)}
+.market-card.som{background:var(--teal-100)}
+.market-card-label{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.market-card.tam .market-card-label{color:var(--navy-400)}
+.market-card.sam .market-card-label{color:var(--gold-700)}
+.market-card.som .market-card-label{color:var(--teal-600)}
+.market-card-num{font-family:var(--fd);font-size:22px;font-weight:600;color:var(--navy-900);letter-spacing:-0.02em;margin-bottom:6px}
+.market-card-desc{font-size:11.5px;color:var(--slate-500);line-height:1.4}
+
+/* HIGHLIGHT */
+.highlight-box{background:var(--navy-900);border-radius:10px;padding:20px 24px;margin-top:8px;position:relative;overflow:hidden}
+.highlight-box-net{position:absolute;inset:0;pointer-events:none;opacity:0.3}
+.highlight-text{position:relative;font-family:var(--fd);font-size:16px;font-weight:500;color:#fff;line-height:1.55;font-style:italic}
+
+/* DISCLAIMER */
+.disclaimer{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--gold-500);background:var(--gold-100);border-radius:0 8px 8px 0}
+.disclaimer-label{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-700);margin-bottom:5px}
+.disclaimer-text{font-size:13px;color:var(--slate-600);line-height:1.6}
+
+/* PAGE FOOTER */
+.page-footer{padding:14px 56px;border-top:1px solid var(--paper-line);display:flex;align-items:center;justify-content:space-between}
+.pf-brand{display:flex;align-items:center;gap:7px}
+.pf-brand-name{font-family:var(--fd);font-weight:600;font-size:12px;color:var(--navy-900)}
+.pf-meta{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate-400)}
+.pf-page{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:var(--slate-400)}
+</style>
+</head>
+<body>
+
+<div class="controls">
+  <span class="ctrl-label">View</span>
+  <button class="ctrl-btn active" onclick="show('all',this)">Full document</button>
+  <button class="ctrl-btn" onclick="show('cover',this)">Cover</button>
+  <button class="ctrl-btn" onclick="show('problem',this)">Problem</button>
+  <button class="ctrl-btn" onclick="show('market',this)">Market</button>
+  <button class="ctrl-btn" onclick="show('compete',this)">Competitors</button>
+  <button class="ctrl-btn" onclick="show('risks',this)">Risks</button>
+  <div class="ctrl-sep"></div>
+  <button class="ctrl-export" onclick="alert('In the real product this triggers Puppeteer PDF generation and downloads the file.')">&#8595; Export PDF</button>
+</div>
+
+<div class="page-wrap" id="doc">
+
+  <!-- COVER -->
+  <div class="page cover" id="pg-cover">
+    <div class="cover-header">
+      <svg class="cover-header-net" viewBox="0 0 860 210" preserveAspectRatio="xMidYMid slice">
+        <defs><pattern id="chn" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" stroke="#C9A84C" stroke-width="1" stroke-opacity="0.45"><rect x="16" y="16" width="32" height="32"/><rect x="22.6" y="22.6" width="32" height="32" transform="rotate(45 32 32)" stroke-opacity="0.28"/><path d="M32 0L32 16M32 48L32 64M0 32L16 32M48 32L64 32" stroke-opacity="0.3"/></g></pattern></defs>
+        <rect width="100%" height="100%" fill="url(#chn)"/>
+      </svg>
+      <div class="cover-header-inner">
+        <div class="cover-brand">
+          <svg width="36" height="36" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#AEC6D9" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          <span class="cover-brand-name">Wuduh</span>
+        </div>
+        <div class="cover-doc-type">Feasibility Study<br>Prepared June 2026</div>
+      </div>
+    </div>
+    <div class="cover-body">
+      <div>
+        <div class="cover-logo-slot"><span class="cover-logo-placeholder">Logo</span></div>
+        <p class="cover-eyebrow">Layla Al-Rashid &middot; First-time founder</p>
+        <h1 class="cover-title">Inventory clarity for independent caf&eacute;s in Riyadh</h1>
+        <p class="cover-subtitle">A structured feasibility study built from the founder's own data and research.</p>
+        <div class="cover-rule"></div>
+      </div>
+      <div class="cover-meta">
+        <div><div class="cover-meta-label">Startup</div><div class="cover-meta-value">Saffa</div></div>
+        <div><div class="cover-meta-label">Market</div><div class="cover-meta-value">Saudi Arabia</div></div>
+        <div><div class="cover-meta-label">Stage</div><div class="cover-meta-value">MVP</div></div>
+        <div><div class="cover-meta-label">Prepared by</div><div class="cover-meta-value">Layla Al-Rashid</div></div>
+        <div><div class="cover-meta-label">Date</div><div class="cover-meta-value">June 2026</div></div>
+        <div><div class="cover-meta-label">Language</div><div class="cover-meta-value">English</div></div>
+      </div>
+    </div>
+    <div class="page-footer">
+      <div class="pf-brand"><svg width="14" height="14" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="pf-brand-name">Wuduh</span></div>
+      <span class="pf-meta">Confidential &middot; For investor review only</span>
+      <span class="pf-page">Page 1</span>
+    </div>
+  </div>
+
+  <!-- PROBLEM -->
+  <div class="page section-page" id="pg-problem">
+    <svg class="page-net" viewBox="0 0 860 600" preserveAspectRatio="xMidYMid slice"><defs><pattern id="pn1" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" stroke="#0D1B2A" stroke-width="1" stroke-opacity="0.1"><rect x="16" y="16" width="32" height="32"/><rect x="22.6" y="22.6" width="32" height="32" transform="rotate(45 32 32)" stroke-opacity="0.06"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#pn1)"/></svg>
+    <div class="section-header"><div><div class="section-num">01 &mdash; Problem &amp; Opportunity</div><div class="section-title">The problem worth solving</div></div><span class="section-page-label">Saffa &middot; June 2026</span></div>
+    <div class="section-body">
+      <div class="content-q">Project overview</div>
+      <div class="content-a">Saffa is a lightweight inventory and waste-tracking tool for independent café owners in Riyadh who currently manage stock through WhatsApp groups, handwritten lists, or memory. The product runs on mobile and requires no training.</div>
+      <div class="content-divider"></div>
+      <div class="content-q">The problem</div>
+      <div class="content-a">Independent café owners in Saudi Arabia lose an estimated 12–18% of their monthly revenue to over-ordering, spoilage, and untracked wastage. The problem is invisible until end-of-month P&L reveals it — by then, the loss has already happened. There is no affordable, Arabic-language tool that addresses this for single-location operators.</div>
+      <div class="content-divider"></div>
+      <div class="content-q">Who experiences it</div>
+      <div class="content-a">First or second-generation Saudi entrepreneurs running one to three café locations in Riyadh, Jeddah, and Dammam. Typically aged 24–38, digitally comfortable, but without formal operations training. Annual revenue between SAR 800,000 and SAR 2,500,000.</div>
+      <div class="content-divider"></div>
+      <div class="content-q">Why current solutions fail</div>
+      <div class="content-a">Enterprise solutions like Lightspeed and Toast are priced for chains, require training, and are English-only. Local POS vendors bolt on inventory as an afterthought. Nothing is designed for the daily operating rhythm of a single-location independent operator.</div>
+      <div class="content-divider"></div>
+      <div class="content-q">Problem scale</div>
+      <div class="highlight-box">
+        <svg class="highlight-box-net" viewBox="0 0 760 100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="hbn" width="48" height="48" patternUnits="userSpaceOnUse"><g fill="none" stroke="#C9A84C" stroke-width="1" stroke-opacity="0.5"><rect x="12" y="12" width="24" height="24"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#hbn)"/></svg>
+        <p class="highlight-text">"I check my numbers at the end of the month and there's always a gap I can't explain. I know it's the kitchen but I can't see it in real time." — Café owner, Al-Olaya, Riyadh</p>
+      </div>
+    </div>
+    <div class="page-footer">
+      <div class="pf-brand"><svg width="14" height="14" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="pf-brand-name">Wuduh</span></div>
+      <span class="pf-meta">Saffa &middot; Feasibility Study &middot; June 2026</span>
+      <span class="pf-page">Page 2</span>
+    </div>
+  </div>
+
+  <!-- MARKET -->
+  <div class="page section-page" id="pg-market">
+    <svg class="page-net" viewBox="0 0 860 480" preserveAspectRatio="xMidYMid slice"><defs><pattern id="pn3" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" stroke="#0D1B2A" stroke-width="1" stroke-opacity="0.1"><rect x="16" y="16" width="32" height="32"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#pn3)"/></svg>
+    <div class="section-header"><div><div class="section-num">03 &mdash; Market Analysis</div><div class="section-title">The size of the opportunity</div></div><span class="section-page-label">Saffa &middot; June 2026</span></div>
+    <div class="section-body">
+      <div class="content-q">Target customer</div>
+      <div class="content-a">Independent café owners operating 1–3 locations in Saudi Arabia's major cities. Owner-operated, not franchised. Annual F&B revenue between SAR 800,000 and SAR 2,500,000.</div>
+      <div class="content-divider"></div>
+      <div class="market-grid">
+        <div class="market-card tam"><div class="market-card-label">TAM</div><div class="market-card-num">SAR 480M</div><div class="market-card-desc">All independent F&B operators needing stock management in KSA</div></div>
+        <div class="market-card sam"><div class="market-card-label">SAM</div><div class="market-card-num">SAR 86M</div><div class="market-card-desc">~3,800 independent cafés in Riyadh, Jeddah & Dammam</div></div>
+        <div class="market-card som"><div class="market-card-label">SOM</div><div class="market-card-num">SAR 8.6M</div><div class="market-card-desc">Realistic 3-year capture of 10% of SAM at SAR 149/month</div></div>
+      </div>
+      <div class="content-divider"></div>
+      <div class="content-q">Customer validation</div>
+      <div class="content-a">Conducted 14 interviews with café owners in Al-Olaya, Malaz, and Hittin districts of Riyadh. 11 of 14 described the same core problem unprompted. Three agreed to a paid pilot before the MVP was complete. Direct quote: "I know I'm losing money in the kitchen — I just can't see where."</div>
+    </div>
+    <div class="page-footer">
+      <div class="pf-brand"><svg width="14" height="14" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="pf-brand-name">Wuduh</span></div>
+      <span class="pf-meta">Saffa &middot; Feasibility Study &middot; June 2026</span>
+      <span class="pf-page">Page 4</span>
+    </div>
+  </div>
+
+  <!-- COMPETITORS -->
+  <div class="page section-page" id="pg-compete">
+    <svg class="page-net" viewBox="0 0 860 500" preserveAspectRatio="xMidYMid slice"><defs><pattern id="pn4" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" stroke="#0D1B2A" stroke-width="1" stroke-opacity="0.1"><rect x="16" y="16" width="32" height="32"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#pn4)"/></svg>
+    <div class="section-header"><div><div class="section-num">05 &mdash; Competitive Landscape</div><div class="section-title">Where Saffa sits in the market</div></div><span class="section-page-label">Saffa &middot; June 2026</span></div>
+    <div class="section-body">
+      <div class="content-q">Competitor analysis</div>
+      <table class="comp-table">
+        <thead><tr><th style="width:22%">Competitor</th><th style="width:38%">What they do well</th><th style="width:40%">Where they fall short</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Lightspeed</strong></td><td>Full-featured POS with robust inventory module. Strong international presence.</td><td>English-only. Priced for chains (SAR 800+/month). Requires implementation partner.</td></tr>
+          <tr><td><strong>Toast POS</strong></td><td>Best-in-class POS for restaurant chains. Strong analytics dashboard.</td><td>Not available in Saudi Arabia. No Arabic. Designed for US multi-unit operators.</td></tr>
+          <tr><td><strong>Excel / WhatsApp</strong></td><td>Free. Familiar. Flexible. Zero onboarding friction.</td><td>Manual. Error-prone. No alerts. No reports. No audit trail.</td></tr>
+          <tr><td><strong>Local POS vendors</strong></td><td>Arabic-first. Saudi-built. Understood by local operators.</td><td>Inventory is a bolt-on afterthought, not a core feature. Poor UX. Weak mobile experience.</td></tr>
+        </tbody>
+      </table>
+      <div class="content-divider"></div>
+      <div class="content-q">Unfair advantage</div>
+      <div class="content-a">Saffa is the only inventory and waste tool designed specifically for Arabic-speaking independent café operators. The founder has four years of operations experience running a 9-branch café chain in Riyadh — the product is built from the inside, not observed from the outside. The first three pilot customers were acquired through that network before the product was complete.</div>
+    </div>
+    <div class="page-footer">
+      <div class="pf-brand"><svg width="14" height="14" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="pf-brand-name">Wuduh</span></div>
+      <span class="pf-meta">Saffa &middot; Feasibility Study &middot; June 2026</span>
+      <span class="pf-page">Page 6</span>
+    </div>
+  </div>
+
+  <!-- RISKS -->
+  <div class="page section-page" id="pg-risks">
+    <svg class="page-net" viewBox="0 0 860 540" preserveAspectRatio="xMidYMid slice"><defs><pattern id="pn5" width="64" height="64" patternUnits="userSpaceOnUse"><g fill="none" stroke="#0D1B2A" stroke-width="1" stroke-opacity="0.1"><rect x="16" y="16" width="32" height="32"/></g></pattern></defs><rect width="100%" height="100%" fill="url(#pn5)"/></svg>
+    <div class="section-header"><div><div class="section-num">08 &mdash; Risks &amp; Mitigation</div><div class="section-title">What could go wrong</div></div><span class="section-page-label">Saffa &middot; June 2026</span></div>
+    <div class="section-body">
+      <div class="content-q">Risk assessment</div>
+      <table class="risk-table">
+        <thead><tr><th style="width:32%">Risk</th><th style="width:14%">Likelihood</th><th style="width:54%">Mitigation plan</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Café owners don't log daily</strong> — the product loses value if habit doesn't form</td><td><span class="risk-pill risk-high">High</span></td><td>Daily 11pm push notification with single-tap quick log. Onboarding includes a 7-day guided streak. Pilot data shows 78% daily active use after week 2.</td></tr>
+          <tr><td><strong>POS vendors copy the feature</strong> — incumbents add inventory as a free add-on</td><td><span class="risk-pill risk-med">Medium</span></td><td>Speed and focus are the moat. Building switching costs through daily habit and 90-day historical data is the long-term defence.</td></tr>
+          <tr><td><strong>Price sensitivity</strong> — SAR 149/month is too high for some operators</td><td><span class="risk-pill risk-med">Medium</span></td><td>ROI framing from day one: "Saffa costs SAR 149. The average café saves SAR 1,800/month in waste within 30 days." Freemium tier for smallest operators as a conversion funnel.</td></tr>
+          <tr><td><strong>Regulatory change</strong> — ZATCA or SFDA introduce new F&B data requirements</td><td><span class="risk-pill risk-low">Low</span></td><td>Saffa's data model is structured for compliance by default. Any new requirement becomes a feature, not a blocker.</td></tr>
+        </tbody>
+      </table>
+      <div class="content-divider"></div>
+      <div class="content-q">What could kill this in year 1</div>
+      <div class="content-a">If café owners do not form a daily logging habit, the product becomes shelfware and churns within 90 days. This is the single existential risk. Every product and retention decision for the first 12 months is designed around this one threat.</div>
+      <div class="disclaimer">
+        <div class="disclaimer-label">&#9888; Incomplete section</div>
+        <div class="disclaimer-text">Cards 8.5 (Plan B) and 8.6 (Regulatory risks) were not completed. This section reflects partial answers only. The study is valid for review but these gaps should be addressed before a final investor submission.</div>
+      </div>
+    </div>
+    <div class="page-footer">
+      <div class="pf-brand"><svg width="14" height="14" viewBox="0 0 96 96" fill="none"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg><span class="pf-brand-name">Wuduh</span></div>
+      <span class="pf-meta">Saffa &middot; Feasibility Study &middot; June 2026</span>
+      <span class="pf-page">Page 9</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function show(sec,btn){
+  document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const pages=['cover','problem','market','compete','risks'];
+  if(sec==='all'){pages.forEach(p=>{const el=document.getElementById('pg-'+p);if(el)el.style.display=''});}
+  else{pages.forEach(p=>{const el=document.getElementById('pg-'+p);if(el)el.style.display=p===sec?'':'none'});}
+}
+</script>
+</body>
+</html>

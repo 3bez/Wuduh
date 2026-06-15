@@ -1,0 +1,29 @@
+<!-- @dsCard group="Colors" viewport="700x170" name="Slate neutrals & paper" subtitle="Cool greys that lean navy, plus warm paper for exports." -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../styles.css">
+<style>
+  html,body{margin:0}
+  body{font-family:var(--font-mono);background:var(--surface-card);padding:18px 20px}
+  .ramp{display:flex;gap:6px}
+  .sw{flex:1;display:flex;flex-direction:column;gap:7px}
+  .chip{height:74px;border-radius:var(--radius-sm);border:1px solid rgba(13,27,42,.08)}
+  .t{font-size:10px;color:var(--text-strong)}
+  .h{font-size:9.5px;color:var(--text-subtle)}
+  b{display:block;font-family:var(--font-sans);font-size:11px;letter-spacing:var(--tracking-caps);
+    text-transform:uppercase;color:var(--text-muted);margin:0 0 14px}
+</style></head>
+<body>
+  <b>Slate 50–900 · paper</b>
+  <div class="ramp">
+    <div class="sw"><div class="chip" style="background:var(--slate-50)"></div><span class="t">50</span><span class="h">F4F6F8</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-100)"></div><span class="t">100</span><span class="h">E8ECF1</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-200)"></div><span class="t">200</span><span class="h">D4DBE3</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-300)"></div><span class="t">300</span><span class="h">B4BFCB</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-400)"></div><span class="t">400</span><span class="h">8795A6</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-500)"></div><span class="t">500</span><span class="h">647183</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-700)"></div><span class="t">700</span><span class="h">36404D</span></div>
+    <div class="sw"><div class="chip" style="background:var(--slate-900)"></div><span class="t">900</span><span class="h">141A22</span></div>
+    <div class="sw"><div class="chip" style="background:var(--paper);border-color:var(--paper-line)"></div><span class="t">paper</span><span class="h">FAF7F0</span></div>
+  </div>
+</body></html>

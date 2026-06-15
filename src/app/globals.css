@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Wuduh global styles ────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    --font-sans:    var(--font-sans);
+    --font-display: var(--font-display);
+    --font-mono:    var(--font-mono);
+    --font-arabic:  var(--font-arabic);
+  }
+
+  /* RTL — applied when Arabic language is active */
+  [dir='rtl'] {
+    font-family: var(--font-arabic), system-ui, sans-serif;
+  }
+
+  /* Smooth motion — respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Focus ring — gold, as per design system */
+  :focus-visible {
+    outline: 3px solid rgba(201, 168, 76, 0.45);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Eyebrow label — IBM Plex Mono, wide tracking, uppercase */
+  .eyebrow {
+    @apply font-mono text-2xs tracking-widest uppercase text-slate-400;
+    letter-spacing: 0.12em;
+  }
+
+  /* Swipe card — the elevated card in the card journey */
+  .card-swipe {
+    @apply bg-white rounded-xl shadow-lg border border-slate-100;
+    border-radius: 22px;
+  }
+
+  /* Standard UI card */
+  .card {
+    @apply bg-white rounded-lg border border-slate-200 shadow-sm;
+  }
+
+  /* Gold accent button */
+  .btn-accent {
+    @apply bg-gold-500 text-navy-900 font-medium rounded-md px-5 py-2.5
+           hover:bg-gold-400 active:translate-y-px
+           transition-all duration-150;
+  }
+
+  /* Navy primary button */
+  .btn-primary {
+    @apply bg-navy-900 text-navy-50 font-medium rounded-md px-5 py-2.5
+           hover:bg-navy-800 active:translate-y-px
+           transition-all duration-150;
+  }
+
+  /* Ghost button */
+  .btn-ghost {
+    @apply bg-transparent text-slate-600 font-medium rounded-md px-5 py-2.5
+           hover:bg-slate-100 active:translate-y-px
+           transition-all duration-150;
+  }
+}

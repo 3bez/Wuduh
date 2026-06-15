@@ -1,0 +1,50 @@
+/* Wuduh spacing, radii, shadows, motion — 4px base grid. */
+
+:root {
+  /* Spacing scale */
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Radii — calm, precise, never pill-soft except controls */
+  --radius-xs:  4px;
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  22px;   /* swipe cards */
+  --radius-2xl: 28px;
+  --radius-full: 999px;
+
+  /* Shadows — navy-tinted, soft, low spread. Trust, not flash. */
+  --shadow-xs:  0 1px 2px rgba(13,27,42,0.06);
+  --shadow-sm:  0 1px 3px rgba(13,27,42,0.08), 0 1px 2px rgba(13,27,42,0.04);
+  --shadow-md:  0 4px 12px rgba(13,27,42,0.08), 0 2px 4px rgba(13,27,42,0.05);
+  --shadow-lg:  0 12px 28px rgba(13,27,42,0.12), 0 4px 8px rgba(13,27,42,0.06);
+  --shadow-xl:  0 24px 56px rgba(13,27,42,0.18), 0 8px 16px rgba(13,27,42,0.08);
+  --shadow-gold:0 8px 24px rgba(201,168,76,0.28);
+
+  /* Borders */
+  --border-width: 1px;
+  --border-width-strong: 1.5px;
+
+  /* Motion — calm confidence, no bounce */
+  --ease-out:   cubic-bezier(0.22, 0.61, 0.36, 1); /* @kind other */
+  --ease-in-out:cubic-bezier(0.45, 0, 0.25, 1); /* @kind other */
+  --dur-fast:   140ms; /* @kind other */
+  --dur-base:   220ms; /* @kind other */
+  --dur-slow:   360ms; /* @kind other */
+
+  /* Layout */
+  --container:  1120px;
+  --container-narrow: 720px;
+}
