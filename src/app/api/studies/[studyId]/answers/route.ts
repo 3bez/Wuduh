@@ -12,11 +12,9 @@ export async function POST(request: NextRequest, { params }: Params) {
   const { studyId } = await params
   const supabase = await createClient()
 
-  // Auth check
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Verify study belongs to user
   const { data: study } = await supabase
     .from('studies')
     .select('id, user_id')
@@ -37,43 +35,32 @@ export async function POST(request: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'card_id and status are required' }, { status: 400 })
   }
 
-  // Try update first, then insert if not found (manual upsert to avoid type issues)
+  // Check if answer exists for this card
   const { data: existing } = await supabase
     .from('answers')
     .select('id')
     .eq('study_id', studyId)
     .eq('card_id', card_id)
-    .single()
+    .maybeSingle()
 
-  let upsertError = null
+  let saveError = null
 
   if (existing) {
-    // Update existing answer
     const { error } = await supabase
       .from('answers')
-      .update({
-        answer: answer as string ?? null,
-        status,
-        updated_at: new Date().toISOString(),
-      })
+      .update({ answer: answer ?? null, status, updated_at: new Date().toISOString() })
       .eq('study_id', studyId)
       .eq('card_id', card_id)
-    upsertError = error
+    saveError = error
   } else {
-    // Insert new answer
     const { error } = await supabase
       .from('answers')
-      .insert({
-        study_id: studyId,
-        card_id,
-        answer: answer as string ?? null,
-        status,
-      })
-    upsertError = error
+      .insert({ study_id: studyId, card_id, answer: answer ?? null, status })
+    saveError = error
   }
 
-  if (upsertError) {
-    return NextResponse.json({ error: upsertError.message }, { status: 500 })
+  if (saveError) {
+    return NextResponse.json({ error: saveError.message }, { status: 500 })
   }
 
   // Recalculate completion %

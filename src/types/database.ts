@@ -1,5 +1,4 @@
 // Supabase database types — mirrors the schema in BRD Section 4
-// Auto-generate with: npx supabase gen types typescript --project-id tqjflhqffbqdtqfxmzcf
 
 export type Language = 'en' | 'ar'
 export type StudyStatus = 'draft' | 'complete' | 'exported'
@@ -10,7 +9,7 @@ export interface Database {
     Tables: {
       profiles: {
         Row: {
-          id: string               // UUID — matches auth.users.id
+          id: string
           full_name: string | null
           preferred_language: Language | null
           created_at: string
@@ -29,8 +28,8 @@ export interface Database {
       }
       studies: {
         Row: {
-          id: string               // UUID
-          user_id: string          // FK → profiles.id
+          id: string
+          user_id: string
           startup_name: string | null
           language: Language
           status: StudyStatus
@@ -59,10 +58,10 @@ export interface Database {
       }
       answers: {
         Row: {
-          id: string               // UUID
-          study_id: string         // FK → studies.id
-          card_id: string          // e.g. 'C0', 'S1_01', 'S2_01'
-          answer: AnswerValue | null  // JSONB — varies by card type
+          id: string
+          study_id: string
+          card_id: string
+          answer: unknown
           status: AnswerStatus
           created_at: string
           updated_at: string
@@ -71,20 +70,20 @@ export interface Database {
           id?: string
           study_id: string
           card_id: string
-          answer?: AnswerValue | null
+          answer?: unknown
           status?: AnswerStatus
         }
         Update: {
-          answer?: AnswerValue | null
+          answer?: unknown
           status?: AnswerStatus
           updated_at?: string
         }
       }
       exports: {
         Row: {
-          id: string               // UUID
-          study_id: string         // FK → studies.id
-          user_id: string          // FK → profiles.id
+          id: string
+          study_id: string
+          user_id: string
           pdf_url: string | null
           language: Language
           completion_snapshot: number
@@ -113,11 +112,8 @@ export interface Database {
   }
 }
 
-// Answer JSONB types — one per card type
-export type AnswerValue =
-  | string                    // text cards
-  | TableRow[]                // table cards (competitors, team, risks)
-  | string                    // upload cards (URL)
+// Answer JSONB types
+export type AnswerValue = string | TableRow[] | null
 
 export interface TableRow {
   [column: string]: string
