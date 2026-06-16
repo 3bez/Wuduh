@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { CardConfig, Language } from '@/types/cards'
-import { localise, getNextCard, getPrevCard, sectionLabel, ALL_CARDS, MANDATORY_CARDS } from '@/lib/cards/loader'
+import { localise, getNextCard, getPrevCard, sectionLabel, ALL_CARDS } from '@/lib/cards/loader'
 import HintPanel from './HintPanel'
 import LangCard from './LangCard'
 import TextCard from './TextCard'
@@ -20,64 +20,84 @@ interface Props {
 }
 
 export default function CardShell({ card, lang, studyId, userId, existingAnswer, completionPct }: Props) {
-  const router  = useRouter()
-  const content = localise(card, lang)
-  const dir     = lang === 'ar' ? 'rtl' : 'ltr'
-  const next    = getNextCard(card.id)
-  const prev    = getPrevCard(card.id)
-  const [leaving, setLeaving] = useState(false)
+  const router      = useRouter()
+  const content     = localise(card, lang)
+  const dir         = lang === 'ar' ? 'rtl' : 'ltr'
+  const next        = getNextCard(card.id)
+  const prev        = getPrevCard(card.id)
 
-  // Card position in the overall sequence
-  const cardIndex   = ALL_CARDS.findIndex(c => c.id === card.id)
-  const totalCards  = ALL_CARDS.length
-  const cardNum     = cardIndex + 1
+  // Animate in whenever card.id changes — key-based reset via CSS
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    // Small delay so the browser has painted before animating in
+    const t = setTimeout(() => setVisible(true), 20)
+    return () => clearTimeout(t)
+  }, [card.id])
+
+  // Card position
+  const cardIndex  = ALL_CARDS.findIndex(c => c.id === card.id)
+  const totalCards = ALL_CARDS.length
+  const cardNum    = cardIndex + 1
 
   // Section info
   const isCover     = card.section === 'cover'
-  const sectionName = isCover ? (lang === 'ar' ? 'الغلاف' : 'Cover') : sectionLabel(card.section, lang)
-
-  function navigate(target: string | null) {
-    if (!target) return
-    setLeaving(true)
-    setTimeout(() => {
-      router.push(target)
-    }, 180)
-  }
+  const sectionName = isCover
+    ? (lang === 'ar' ? 'الغلاف' : 'Cover')
+    : sectionLabel(card.section, lang)
 
   function goNext() {
-    if (next) navigate(`/study/${studyId}?card=${next.id}`)
-    else navigate(`/study/${studyId}/overview`)
+    setVisible(false)
+    setTimeout(() => {
+      if (next) router.push(`/study/${studyId}?card=${next.id}`)
+      else router.push(`/study/${studyId}/overview`)
+    }, 150)
   }
 
   function goPrev() {
-    if (prev) navigate(`/study/${studyId}?card=${prev.id}`)
+    if (!prev) return
+    setVisible(false)
+    setTimeout(() => router.push(`/study/${studyId}?card=${prev.id}`), 150)
   }
 
   function handleLangComplete(chosenLang: Language) {
-    navigate(`/study/${studyId}?card=${next?.id ?? 'C1'}&lang=${chosenLang}`)
-    router.refresh()
+    setVisible(false)
+    setTimeout(() => {
+      router.push(`/study/${studyId}?card=${next?.id ?? 'C1'}&lang=${chosenLang}`)
+      router.refresh()
+    }, 150)
   }
 
   return (
     <>
       <style>{`
-        @keyframes card-in  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes card-out { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-10px); } }
-        .card-shell-wrap {
-          animation: card-in 260ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+        @keyframes cs-in {
+          from { opacity: 0; transform: translateY(12px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        .card-shell-wrap.leaving {
-          animation: card-out 180ms ease-in both;
+        .cs-wrap {
+          opacity: 0;
+          transition: opacity 150ms ease-out, transform 150ms ease-out;
         }
-        .cs-back-btn:hover { color: #36404D !important; }
+        .cs-wrap.visible {
+          animation: cs-in 240ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+          opacity: 1;
+        }
+        .cs-wrap.hidden {
+          opacity: 0;
+          transform: translateY(-8px);
+          transition: opacity 150ms ease-in, transform 150ms ease-in;
+        }
+        .cs-back:hover { color: #36404D !important; }
         @media (prefers-reduced-motion: reduce) {
-          .card-shell-wrap, .card-shell-wrap.leaving { animation: none !important; }
+          .cs-wrap, .cs-wrap.visible, .cs-wrap.hidden { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
         }
       `}</style>
 
-      <div className={`card-shell-wrap${leaving ? ' leaving' : ''}`}>
-
-        {/* ── Card position eyebrow ── */}
+      <div
+        key={card.id}
+        className={`cs-wrap${visible ? ' visible' : ' hidden'}`}
+      >
+        {/* ── Eyebrow row ── */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -85,8 +105,12 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
           marginBottom: 20,
           flexDirection: dir === 'rtl' ? 'row-reverse' : 'row',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
-            {/* Section pill */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexDirection: dir === 'rtl' ? 'row-reverse' : 'row',
+          }}>
             <span style={{
               fontFamily: 'var(--font-mono), monospace',
               fontSize: 10,
@@ -99,7 +123,6 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
             }}>
               {sectionName}
             </span>
-            {/* Category */}
             <span style={{
               fontFamily: 'var(--font-mono), monospace',
               fontSize: 10,
@@ -111,8 +134,12 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
             </span>
           </div>
 
-          {/* Card counter + optional badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            flexDirection: dir === 'rtl' ? 'row-reverse' : 'row',
+          }}>
             {!card.required && (
               <span style={{
                 fontFamily: 'var(--font-mono), monospace',
@@ -137,7 +164,7 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
           </div>
         </div>
 
-        {/* ── The card itself ── */}
+        {/* ── Card white box ── */}
         <div style={{
           background: '#fff',
           border: '1px solid #E8ECF1',
@@ -176,7 +203,7 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
             </p>
           )}
 
-          {/* ── Input component ── */}
+          {/* ── Input ── */}
           {card.type === 'lang' && (
             <LangCard card={card} studyId={studyId} onComplete={handleLangComplete} />
           )}
@@ -213,19 +240,19 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
           )}
         </div>
 
-        {/* ── Hint panel — below the card ── */}
+        {/* ── Hint ── */}
         {content.hint && card.type !== 'lang' && (
           <div style={{ marginBottom: 16 }}>
             <HintPanel hint={content.hint} lang={lang} />
           </div>
         )}
 
-        {/* ── Back navigation ── */}
+        {/* ── Back nav ── */}
         {prev && card.type !== 'lang' && (
           <div style={{ textAlign: dir === 'rtl' ? 'right' : 'left', paddingTop: 4 }}>
             <button
               onClick={goPrev}
-              className="cs-back-btn"
+              className="cs-back"
               style={{
                 background: 'none',
                 border: 'none',
@@ -241,7 +268,6 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
             </button>
           </div>
         )}
-
       </div>
     </>
   )
