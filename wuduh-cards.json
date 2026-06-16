@@ -2,14 +2,14 @@
   "_meta": {
     "product": "Wuduh",
     "version": "1.0.0",
-    "description": "Complete card configuration for the Wuduh feasibility study builder. 52 cards across 8 sections plus a cover page. This file is the single source of truth for all card content. Any change to a prompt, hint, or example is made here and takes effect immediately without a code change.",
-    "total_cards": 52,
-    "mandatory_cards": 43,
-    "optional_cards": 11,
-    "sections": 8,
+    "description": "Complete card configuration for the Wuduh feasibility study builder. 54 cards across 8 sections plus a cover page. This file is the single source of truth for all card content. Any change to a prompt, hint, or example is made here and takes effect immediately without a code change.",
+    "total_cards": 54,
+    "mandatory_cards": 39,
+    "optional_cards": 15,
+    "sections": 9,
     "languages": ["en", "ar"],
     "card_types": ["lang", "upload", "text", "table"],
-    "last_updated": "2026-06-15"
+    "last_updated": "2026-06-16"
   },
 
   "sections": [
@@ -864,9 +864,59 @@
     },
 
     {
-      "id": "5.4",
+      "id": "5.2",
       "section": "s5",
       "order": 31,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s5_positioning",
+      "max_length": 400,
+      "en": {
+        "category": "Compete",
+        "prompt": "How do you position yourself relative to competitors?",
+        "helper": "Optional — where do you sit on the market map?",
+        "hint": "Think about two axes that matter most in your category — price vs capability, simplicity vs power, niche vs broad. Describe where you sit and why that position is defensible. Positioning is not about being better at everything; it is about owning a specific corner of the market that your target customer values most.",
+        "example": "Saffa occupies the low-price, high-simplicity quadrant. We are not trying to compete on features with Lightspeed. We compete on fit: we are the only tool designed for Arabic-speaking independent café owners who need daily stock visibility in under five minutes."
+      },
+      "ar": {
+        "category": "المنافسة",
+        "prompt": "كيف تضع نفسك بالنسبة للمنافسين؟",
+        "helper": "اختياري — أين تقع على خريطة السوق؟",
+        "hint": "فكّر في محورين مهمين في فئتك — السعر مقابل القدرة، البساطة مقابل القوة. صف مكانك ولماذا هذا الموقع قابل للدفاع. التموضع ليس عن كونك أفضل في كل شيء؛ بل عن امتلاك زاوية محددة من السوق يقدّرها عميلك المستهدف أكثر من غيره.",
+        "example": "صفّا تحتل الربع ذو السعر المنخفض والبساطة العالية. لسنا نحاول المنافسة بالميزات مع Lightspeed. نتنافس بالملاءمة: نحن الأداة الوحيدة المصممة لأصحاب المقاهي المستقلة الناطقين بالعربية الذين يحتاجون رؤية يومية للمخزون في أقل من خمس دقائق."
+      }
+    },
+
+    {
+      "id": "5.3",
+      "section": "s5",
+      "order": 32,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s5_switching_costs",
+      "max_length": 300,
+      "en": {
+        "category": "Compete",
+        "prompt": "What makes it hard for customers to switch away from you?",
+        "helper": "Optional — switching costs are a moat.",
+        "hint": "Switching costs can be data lock-in (their historical data lives in your system), habit formation (your product is now part of their daily routine), network effects (their team or customers are already on your platform), integration depth (you connect to their POS or accounting software), or sunk cost (they have invested time in setup and learning). The best switching costs are ones the customer builds themselves over time.",
+        "example": "After 90 days of daily use, a café owner has 90 days of waste and stock data in Saffa. That data cannot be exported to a competitor without losing the trend lines that make the monthly report useful. The longer they use it, the more valuable the historical data becomes."
+      },
+      "ar": {
+        "category": "المنافسة",
+        "prompt": "ما الذي يجعل من الصعب على العملاء التحوّل عنك؟",
+        "helper": "اختياري — تكاليف التحوّل هي خندق ركاب.",
+        "hint": "تكاليف التحوّل يمكن أن تكون: قفل البيانات (بياناتهم التاريخية تعيش في نظامك)، أو تكوين العادة (منتجك أصبح جزءاً من روتينهم اليومية)، أو تكامل عميق (ترتبط بنظام نقاط البيع أو برنامج المحاسبة)، أو تكلفة غارقة (استثمروا وقتاً في الإعداد والتعلم). أفضل تكاليف التحوّل هي التي يبنيها العميل بنفسه مع مرور الوقت.",
+        "example": "بعد 90 يوماً من الاستخدام اليومي، لدى صاحب المقهى 90 يوماً من بيانات الهدر والمخزون في صفّا. لا يمكن تصدير هذه البيانات إلى منافس دون فقدان خطوط الاتجاه التي تجعل التقرير الشهري مفيداً. كلما طال استخدامها، كلما ازدادت قيمة البيانات التاريخية."
+      }
+    },
+
+    {
+      "id": "5.4",
+      "section": "s5",
+      "order": 33,
       "type": "text",
       "required": true,
       "export_visible": true,
@@ -891,7 +941,7 @@
     {
       "id": "5.5",
       "section": "s5",
-      "order": 32,
+      "order": 34,
       "type": "text",
       "required": false,
       "export_visible": true,

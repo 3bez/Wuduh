@@ -1,4 +1,3 @@
-// @ts-nocheck
 // POST /api/studies/[studyId]/answers
 // Upserts a single card answer. Idempotent — safe to call multiple times.
 // Also recalculates and updates the study's completion_percentage.
@@ -7,7 +6,10 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { MANDATORY_CARDS } from '@/lib/cards/loader'
 
-export async function POST(request, { params }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ studyId: string }> }
+) {
   const { studyId } = await params
   const supabase = await createClient()
 

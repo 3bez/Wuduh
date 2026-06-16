@@ -201,6 +201,13 @@ create policy "Users can upload to their own folder"
     and auth.uid()::text = (storage.foldername(name))[1]
   );
 
+create policy "Users can update files in their own folder"
+  on storage.objects for update
+  using (
+    bucket_id = 'wuduh-uploads'
+    and auth.uid()::text = (storage.foldername(name))[1]
+  );
+
 create policy "Users can view files in their own folder"
   on storage.objects for select
   using (

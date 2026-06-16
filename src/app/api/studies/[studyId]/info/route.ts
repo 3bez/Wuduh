@@ -1,8 +1,10 @@
-// @ts-nocheck
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(request, { params }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ studyId: string }> }
+) {
   const { studyId } = await params
   const supabase    = await createClient()
 

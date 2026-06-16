@@ -1,12 +1,11 @@
-// @ts-nocheck
 // POST /api/studies/[studyId]/export
 // Generates a PDF using PDFShift (hosted Chromium) and returns a download URL.
 
 import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { buildPdfHtml } from '@/lib/pdf/template'
 
-async function urlToBase64(url) {
+async function urlToBase64(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
     if (!res.ok) return null
@@ -19,7 +18,7 @@ async function urlToBase64(url) {
   }
 }
 
-function extractStoragePath(url) {
+function extractStoragePath(url: string): string | null {
   try {
     const u = new URL(url)
     const match = u.pathname.match(/\/object\/(?:public|sign)\/wuduh-uploads\/(.+)/)
@@ -29,7 +28,10 @@ function extractStoragePath(url) {
   }
 }
 
-export async function POST(request, { params }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ studyId: string }> }
+) {
   try {
     const { studyId } = await params
     const supabase = await createClient()

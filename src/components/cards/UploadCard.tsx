@@ -3,7 +3,7 @@
 // UploadCard — file upload (logo or solution visuals).
 // Uploads to Supabase Storage. Saves URL to answers table.
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import type { CardConfig, Language } from '@/types/cards'
 import { localise } from '@/lib/cards/loader'
 import { createClient } from '@/lib/supabase/client'
@@ -21,7 +21,7 @@ interface Props {
 }
 
 export default function UploadCard({ card, lang, studyId, userId, initialUrl, onComplete, onSkip }: Props) {
-  const [preview, setPreview] = useState<string | null>(initialUrl ?? null)
+  const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const { save, saving } = useAutoSave(studyId)
@@ -29,6 +29,21 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
   const fileRef = useRef<HTMLInputElement>(null)
   const config = card.upload_config ?? { accept: 'image/*', max_mb: 5, preview: true }
+
+  // On mount: sign the stored path for preview, or use direct URL for legacy answers
+  useEffect(() => {
+    if (!initialUrl) return
+    // If it looks like a storage path (no protocol) sign it; otherwise use as-is
+    if (!initialUrl.startsWith('http')) {
+      const supabase = createClient()
+      supabase.storage
+        .from('wuduh-uploads')
+        .createSignedUrl(initialUrl, 60 * 60 * 24 * 7)
+        .then(({ data }) => { if (data?.signedUrl) setPreview(data.signedUrl) })
+    } else {
+      setPreview(initialUrl)
+    }
+  }, [initialUrl])
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -53,12 +68,18 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
 
       if (storageError) throw new Error(storageError.message)
 
-      const { data: { publicUrl } } = supabase.storage
+      // Private bucket — get a long-lived signed URL (7 days) for preview and storage.
+      // The export route re-signs the URL server-side at export time.
+      const { data: signed, error: signError } = await supabase.storage
         .from('wuduh-uploads')
-        .getPublicUrl(path)
+        .createSignedUrl(path, 60 * 60 * 24 * 7) // 7 days
 
-      setPreview(publicUrl)
-      await save({ card_id: card.id, answer: publicUrl, status: 'done' })
+      if (signError || !signed?.signedUrl) throw new Error(signError?.message ?? 'Could not sign URL')
+
+      const signedUrl = signed.signedUrl
+
+      setPreview(signedUrl)
+      await save({ card_id: card.id, answer: path, status: 'done' })
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -68,7 +89,6 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
 
   async function handleComplete() {
     if (!preview) return
-    await save({ card_id: card.id, answer: preview, status: 'done' })
     onComplete(preview)
   }
 
