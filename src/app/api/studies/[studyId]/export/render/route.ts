@@ -79,7 +79,7 @@ export async function GET(request, { params }) {
       answers['C1'] = { answer: null, status: 'skipped' }
     }
 
-    // Dynamically import to avoid any module-level errors
+    // Dynamically import to avoid module-level errors
     const { buildPdfHtml } = await import('@/lib/pdf/template')
 
     const html = buildPdfHtml({
@@ -115,13 +115,16 @@ export async function GET(request, { params }) {
       </body>`
     )
 
-    await supabase.from('exports').insert({
-      study_id: studyId,
-      user_id: user.id,
-      pdf_url: null,
-      language: study.language,
-      completion_snapshot: study.completion_percentage,
-    }).catch(() => {})
+    // Log export — ignore errors
+    try {
+      await supabase.from('exports').insert({
+        study_id: studyId,
+        user_id: user.id,
+        pdf_url: null,
+        language: study.language,
+        completion_snapshot: study.completion_percentage,
+      })
+    } catch (_) {}
 
     return new NextResponse(printHtml, {
       headers: {
