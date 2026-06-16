@@ -2,5 +2,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "regions": ["fra1"]
+  "regions": ["iad1"],
+  "functions": {
+    "src/app/api/studies/[studyId]/export/route.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
 }
