@@ -98,7 +98,7 @@ export async function POST(request, { params }) {
       answers,
     })
 
-    // Send to PDFShift
+    // Send to PDFShift — https://docs.pdfshift.io
     const apiKey = process.env.PDFSHIFT_API_KEY
     if (!apiKey) throw new Error('PDFSHIFT_API_KEY is not set')
 
@@ -112,8 +112,7 @@ export async function POST(request, { params }) {
         source: html,
         format: 'A4',
         margin: '0',
-        print_background: true,
-        use_print: false,
+        background: true,
       }),
     })
 
@@ -151,7 +150,6 @@ export async function POST(request, { params }) {
       })
     } catch (_) {}
 
-    // Update study status
     await supabase.from('studies').update({ status: 'exported' }).eq('id', studyId)
 
     return NextResponse.json({ ok: true, url: pdfUrl })
