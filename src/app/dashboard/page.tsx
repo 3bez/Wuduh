@@ -4,6 +4,7 @@ import { formatDate } from '@/lib/utils'
 import type { Study } from '@/types/database'
 import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 // ── Logo mark ──────────────────────────────────────────────────────────────
 function LogoMark() {
@@ -44,12 +45,12 @@ export default async function DashboardPage() {
   const hasStudies = studies && studies.length > 0
 
   return (
-    <div className="min-h-screen" style={{ background: '#F4F6F8' }}>
+    <div className="min-h-screen" style={{ background: 'var(--bg-page)' }}>
 
       {/* ── Header ── */}
       <header style={{
-        background: '#fff',
-        borderBottom: '1px solid #E8ECF1',
+        background: 'var(--bg-surface)',
+        borderBottom: '1px solid var(--border-default)',
         position: 'sticky',
         top: 0,
         zIndex: 50,
@@ -64,7 +65,7 @@ export default async function DashboardPage() {
           justifyContent: 'space-between',
         }}>
           {/* Brand */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <LogoMark />
             <span style={{
               fontFamily: 'var(--font-display), "IBM Plex Serif", serif',
@@ -88,7 +89,8 @@ export default async function DashboardPage() {
           {/* Right side */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <span style={{ fontSize: 13, color: '#8795A6' }}>{user.email}</span>
-            <div style={{ width: 1, height: 16, background: '#E8ECF1' }} />
+            <ThemeToggle />
+            <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
             <LogoutButton />
           </div>
         </div>

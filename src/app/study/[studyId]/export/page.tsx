@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 type ExportState = 'idle' | 'generating' | 'done' | 'error'
 
@@ -154,7 +155,7 @@ export default function ExportPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F4F6F8' }} dir={dir}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }} dir={dir}>
       <style>{`
         .ep-back:hover { color: #0D1B2A !important; }
         .ep-primary:hover:not(:disabled) { background: #132A40 !important; }
@@ -166,20 +167,21 @@ export default function ExportPage() {
       `}</style>
 
       {/* ── Header ── */}
-      <header style={{ background: '#fff', borderBottom: '1px solid #E8ECF1', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', gap: 16 }}>
+      <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', gap: 16 }}>
         <Link href={`/study/${studyId}/overview`} className="ep-back"
           style={{ color: '#B4BFCB', transition: 'color 140ms', display: 'flex', alignItems: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d={dir === 'rtl' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
           </svg>
         </Link>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+        <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
           <svg width="22" height="22" viewBox="0 0 96 96" fill="none">
             <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C" />
             <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" strokeWidth="7.8" fill="none" strokeLinejoin="round" strokeLinecap="round" />
           </svg>
         </Link>
         <div style={{ flex: 1 }} />
+        <ThemeToggle />
         <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: '#8795A6', letterSpacing: '0.06em' }}>
           {lang === 'ar' ? 'تصدير PDF' : 'Export PDF'}
         </span>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Sans, IBM_Plex_Serif, IBM_Plex_Mono, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import './globals.css'
+import { ThemeProvider } from '@/components/ui/ThemeProvider'
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -36,11 +37,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://wuduh.site'),
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
@@ -50,9 +47,29 @@ export default function RootLayout({
         ${ibmPlexMono.variable}
         ${ibmPlexSansArabic.variable}
       `}
+      suppressHydrationWarning
     >
-      <body className="bg-slate-50 text-slate-700 font-sans antialiased">
-        {children}
+      <head>
+        {/* Prevent flash of wrong theme — runs before React hydrates */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('wuduh-theme');
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  var isDark = saved === 'dark' || (saved !== 'light' && prefersDark);
+                  if (isDark) document.documentElement.classList.add('dark');
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body style={{ fontFamily: 'var(--font-sans, sans-serif)', margin: 0 }}>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

@@ -16,7 +16,18 @@ export default function LogoutButton() {
   return (
     <button
       onClick={handleLogout}
-      className="text-sm text-slate-500 hover:text-slate-700 transition-colors"
+      style={{
+        background: 'none',
+        border: 'none',
+        fontSize: 13,
+        color: 'var(--text-faint)',
+        cursor: 'pointer',
+        padding: 0,
+        transition: 'color 140ms',
+        fontFamily: 'var(--font-sans), sans-serif',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
+      onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-faint)')}
     >
       Sign out
     </button>

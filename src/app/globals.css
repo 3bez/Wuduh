@@ -10,6 +10,101 @@
     --font-display: var(--font-display);
     --font-mono:    var(--font-mono);
     --font-arabic:  var(--font-arabic);
+
+    /* ── Light mode tokens ── */
+    --bg-page:        #F4F6F8;
+    --bg-surface:     #FFFFFF;
+    --bg-raised:      #FFFFFF;
+    --bg-subtle:      #F4F6F8;
+    --bg-input:       #FFFFFF;
+
+    --border-default: #E8ECF1;
+    --border-subtle:  #F4F6F8;
+    --border-strong:  #D4DBE3;
+
+    --text-primary:   #0D1B2A;
+    --text-secondary: #36404D;
+    --text-muted:     #647183;
+    --text-faint:     #8795A6;
+    --text-hint:      #B4BFCB;
+
+    --navy-900:  #0D1B2A;
+    --navy-800:  #132A40;
+    --navy-700:  #1B3A56;
+    --navy-50:   #EEF3F7;
+
+    --gold-500:  #C9A84C;
+    --gold-400:  #D6BC72;
+    --gold-100:  #F6EEDB;
+    --gold-700:  #8A6F26;
+
+    --teal-500:  #0D9488;
+    --teal-100:  #D8F1EE;
+    --teal-700:  #0A6E66;
+
+    --danger-500: #C0492F;
+    --danger-100: #F6E0DA;
+
+    --success-500: #15805A;
+    --success-100: #DCEFE6;
+
+    --warning-500: #D99A2B;
+    --warning-100: #F8ECCE;
+
+    --shadow-card: 0 4px 24px rgba(13,27,42,0.07), 0 1px 4px rgba(13,27,42,0.04);
+    --shadow-elevated: 0 8px 32px rgba(13,27,42,0.10), 0 2px 8px rgba(13,27,42,0.05);
+  }
+
+  /* ── Dark mode tokens ── */
+  .dark {
+    --bg-page:        #0A1118;
+    --bg-surface:     #111820;
+    --bg-raised:      #182030;
+    --bg-subtle:      #0F1720;
+    --bg-input:       #182030;
+
+    --border-default: #1E2D3D;
+    --border-subtle:  #152030;
+    --border-strong:  #2A3D52;
+
+    --text-primary:   #E8ECF1;
+    --text-secondary: #B4BFCB;
+    --text-muted:     #7BA0BF;
+    --text-faint:     #4D7CA3;
+    --text-hint:      #305F86;
+
+    --navy-900:  #E8ECF1;
+    --navy-800:  #D7E3EC;
+    --navy-700:  #AEC6D9;
+    --navy-50:   #1B2D3E;
+
+    --gold-500:  #C9A84C;
+    --gold-400:  #D6BC72;
+    --gold-100:  #2A2010;
+    --gold-700:  #D6BC72;
+
+    --teal-500:  #2EB3A6;
+    --teal-100:  #0A2520;
+    --teal-700:  #6FCCC2;
+
+    --danger-500: #E07060;
+    --danger-100: #2A1210;
+
+    --success-500: #2EB3A6;
+    --success-100: #0A2520;
+
+    --warning-500: #D6BC72;
+    --warning-100: #2A2010;
+
+    --shadow-card: 0 4px 24px rgba(0,0,0,0.3), 0 1px 4px rgba(0,0,0,0.2);
+    --shadow-elevated: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  /* ── Apply tokens to base elements ── */
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    transition: background-color 200ms ease, color 200ms ease;
   }
 
   /* RTL — applied when Arabic language is active */
@@ -25,49 +120,81 @@
     }
   }
 
-  /* Focus ring — gold, as per design system */
+  /* Focus ring — gold */
   :focus-visible {
     outline: 3px solid rgba(201, 168, 76, 0.45);
     outline-offset: 2px;
   }
+
+  /* Scrollbar — subtle in dark mode */
+  .dark ::-webkit-scrollbar { width: 6px; height: 6px; }
+  .dark ::-webkit-scrollbar-track { background: var(--bg-page); }
+  .dark ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
 }
 
 @layer components {
-  /* Eyebrow label — IBM Plex Mono, wide tracking, uppercase */
+  /* Eyebrow label */
   .eyebrow {
-    @apply font-mono text-2xs tracking-widest uppercase text-slate-400;
+    @apply font-mono text-2xs tracking-widest uppercase;
+    color: var(--text-faint);
     letter-spacing: 0.12em;
   }
 
-  /* Swipe card — the elevated card in the card journey */
+  /* Swipe card */
   .card-swipe {
-    @apply bg-white rounded-xl shadow-lg border border-slate-100;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
     border-radius: 22px;
+    box-shadow: var(--shadow-card);
   }
 
   /* Standard UI card */
   .card {
-    @apply bg-white rounded-lg border border-slate-200 shadow-sm;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: 12px;
+    box-shadow: none;
   }
 
   /* Gold accent button */
   .btn-accent {
-    @apply bg-gold-500 text-navy-900 font-medium rounded-md px-5 py-2.5
-           hover:bg-gold-400 active:translate-y-px
-           transition-all duration-150;
+    @apply font-medium rounded-md px-5 py-2.5 active:translate-y-px transition-all duration-150;
+    background: var(--gold-500);
+    color: #0D1B2A;
   }
+  .btn-accent:hover { background: var(--gold-400); }
 
   /* Navy primary button */
   .btn-primary {
-    @apply bg-navy-900 text-navy-50 font-medium rounded-md px-5 py-2.5
-           hover:bg-navy-800 active:translate-y-px
-           transition-all duration-150;
+    @apply font-medium rounded-md px-5 py-2.5 active:translate-y-px transition-all duration-150;
+    background: var(--text-primary);
+    color: var(--bg-page);
   }
+  .btn-primary:hover { opacity: 0.88; }
 
   /* Ghost button */
   .btn-ghost {
-    @apply bg-transparent text-slate-600 font-medium rounded-md px-5 py-2.5
-           hover:bg-slate-100 active:translate-y-px
-           transition-all duration-150;
+    @apply font-medium rounded-md px-5 py-2.5 active:translate-y-px transition-all duration-150;
+    background: transparent;
+    color: var(--text-muted);
   }
+  .btn-ghost:hover { background: var(--bg-subtle); }
+
+  /* Form inputs */
+  .wuduh-input {
+    background: var(--bg-input);
+    border: 1.5px solid var(--border-strong);
+    color: var(--text-primary);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 15px;
+    width: 100%;
+    outline: none;
+    transition: border-color 140ms, box-shadow 140ms;
+  }
+  .wuduh-input:focus {
+    border-color: rgba(201,168,76,0.6);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+  }
+  .wuduh-input::placeholder { color: var(--text-hint); }
 }

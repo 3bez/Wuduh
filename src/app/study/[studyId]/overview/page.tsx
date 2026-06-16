@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { SECTIONS, getCardsForSection, MANDATORY_CARDS } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
 import LogoutButton from '@/components/ui/LogoutButton'
+import ThemeToggle from '@/components/ui/ThemeToggle'
 
 interface PageProps {
   params: Promise<{ studyId: string }>
@@ -67,7 +68,7 @@ export default async function OverviewPage({ params }: PageProps) {
   const totalSkipped = sectionStats.reduce((a, s) => a + s.skipped, 0)
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F4F6F8' }} dir={dir}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }} dir={dir}>
       <style>{`
         .ov-back:hover { color: #0D1B2A !important; }
         .ov-card-row:hover { background: #FAFBFC !important; }
@@ -78,8 +79,8 @@ export default async function OverviewPage({ params }: PageProps) {
 
       {/* ── Header ── */}
       <header style={{
-        background: '#fff',
-        borderBottom: '1px solid #E8ECF1',
+        background: 'var(--bg-surface)',
+        borderBottom: '1px solid var(--border-default)',
         position: 'sticky', top: 0, zIndex: 50,
       }}>
         <div style={{
@@ -92,7 +93,7 @@ export default async function OverviewPage({ params }: PageProps) {
               <path d={dir === 'rtl' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
             </svg>
           </Link>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
             <LogoMark />
           </Link>
           <div style={{ flex: 1 }} />
@@ -102,7 +103,8 @@ export default async function OverviewPage({ params }: PageProps) {
           }}>
             {lang === 'ar' ? 'نظرة عامة' : 'Overview'}
           </span>
-          <div style={{ width: 1, height: 16, background: '#E8ECF1' }} />
+          <ThemeToggle />
+          <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
           <LogoutButton />
         </div>
       </header>
