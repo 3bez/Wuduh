@@ -1,7 +1,5 @@
 'use client'
 
-// LangCard — Card C0: language selection. Can't be skipped.
-
 import type { CardConfig, Language } from '@/types/cards'
 import { useAutoSave } from '@/hooks/useAutoSave'
 
@@ -20,32 +18,69 @@ export default function LangCard({ card, studyId, onComplete }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 pt-2 pb-4">
-      <p className="text-sm text-slate-500 text-center mb-2">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, paddingTop: 8 }}>
+      <style>{`
+        .lc-btn { transition: border-color 200ms, background 200ms, box-shadow 200ms; cursor: pointer; }
+        .lc-btn:hover:not(:disabled) { border-color: #C9A84C !important; background: #FFFBF0 !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.1) !important; }
+        .lc-btn:active:not(:disabled) { transform: translateY(1px); }
+        .lc-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+      `}</style>
+
+      <p style={{ fontSize: 13, color: '#647183', lineHeight: 1.6, marginBottom: 4 }}>
         {card.en.helper}
       </p>
-      <div className="flex flex-col sm:flex-row gap-3 w-full">
-        {card.options?.map(opt => (
-          <button
-            key={opt.value}
-            onClick={() => choose(opt.value as Language)}
-            disabled={saving}
-            dir={opt.dir}
-            className="flex-1 py-5 rounded-xl border-2 border-slate-200
-                       hover:border-gold-500 hover:bg-gold-100/40
-                       active:scale-[0.98] transition-all duration-150
-                       text-center font-medium text-navy-900 text-lg
-                       focus:outline-none focus:ring-2 focus:ring-gold-500/40"
-          >
-            <span className="block font-display text-2xl mb-1">
+
+      {card.options?.map(opt => (
+        <button
+          key={opt.value}
+          onClick={() => choose(opt.value as Language)}
+          disabled={saving}
+          dir={opt.dir}
+          className="lc-btn"
+          style={{
+            width: '100%',
+            padding: '20px 24px',
+            borderRadius: 12,
+            border: '1.5px solid #E8ECF1',
+            background: '#fff',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexDirection: opt.dir === 'rtl' ? 'row-reverse' : 'row',
+          }}
+        >
+          <div style={{ textAlign: opt.dir === 'rtl' ? 'right' : 'left' }}>
+            <div style={{
+              fontFamily: opt.dir === 'rtl'
+                ? 'var(--font-arabic), "IBM Plex Sans Arabic", sans-serif'
+                : 'var(--font-display), "IBM Plex Serif", serif',
+              fontSize: 20,
+              fontWeight: 500,
+              color: '#0D1B2A',
+              marginBottom: 3,
+            }}>
               {opt.label_en}
-            </span>
-            <span className="block font-arabic text-base text-slate-500">
+            </div>
+            <div style={{
+              fontFamily: 'var(--font-arabic), "IBM Plex Sans Arabic", sans-serif',
+              fontSize: 14,
+              color: '#8795A6',
+              direction: 'rtl',
+            }}>
               {opt.label_ar}
-            </span>
-          </button>
-        ))}
-      </div>
+            </div>
+          </div>
+          <svg
+            width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="#D4DBE3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            aria-hidden="true"
+            style={{ flexShrink: 0 }}
+          >
+            <path d={opt.dir === 'rtl' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'} />
+          </svg>
+        </button>
+      ))}
     </div>
   )
 }

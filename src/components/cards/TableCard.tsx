@@ -1,13 +1,9 @@
 'use client'
 
-// TableCard — repeatable rows (competitors, team, risks).
-// Add up to max_rows. Delete individual rows. Auto-saves on every change.
-
 import { useState, useCallback } from 'react'
 import type { CardConfig, Language, TableColumn } from '@/types/cards'
 import { localise } from '@/lib/cards/loader'
 import { useAutoSave } from '@/hooks/useAutoSave'
-import { cn } from '@/lib/utils'
 
 type Row = Record<string, string>
 
@@ -33,11 +29,11 @@ export default function TableCard({ card, lang, studyId, initialRows, onComplete
   const { save, saving, lastSaved } = useAutoSave(studyId)
   const content = localise(card, lang)
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
+  const isRiskTable = card.id === '8.1'
+  const likelihoodOpts = card.likelihood_options?.[lang] ?? []
 
   const autoSave = useCallback(
-    (nextRows: Row[]) => {
-      save({ card_id: card.id, answer: nextRows, status: 'done' }, 600)
-    },
+    (nextRows: Row[]) => save({ card_id: card.id, answer: nextRows, status: 'done' }, 600),
     [card.id, save]
   )
 
@@ -72,48 +68,76 @@ export default function TableCard({ card, lang, studyId, initialRows, onComplete
     onSkip()
   }
 
-  // Special: likelihood dropdown for risk table
-  const isRiskTable = card.id === '8.1'
-  const likelihoodOpts = card.likelihood_options?.[lang] ?? []
-
   return (
-    <div className="flex flex-col gap-4" dir={dir}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} dir={dir}>
+      <style>{`
+        .tbl-cell:focus { border-color: rgba(201,168,76,0.6) !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.1) !important; outline: none !important; }
+        .tbl-del { transition: color 140ms, background 140ms; }
+        .tbl-del:hover:not(:disabled) { color: #C0492F !important; background: #F6E0DA !important; }
+        .tbl-add:hover { color: #8A6F26 !important; }
+        .tbl-done:hover:not(:disabled) { background: #132A40 !important; }
+        .tbl-done:disabled { opacity: 0.55; cursor: not-allowed; }
+        .tbl-skip:hover:not(:disabled) { color: #36404D !important; background: #F4F6F8 !important; }
+      `}</style>
+
       {/* Table */}
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
-        <table className="w-full text-sm min-w-[480px]">
+      <div style={{
+        border: '1px solid #E8ECF1',
+        borderRadius: 10,
+        overflow: 'hidden',
+        overflowX: 'auto',
+      }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 460 }}>
           <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
+            <tr style={{ background: '#F4F6F8', borderBottom: '1px solid #E8ECF1' }}>
               {cols.map(col => (
                 <th
                   key={col.key}
-                  style={{ width: `${col.width_pct}%` }}
-                  className={cn(
-                    'px-3 py-2.5 text-xs font-medium text-slate-500 eyebrow',
-                    lang === 'ar' ? 'text-right' : 'text-left'
-                  )}
+                  style={{
+                    width: `${col.width_pct}%`,
+                    padding: '10px 12px',
+                    textAlign: dir === 'rtl' ? 'right' : 'left',
+                    fontFamily: 'var(--font-mono), monospace',
+                    fontSize: 10,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    color: '#8795A6',
+                    fontWeight: 500,
+                  }}
                 >
                   {col[lang]}
                 </th>
               ))}
-              <th className="w-8" />
+              <th style={{ width: 36 }} />
             </tr>
           </thead>
           <tbody>
             {rows.map((row, rowIdx) => (
-              <tr key={rowIdx} className="border-b border-slate-100 last:border-0">
+              <tr
+                key={rowIdx}
+                style={{
+                  borderBottom: rowIdx < rows.length - 1 ? '1px solid #F4F6F8' : undefined,
+                }}
+              >
                 {cols.map(col => (
-                  <td key={col.key} className="px-3 py-2 align-top">
+                  <td key={col.key} style={{ padding: '8px 8px', verticalAlign: 'top' }}>
                     {isRiskTable && col.key === 'likelihood' ? (
                       <select
                         value={row[col.key] ?? ''}
                         onChange={e => updateCell(rowIdx, col.key, e.target.value)}
+                        className="tbl-cell"
                         dir={dir}
-                        className={cn(
-                          'w-full rounded-md border border-slate-200 px-2 py-1.5',
-                          'text-sm text-navy-900 bg-white',
-                          'focus:outline-none focus:ring-2 focus:ring-gold-500/40',
-                          lang === 'ar' && 'font-arabic'
-                        )}
+                        style={{
+                          width: '100%',
+                          border: '1.5px solid #E8ECF1',
+                          borderRadius: 7,
+                          padding: '8px 10px',
+                          fontSize: 13,
+                          color: '#0D1B2A',
+                          background: '#fff',
+                          transition: 'border-color 140ms, box-shadow 140ms',
+                          fontFamily: lang === 'ar' ? 'var(--font-arabic), sans-serif' : 'var(--font-sans), sans-serif',
+                        }}
                       >
                         <option value="">—</option>
                         {likelihoodOpts.map(o => (
@@ -124,31 +148,50 @@ export default function TableCard({ card, lang, studyId, initialRows, onComplete
                       <textarea
                         value={row[col.key] ?? ''}
                         onChange={e => updateCell(rowIdx, col.key, e.target.value)}
+                        className="tbl-cell"
                         dir={dir}
                         rows={2}
                         placeholder="—"
-                        className={cn(
-                          'w-full rounded-md border border-slate-200 px-2 py-1.5',
-                          'text-sm text-navy-900 placeholder:text-slate-300 resize-none',
-                          'focus:outline-none focus:ring-2 focus:ring-gold-500/40',
-                          'transition-colors duration-150',
-                          lang === 'ar' && 'font-arabic text-right'
-                        )}
+                        style={{
+                          width: '100%',
+                          border: '1.5px solid #E8ECF1',
+                          borderRadius: 7,
+                          padding: '8px 10px',
+                          fontSize: 13,
+                          color: '#0D1B2A',
+                          background: '#fff',
+                          resize: 'none',
+                          transition: 'border-color 140ms, box-shadow 140ms',
+                          fontFamily: lang === 'ar' ? 'var(--font-arabic), sans-serif' : 'var(--font-sans), sans-serif',
+                          textAlign: dir === 'rtl' ? 'right' : 'left',
+                        }}
                       />
                     )}
                   </td>
                 ))}
-                <td className="px-2 py-2 align-top">
+                <td style={{ padding: '8px 6px', verticalAlign: 'top' }}>
                   <button
+                    className="tbl-del"
                     onClick={() => deleteRow(rowIdx)}
                     disabled={rows.length === 1}
-                    className="w-7 h-7 flex items-center justify-center rounded text-slate-300
-                               hover:text-danger-500 hover:bg-danger-100
-                               disabled:opacity-0 transition-colors"
                     aria-label="Delete row"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: 6,
+                      border: 'none',
+                      background: 'transparent',
+                      color: '#D4DBE3',
+                      cursor: rows.length === 1 ? 'not-allowed' : 'pointer',
+                      opacity: rows.length === 1 ? 0 : 1,
+                      transition: 'opacity 140ms',
+                    }}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
                   </button>
                 </td>
@@ -162,35 +205,85 @@ export default function TableCard({ card, lang, studyId, initialRows, onComplete
       {rows.length < maxRows && (
         <button
           onClick={addRow}
-          className={cn(
-            'flex items-center gap-2 text-sm text-gold-600 font-medium',
-            'hover:text-gold-700 transition-colors w-fit',
-            lang === 'ar' && 'flex-row-reverse'
-          )}
+          className="tbl-add"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 13,
+            fontWeight: 500,
+            color: '#C9A84C',
+            padding: 0,
+            transition: 'color 140ms',
+            flexDirection: dir === 'rtl' ? 'row-reverse' : 'row',
+            fontFamily: 'var(--font-sans), sans-serif',
+          }}
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 4v16m8-8H4" />
           </svg>
           {lang === 'ar' ? 'إضافة صف' : 'Add row'}
         </button>
       )}
 
       {/* Save status */}
-      <span className="text-xs text-slate-400">
-        {saving ? (lang === 'ar' ? 'جاري الحفظ…' : 'Saving…') : lastSaved ? (lang === 'ar' ? 'تم الحفظ' : 'Saved') : ''}
-      </span>
+      <div style={{ minHeight: 16 }}>
+        <span style={{
+          fontFamily: 'var(--font-mono), monospace',
+          fontSize: 11,
+          color: saving ? '#C9A84C' : '#B4BFCB',
+        }}>
+          {saving
+            ? (lang === 'ar' ? '· جاري الحفظ…' : '· Saving…')
+            : lastSaved
+            ? (lang === 'ar' ? '· تم الحفظ' : '· Saved')
+            : ''}
+        </span>
+      </div>
 
       {/* Actions */}
-      <div className={cn('flex gap-3 mt-2', lang === 'ar' && 'flex-row-reverse')}>
+      <div style={{ display: 'flex', gap: 10, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
         <button
+          className="tbl-done"
           onClick={handleComplete}
           disabled={saving}
-          className="flex-1 btn-primary py-3 text-sm"
+          style={{
+            flex: 1,
+            background: '#0D1B2A',
+            color: '#EEF3F7',
+            border: 'none',
+            borderRadius: 9,
+            padding: '13px 0',
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'background 140ms',
+            fontFamily: 'var(--font-sans), sans-serif',
+          }}
         >
-          {lang === 'ar' ? 'تم ← التالي' : 'Done — next card'}
+          {lang === 'ar' ? 'تم — البطاقة التالية' : 'Done — next card'}
         </button>
         {!card.required && (
-          <button onClick={handleSkip} disabled={saving} className="btn-ghost py-3 text-sm px-4">
+          <button
+            className="tbl-skip"
+            onClick={handleSkip}
+            disabled={saving}
+            style={{
+              background: 'transparent',
+              border: '1.5px solid #E8ECF1',
+              borderRadius: 9,
+              padding: '13px 16px',
+              fontSize: 13,
+              color: '#8795A6',
+              cursor: 'pointer',
+              transition: 'color 140ms, background 140ms',
+              fontFamily: 'var(--font-sans), sans-serif',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {lang === 'ar' ? 'تخطّ' : 'Skip for now'}
           </button>
         )}

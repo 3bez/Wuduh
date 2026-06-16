@@ -1,14 +1,10 @@
 'use client'
 
-// UploadCard — file upload (logo or solution visuals).
-// Uploads to Supabase Storage. Saves URL to answers table.
-
 import { useState, useRef, useEffect } from 'react'
 import type { CardConfig, Language } from '@/types/cards'
 import { localise } from '@/lib/cards/loader'
 import { createClient } from '@/lib/supabase/client'
 import { useAutoSave } from '@/hooks/useAutoSave'
-import { cn } from '@/lib/utils'
 
 interface Props {
   card: CardConfig
@@ -21,23 +17,21 @@ interface Props {
 }
 
 export default function UploadCard({ card, lang, studyId, userId, initialUrl, onComplete, onSkip }: Props) {
-  const [preview, setPreview] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
+  const [preview, setPreview]       = useState<string | null>(null)
+  const [uploading, setUploading]   = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
-  const { save, saving } = useAutoSave(studyId)
-  const content = localise(card, lang)
-  const dir = lang === 'ar' ? 'rtl' : 'ltr'
-  const fileRef = useRef<HTMLInputElement>(null)
-  const config = card.upload_config ?? { accept: 'image/*', max_mb: 5, preview: true }
+  const [dragging, setDragging]     = useState(false)
+  const { save, saving }            = useAutoSave(studyId)
+  const content                     = localise(card, lang)
+  const dir                         = lang === 'ar' ? 'rtl' : 'ltr'
+  const fileRef                     = useRef<HTMLInputElement>(null)
+  const config                      = card.upload_config ?? { accept: 'image/*', max_mb: 5, preview: true }
 
-  // On mount: sign the stored path for preview, or use direct URL for legacy answers
   useEffect(() => {
     if (!initialUrl) return
-    // If it looks like a storage path (no protocol) sign it; otherwise use as-is
     if (!initialUrl.startsWith('http')) {
       const supabase = createClient()
-      supabase.storage
-        .from('wuduh-uploads')
+      supabase.storage.from('wuduh-uploads')
         .createSignedUrl(initialUrl, 60 * 60 * 24 * 7)
         .then(({ data }) => { if (data?.signedUrl) setPreview(data.signedUrl) })
     } else {
@@ -45,46 +39,49 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
     }
   }, [initialUrl])
 
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
+  async function handleFile(file: File) {
     setUploadError(null)
-
     if (file.size > config.max_mb * 1024 * 1024) {
-      setUploadError(`File must be under ${config.max_mb}MB`)
+      setUploadError(lang === 'ar'
+        ? `الحجم الأقصى ${config.max_mb} ميغابايت`
+        : `File must be under ${config.max_mb} MB`)
       return
     }
-
     setUploading(true)
     try {
       const supabase = createClient()
-      const ext = file.name.split('.').pop()
+      const ext  = file.name.split('.').pop()
       const path = `${userId}/${studyId}/${card.id}-${Date.now()}.${ext}`
 
       const { error: storageError } = await supabase.storage
         .from('wuduh-uploads')
         .upload(path, file, { upsert: true })
-
       if (storageError) throw new Error(storageError.message)
 
-      // Private bucket — get a long-lived signed URL (7 days) for preview and storage.
-      // The export route re-signs the URL server-side at export time.
       const { data: signed, error: signError } = await supabase.storage
         .from('wuduh-uploads')
-        .createSignedUrl(path, 60 * 60 * 24 * 7) // 7 days
-
+        .createSignedUrl(path, 60 * 60 * 24 * 7)
       if (signError || !signed?.signedUrl) throw new Error(signError?.message ?? 'Could not sign URL')
 
-      const signedUrl = signed.signedUrl
-
-      setPreview(signedUrl)
+      setPreview(signed.signedUrl)
       await save({ card_id: card.id, answer: path, status: 'done' })
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setUploading(false)
     }
+  }
+
+  function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) handleFile(file)
+  }
+
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) handleFile(file)
   }
 
   async function handleComplete() {
@@ -97,84 +94,161 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
     onSkip()
   }
 
+  const busy = uploading || saving
+
   return (
-    <div className="flex flex-col gap-4" dir={dir}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} dir={dir}>
+      <style>{`
+        .uc-zone { transition: border-color 200ms, background 200ms; }
+        .uc-zone:hover:not(.busy) { border-color: #C9A84C !important; background: #FFFBF0 !important; }
+        .uc-done:hover:not(:disabled) { background: #132A40 !important; }
+        .uc-done:disabled { opacity: 0.55; cursor: not-allowed; }
+        .uc-skip:hover:not(:disabled) { color: #36404D !important; background: #F4F6F8 !important; }
+        .uc-change:hover { color: #8A6F26 !important; }
+      `}</style>
+
       {/* Drop zone */}
-      <button
-        type="button"
-        onClick={() => fileRef.current?.click()}
-        disabled={uploading}
-        className={cn(
-          'w-full rounded-xl border-2 border-dashed border-slate-200',
-          'hover:border-gold-400 hover:bg-gold-50/50',
-          'transition-colors duration-200',
-          'flex flex-col items-center justify-center',
-          'min-h-[180px] py-8 px-6 gap-3',
-          uploading && 'opacity-60 cursor-wait'
-        )}
+      <div
+        className={`uc-zone${busy ? ' busy' : ''}`}
+        onDragOver={e => { e.preventDefault(); setDragging(true) }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={onDrop}
+        onClick={() => !busy && fileRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && !busy && fileRef.current?.click()}
+        aria-label={lang === 'ar' ? 'انقر أو اسحب لرفع صورة' : 'Click or drag to upload an image'}
+        style={{
+          border: `1.5px dashed ${dragging ? '#C9A84C' : '#D4DBE3'}`,
+          borderRadius: 12,
+          background: dragging ? '#FFFBF0' : '#fff',
+          cursor: busy ? 'not-allowed' : 'pointer',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: preview ? 'auto' : 180,
+          padding: preview ? 20 : '40px 20px',
+          gap: 12,
+          opacity: busy && !preview ? 0.7 : 1,
+          transition: 'border-color 200ms, background 200ms',
+        }}
       >
-        {preview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={preview}
-            alt="Preview"
-            className="max-h-32 max-w-[200px] object-contain rounded"
-          />
-        ) : (
+        {uploading ? (
           <>
-            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center">
-              <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <p className="text-sm text-slate-500 text-center">
-              {uploading
-                ? (lang === 'ar' ? 'جاري الرفع…' : 'Uploading…')
-                : (lang === 'ar' ? 'انقر لاختيار ملف' : 'Click to choose a file')}
-            </p>
-            <p className="text-xs text-slate-400">
-              {lang === 'ar'
-                ? `PNG, JPG, SVG — حتى ${config.max_mb}MB`
-                : `PNG, JPG, SVG — up to ${config.max_mb}MB`}
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true">
+              <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
+              <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            </svg>
+            <p style={{ fontSize: 13, color: '#8795A6' }}>
+              {lang === 'ar' ? 'جاري الرفع…' : 'Uploading…'}
             </p>
           </>
+        ) : preview ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: '100%', flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
+            <div style={{ width: 72, height: 72, borderRadius: 10, border: '1px solid #E8ECF1', background: '#F4F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={preview} alt="Preview" style={{ width: 60, height: 60, objectFit: 'contain' }} />
+            </div>
+            <div style={{ flex: 1, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', marginBottom: 4 }}>
+                {lang === 'ar' ? 'تم رفع الصورة' : 'Image uploaded'}
+              </p>
+              <button
+                className="uc-change"
+                onClick={e => { e.stopPropagation(); fileRef.current?.click() }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#C9A84C', padding: 0, transition: 'color 140ms' }}
+              >
+                {lang === 'ar' ? 'تغيير الصورة' : 'Change image'}
+              </button>
+            </div>
+            <button
+              onClick={e => { e.stopPropagation(); setPreview(null) }}
+              aria-label="Remove image"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B4BFCB', padding: 4, flexShrink: 0, transition: 'color 140ms' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        ) : (
+          <>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#F4F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8795A6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{ fontSize: 14, fontWeight: 500, color: '#36404D', marginBottom: 4 }}>
+                {lang === 'ar' ? 'اسحب الصورة هنا أو انقر للاختيار' : 'Drop image here or click to browse'}
+              </p>
+              <p style={{ fontSize: 12, color: '#8795A6' }}>
+                {lang === 'ar'
+                  ? `PNG · SVG · JPG — حتى ${config.max_mb} ميغابايت`
+                  : `PNG · SVG · JPG — up to ${config.max_mb} MB`}
+              </p>
+            </div>
+          </>
         )}
-      </button>
+      </div>
 
       <input
         ref={fileRef}
         type="file"
         accept={config.accept}
-        className="hidden"
-        onChange={handleFile}
+        style={{ display: 'none' }}
+        onChange={onInputChange}
       />
 
-      {preview && (
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          className="text-xs text-gold-600 hover:text-gold-700 transition-colors w-fit"
-        >
-          {lang === 'ar' ? 'تغيير الملف' : 'Change file'}
-        </button>
-      )}
-
       {uploadError && (
-        <p className="text-sm text-danger-500">{uploadError}</p>
+        <div style={{ background: '#F6E0DA', color: '#A53D27', fontSize: 13, borderRadius: 8, padding: '10px 14px' }}>
+          {uploadError}
+        </div>
       )}
 
       {/* Actions */}
-      <div className={cn('flex gap-3 mt-2', lang === 'ar' && 'flex-row-reverse')}>
+      <div style={{ display: 'flex', gap: 10, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
         <button
+          className="uc-done"
           onClick={handleComplete}
-          disabled={!preview || saving || uploading}
-          className={cn('flex-1 btn-primary py-3 text-sm', (!preview || saving) && 'opacity-60')}
+          disabled={!preview || busy}
+          style={{
+            flex: 1,
+            background: '#0D1B2A',
+            color: '#EEF3F7',
+            border: 'none',
+            borderRadius: 9,
+            padding: '13px 0',
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: !preview || busy ? 'not-allowed' : 'pointer',
+            transition: 'background 140ms',
+            fontFamily: 'var(--font-sans), sans-serif',
+          }}
         >
-          {lang === 'ar' ? 'تم ← التالي' : 'Done — next card'}
+          {lang === 'ar' ? 'تم — البطاقة التالية' : 'Done — next card'}
         </button>
         {!card.required && (
-          <button onClick={handleSkip} disabled={saving || uploading} className="btn-ghost py-3 text-sm px-4">
+          <button
+            className="uc-skip"
+            onClick={handleSkip}
+            disabled={busy}
+            style={{
+              background: 'transparent',
+              border: '1.5px solid #E8ECF1',
+              borderRadius: 9,
+              padding: '13px 16px',
+              fontSize: 13,
+              color: '#8795A6',
+              cursor: busy ? 'not-allowed' : 'pointer',
+              transition: 'color 140ms, background 140ms',
+              fontFamily: 'var(--font-sans), sans-serif',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {lang === 'ar' ? 'تخطّ' : 'Skip for now'}
           </button>
         )}
