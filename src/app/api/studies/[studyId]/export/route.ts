@@ -98,21 +98,21 @@ export async function POST(request, { params }) {
       answers,
     })
 
-    // Send to PDFShift — https://docs.pdfshift.io
+    // Send to PDFShift v3
     const apiKey = process.env.PDFSHIFT_API_KEY
     if (!apiKey) throw new Error('PDFSHIFT_API_KEY is not set')
 
     const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
       method: 'POST',
       headers: {
-        'Authorization': 'Basic ' + Buffer.from(`api:${apiKey}`).toString('base64'),
+        'X-API-Key': apiKey,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         source: html,
         format: 'A4',
         margin: '0',
-        background: true,
+        landscape: false,
       }),
     })
 
