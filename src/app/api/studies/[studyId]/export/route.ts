@@ -1,5 +1,5 @@
 // POST /api/studies/[studyId]/export
-// Generates a PDF using PDFShift (hosted Chromium) and returns a download URL.
+// Generates a PDF using PDFShift and returns a signed download URL.
 
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
@@ -11,7 +11,11 @@ async function urlToBase64(url: string): Promise<string | null> {
     if (!res.ok) return null
     const contentType = (res.headers.get('content-type') ?? 'image/png').split(';')[0].trim()
     const buffer = await res.arrayBuffer()
-    const base64 = Buffer.from(buffer).toString('base64')
+    // Use Web API instead of Node.js Buffer
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
+    const base64 = btoa(binary)
     return `data:${contentType};base64,${base64}`
   } catch {
     return null
@@ -28,6 +32,13 @@ function extractStoragePath(url: string): string | null {
   }
 }
 
+async function arrayBufferToBase64(buffer: ArrayBuffer): Promise<string> {
+  const bytes = new Uint8Array(buffer)
+  let binary = ''
+  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
+  return btoa(binary)
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ studyId: string }> }
@@ -40,17 +51,13 @@ export async function POST(
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { data: study } = await supabase
-      .from('studies')
-      .select('*')
-      .eq('id', studyId)
-      .eq('user_id', user.id)
-      .single()
+      .from('studies').select('*')
+      .eq('id', studyId).eq('user_id', user.id).single()
 
     if (!study) return NextResponse.json({ error: 'Study not found' }, { status: 404 })
 
     const { data: answersRaw } = await supabase
-      .from('answers')
-      .select('card_id, answer, status')
+      .from('answers').select('card_id, answer, status')
       .eq('study_id', studyId)
 
     const answers = Object.fromEntries(
@@ -61,14 +68,13 @@ export async function POST(
     const founderName = answers['C3']?.answer ?? null
     const rawLogoUrl  = answers['C1']?.answer ?? study.logo_url ?? null
 
-    // Convert logo to base64
+    // Convert logo to base64 (Web API)
     let logoDataUri = null
     if (rawLogoUrl) {
       const storagePath = extractStoragePath(rawLogoUrl)
       if (storagePath) {
         const { data: signedData } = await supabase.storage
-          .from('wuduh-uploads')
-          .createSignedUrl(storagePath, 60)
+          .from('wuduh-uploads').createSignedUrl(storagePath, 60)
         if (signedData?.signedUrl) {
           logoDataUri = await urlToBase64(signedData.signedUrl)
         }
@@ -84,13 +90,9 @@ export async function POST(
     }
 
     if (startupName && startupName !== study.startup_name) {
-      await supabase
-        .from('studies')
-        .update({ startup_name: startupName })
-        .eq('id', studyId)
+      await supabase.from('studies').update({ startup_name: startupName }).eq('id', studyId)
     }
 
-    // Build HTML
     const html = buildPdfHtml({
       startup_name: startupName,
       founder_name: founderName,
@@ -100,22 +102,13 @@ export async function POST(
       answers,
     })
 
-    // Send to PDFShift v3
     const apiKey = process.env.PDFSHIFT_API_KEY
     if (!apiKey) throw new Error('PDFSHIFT_API_KEY is not set')
 
     const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
       method: 'POST',
-      headers: {
-        'X-API-Key': apiKey,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        source: html,
-        format: 'A4',
-        margin: '0',
-        landscape: false,
-      }),
+      headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: html, format: 'A4', margin: '0', landscape: false }),
     })
 
     if (!pdfResponse.ok) {
@@ -123,32 +116,29 @@ export async function POST(
       throw new Error(`PDFShift error ${pdfResponse.status}: ${errText}`)
     }
 
-    // Get PDF bytes
-    const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer())
+    // Convert PDF to base64 using Web API (no Buffer)
+    const pdfArrayBuffer = await pdfResponse.arrayBuffer()
+    const pdfBase64 = await arrayBufferToBase64(pdfArrayBuffer)
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage as base64-decoded bytes
+    const pdfBytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0))
     const filename = `${user.id}/${studyId}/export-${Date.now()}.pdf`
+
     const { error: uploadError } = await supabase.storage
       .from('wuduh-uploads')
-      .upload(filename, pdfBuffer, { contentType: 'application/pdf', upsert: true })
+      .upload(filename, pdfBytes, { contentType: 'application/pdf', upsert: true })
 
     if (uploadError) throw new Error(uploadError.message)
 
-    // Create signed download URL (1 hour)
     const { data: signed } = await supabase.storage
-      .from('wuduh-uploads')
-      .createSignedUrl(filename, 3600)
+      .from('wuduh-uploads').createSignedUrl(filename, 3600)
 
     const pdfUrl = signed?.signedUrl ?? null
 
-    // Save export record
     try {
       await supabase.from('exports').insert({
-        study_id: studyId,
-        user_id: user.id,
-        pdf_url: pdfUrl,
-        language: study.language,
-        completion_snapshot: study.completion_percentage,
+        study_id: studyId, user_id: user.id, pdf_url: pdfUrl,
+        language: study.language, completion_snapshot: study.completion_percentage,
       })
     } catch (_) {}
 

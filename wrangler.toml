@@ -1,0 +1,4 @@
+# Wuduh — deployment notes
+
+Deployed via Coolify on a self-hosted VPS.
+See Dockerfile for build configuration.
