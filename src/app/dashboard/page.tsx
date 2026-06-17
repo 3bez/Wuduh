@@ -62,10 +62,9 @@ export default async function DashboardPage() {
         borderBottom: '1px solid var(--border-default)',
         position: 'sticky', top: 0, zIndex: 50,
       }}>
-        <div style={{
+        <div className="db-header-inner" style={{
           maxWidth: 1120, margin: '0 auto', padding: '0 24px',
           height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }} className="db-header-inner"
         }}>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <LogoMark />

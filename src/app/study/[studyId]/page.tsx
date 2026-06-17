@@ -85,10 +85,9 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
         borderBottom: '1px solid var(--border-default)',
         position: 'sticky', top: 0, zIndex: 50,
       }}>
-        <div style={{
+        <div className="sj-header-inner" style={{
           maxWidth: 1120, margin: '0 auto', padding: '0 20px',
           height: 56, display: 'flex', alignItems: 'center', gap: 16,
-        }} className="sj-header-inner"
         }}>
           {/* Back to dashboard */}
           <Link href="/dashboard" className="sj-back" aria-label="Back to dashboard"
