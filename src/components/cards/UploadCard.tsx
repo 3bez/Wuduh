@@ -7,13 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useAutoSave } from '@/hooks/useAutoSave'
 
 interface Props {
-  card: CardConfig
-  lang: Language
-  studyId: string
-  userId: string
-  initialUrl?: string
-  onComplete: (url: string) => void
-  onSkip: () => void
+  card: CardConfig; lang: Language; studyId: string; userId: string
+  initialUrl?: string; onComplete: (url: string) => void; onSkip: () => void
 }
 
 export default function UploadCard({ card, lang, studyId, userId, initialUrl, onComplete, onSkip }: Props) {
@@ -42,9 +37,7 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
   async function handleFile(file: File) {
     setUploadError(null)
     if (file.size > config.max_mb * 1024 * 1024) {
-      setUploadError(lang === 'ar'
-        ? `الحجم الأقصى ${config.max_mb} ميغابايت`
-        : `File must be under ${config.max_mb} MB`)
+      setUploadError(lang === 'ar' ? `الحجم الأقصى ${config.max_mb} ميغابايت` : `File must be under ${config.max_mb} MB`)
       return
     }
     setUploading(true)
@@ -52,17 +45,10 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
       const supabase = createClient()
       const ext  = file.name.split('.').pop()
       const path = `${userId}/${studyId}/${card.id}-${Date.now()}.${ext}`
-
-      const { error: storageError } = await supabase.storage
-        .from('wuduh-uploads')
-        .upload(path, file, { upsert: true })
+      const { error: storageError } = await supabase.storage.from('wuduh-uploads').upload(path, file, { upsert: true })
       if (storageError) throw new Error(storageError.message)
-
-      const { data: signed, error: signError } = await supabase.storage
-        .from('wuduh-uploads')
-        .createSignedUrl(path, 60 * 60 * 24 * 7)
+      const { data: signed, error: signError } = await supabase.storage.from('wuduh-uploads').createSignedUrl(path, 60 * 60 * 24 * 7)
       if (signError || !signed?.signedUrl) throw new Error(signError?.message ?? 'Could not sign URL')
-
       setPreview(signed.signedUrl)
       await save({ card_id: card.id, answer: path, status: 'done' })
     } catch (err) {
@@ -73,26 +59,17 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
   }
 
   function onInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) handleFile(file)
+    const file = e.target.files?.[0]; if (file) handleFile(file)
   }
 
   function onDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setDragging(false)
+    e.preventDefault(); setDragging(false)
     const file = e.dataTransfer.files?.[0]
     if (file && file.type.startsWith('image/')) handleFile(file)
   }
 
-  async function handleComplete() {
-    if (!preview) return
-    onComplete(preview)
-  }
-
-  async function handleSkip() {
-    await save({ card_id: card.id, answer: null, status: 'skipped' })
-    onSkip()
-  }
+  async function handleComplete() { if (!preview) return; onComplete(preview) }
+  async function handleSkip() { await save({ card_id: card.id, answer: null, status: 'skipped' }); onSkip() }
 
   const busy = uploading || saving
 
@@ -100,155 +77,84 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} dir={dir}>
       <style>{`
         .uc-zone { transition: border-color 200ms, background 200ms; }
-        .uc-zone:hover:not(.busy) { border-color: #C9A84C !important; background: #FFFBF0 !important; }
-        .uc-done:hover:not(:disabled) { background: #132A40 !important; }
+        .uc-zone:hover:not(.busy) { border-color: var(--gold-500) !important; background: var(--gold-100) !important; }
+        .uc-done:hover:not(:disabled) { opacity: 0.85; }
         .uc-done:disabled { opacity: 0.55; cursor: not-allowed; }
-        .uc-skip:hover:not(:disabled) { color: #36404D !important; background: #F4F6F8 !important; }
-        .uc-change:hover { color: #8A6F26 !important; }
+        .uc-skip:hover:not(:disabled) { color: var(--text-secondary) !important; background: var(--bg-subtle) !important; }
+        .uc-change:hover { color: var(--gold-700) !important; }
       `}</style>
 
-      {/* Drop zone */}
       <div
         className={`uc-zone${busy ? ' busy' : ''}`}
         onDragOver={e => { e.preventDefault(); setDragging(true) }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
         onClick={() => !busy && fileRef.current?.click()}
-        role="button"
-        tabIndex={0}
+        role="button" tabIndex={0}
         onKeyDown={e => e.key === 'Enter' && !busy && fileRef.current?.click()}
         aria-label={lang === 'ar' ? 'انقر أو اسحب لرفع صورة' : 'Click or drag to upload an image'}
         style={{
-          border: `1.5px dashed ${dragging ? '#C9A84C' : '#D4DBE3'}`,
-          borderRadius: 12,
-          background: dragging ? '#FFFBF0' : '#fff',
+          border: `1.5px dashed ${dragging ? 'var(--gold-500)' : 'var(--border-strong)'}`,
+          borderRadius: 12, background: dragging ? 'var(--gold-100)' : 'var(--bg-input)',
           cursor: busy ? 'not-allowed' : 'pointer',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          minHeight: preview ? 'auto' : 180,
-          padding: preview ? 20 : '40px 20px',
-          gap: 12,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          minHeight: preview ? 'auto' : 180, padding: preview ? 20 : '40px 20px', gap: 12,
           opacity: busy && !preview ? 0.7 : 1,
-          transition: 'border-color 200ms, background 200ms',
         }}
       >
         {uploading ? (
           <>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" strokeWidth="2" strokeLinecap="round" style={{ animation: 'spin 0.8s linear infinite' }} aria-hidden="true">
               <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
               <path d="M21 12a9 9 0 1 1-6.219-8.56" />
             </svg>
-            <p style={{ fontSize: 13, color: '#8795A6' }}>
-              {lang === 'ar' ? 'جاري الرفع…' : 'Uploading…'}
-            </p>
+            <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>{lang === 'ar' ? 'جاري الرفع…' : 'Uploading…'}</p>
           </>
         ) : preview ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, width: '100%', flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
-            <div style={{ width: 72, height: 72, borderRadius: 10, border: '1px solid #E8ECF1', background: '#F4F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+            <div style={{ width: 72, height: 72, borderRadius: 10, border: '1px solid var(--border-default)', background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={preview} alt="Preview" style={{ width: 60, height: 60, objectFit: 'contain' }} />
             </div>
             <div style={{ flex: 1, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#0D1B2A', marginBottom: 4 }}>
-                {lang === 'ar' ? 'تم رفع الصورة' : 'Image uploaded'}
-              </p>
-              <button
-                className="uc-change"
-                onClick={e => { e.stopPropagation(); fileRef.current?.click() }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#C9A84C', padding: 0, transition: 'color 140ms' }}
-              >
+              <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 4 }}>{lang === 'ar' ? 'تم رفع الصورة' : 'Image uploaded'}</p>
+              <button className="uc-change" onClick={e => { e.stopPropagation(); fileRef.current?.click() }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--gold-500)', padding: 0, transition: 'color 140ms' }}>
                 {lang === 'ar' ? 'تغيير الصورة' : 'Change image'}
               </button>
             </div>
-            <button
-              onClick={e => { e.stopPropagation(); setPreview(null) }}
-              aria-label="Remove image"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#B4BFCB', padding: 4, flexShrink: 0, transition: 'color 140ms' }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
+            <button onClick={e => { e.stopPropagation(); setPreview(null) }} aria-label="Remove image" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-hint)', padding: 4, flexShrink: 0, transition: 'color 140ms' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           </div>
         ) : (
           <>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: '#F4F6F8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8795A6" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--bg-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
               </svg>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#36404D', marginBottom: 4 }}>
-                {lang === 'ar' ? 'اسحب الصورة هنا أو انقر للاختيار' : 'Drop image here or click to browse'}
-              </p>
-              <p style={{ fontSize: 12, color: '#8795A6' }}>
-                {lang === 'ar'
-                  ? `PNG · SVG · JPG — حتى ${config.max_mb} ميغابايت`
-                  : `PNG · SVG · JPG — up to ${config.max_mb} MB`}
-              </p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 4 }}>{lang === 'ar' ? 'اسحب الصورة هنا أو انقر للاختيار' : 'Drop image here or click to browse'}</p>
+              <p style={{ fontSize: 12, color: 'var(--text-faint)' }}>{lang === 'ar' ? `PNG · SVG · JPG — حتى ${config.max_mb} ميغابايت` : `PNG · SVG · JPG — up to ${config.max_mb} MB`}</p>
             </div>
           </>
         )}
       </div>
 
-      <input
-        ref={fileRef}
-        type="file"
-        accept={config.accept}
-        style={{ display: 'none' }}
-        onChange={onInputChange}
-      />
+      <input ref={fileRef} type="file" accept={config.accept} style={{ display: 'none' }} onChange={onInputChange} />
 
       {uploadError && (
-        <div style={{ background: '#F6E0DA', color: '#A53D27', fontSize: 13, borderRadius: 8, padding: '10px 14px' }}>
+        <div style={{ background: 'var(--danger-100)', color: 'var(--danger-500)', fontSize: 13, borderRadius: 8, padding: '10px 14px' }}>
           {uploadError}
         </div>
       )}
 
-      {/* Actions */}
       <div style={{ display: 'flex', gap: 10, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
-        <button
-          className="uc-done"
-          onClick={handleComplete}
-          disabled={!preview || busy}
-          style={{
-            flex: 1,
-            background: '#0D1B2A',
-            color: '#EEF3F7',
-            border: 'none',
-            borderRadius: 9,
-            padding: '13px 0',
-            fontSize: 14,
-            fontWeight: 500,
-            cursor: !preview || busy ? 'not-allowed' : 'pointer',
-            transition: 'background 140ms',
-            fontFamily: 'var(--font-sans), sans-serif',
-          }}
-        >
+        <button className="uc-done" onClick={handleComplete} disabled={!preview || busy} style={{ flex: 1, background: 'var(--text-primary)', color: 'var(--bg-page)', border: 'none', borderRadius: 9, padding: '13px 0', fontSize: 14, fontWeight: 500, cursor: !preview || busy ? 'not-allowed' : 'pointer', transition: 'opacity 140ms', fontFamily: 'var(--font-sans), sans-serif' }}>
           {lang === 'ar' ? 'تم — البطاقة التالية' : 'Done — next card'}
         </button>
         {!card.required && (
-          <button
-            className="uc-skip"
-            onClick={handleSkip}
-            disabled={busy}
-            style={{
-              background: 'transparent',
-              border: '1.5px solid #E8ECF1',
-              borderRadius: 9,
-              padding: '13px 16px',
-              fontSize: 13,
-              color: '#8795A6',
-              cursor: busy ? 'not-allowed' : 'pointer',
-              transition: 'color 140ms, background 140ms',
-              fontFamily: 'var(--font-sans), sans-serif',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <button className="uc-skip" onClick={handleSkip} disabled={busy} style={{ background: 'transparent', border: '1.5px solid var(--border-default)', borderRadius: 9, padding: '13px 16px', fontSize: 13, color: 'var(--text-faint)', cursor: busy ? 'not-allowed' : 'pointer', transition: 'color 140ms, background 140ms', fontFamily: 'var(--font-sans), sans-serif', whiteSpace: 'nowrap' }}>
             {lang === 'ar' ? 'تخطّ' : 'Skip for now'}
           </button>
         )}

@@ -44,38 +44,21 @@ export default function TextCard({ card, lang, studyId, initialValue = '', onCom
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} dir={dir}>
       <style>{`
-        .tc-textarea:focus { border-color: rgba(201,168,76,0.6) !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.1) !important; outline: none !important; }
-        .tc-done:hover:not(:disabled) { background: #132A40 !important; }
+        .tc-ta { background: var(--bg-input); border: 1.5px solid var(--border-strong); color: var(--text-primary); border-radius: 10px; }
+        .tc-ta::placeholder { color: var(--text-hint); }
+        .tc-ta:focus { border-color: rgba(201,168,76,0.6) !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.12) !important; outline: none !important; }
+        .tc-done:hover:not(:disabled) { opacity: 0.85; }
         .tc-done:disabled { opacity: 0.55; cursor: not-allowed; }
-        .tc-skip:hover:not(:disabled) { color: #36404D !important; background: #F4F6F8 !important; }
+        .tc-skip:hover:not(:disabled) { color: var(--text-secondary) !important; background: var(--bg-subtle) !important; }
       `}</style>
 
-      {/* Example block */}
+      {/* Example */}
       {content.example && (
-        <div style={{
-          background: '#F4F6F8',
-          border: '1px solid #E8ECF1',
-          borderRadius: 8,
-          padding: '10px 14px',
-        }}>
-          <p style={{
-            fontFamily: 'var(--font-mono), monospace',
-            fontSize: 9,
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
-            color: '#8795A6',
-            marginBottom: 5,
-          }}>
+        <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', borderRadius: 8, padding: '10px 14px' }}>
+          <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 5 }}>
             {lang === 'ar' ? 'مثال' : 'Example'}
           </p>
-          <p style={{
-            fontSize: 13,
-            color: '#4A5666',
-            lineHeight: 1.6,
-            fontStyle: 'italic',
-            fontFamily: lang === 'ar' ? 'var(--font-arabic), sans-serif' : undefined,
-            textAlign: dir === 'rtl' ? 'right' : 'left',
-          }}>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6, fontStyle: 'italic', fontFamily: lang === 'ar' ? 'var(--font-arabic), sans-serif' : undefined, textAlign: dir === 'rtl' ? 'right' : 'left' }}>
             {content.example}
           </p>
         </div>
@@ -84,7 +67,7 @@ export default function TextCard({ card, lang, studyId, initialValue = '', onCom
       {/* Textarea */}
       <div style={{ position: 'relative' }}>
         <textarea
-          className="tc-textarea"
+          className="tc-ta"
           value={value}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -93,47 +76,19 @@ export default function TextCard({ card, lang, studyId, initialValue = '', onCom
           maxLength={maxLen}
           placeholder={lang === 'ar' ? 'اكتب إجابتك هنا…' : 'Write your answer here…'}
           style={{
-            width: '100%',
-            border: '1.5px solid #D4DBE3',
-            borderRadius: 10,
-            padding: '13px 16px',
-            paddingBottom: 36,
-            fontSize: 15,
-            color: '#0D1B2A',
-            background: '#fff',
-            resize: 'none',
-            lineHeight: 1.6,
+            width: '100%', padding: '13px 16px', paddingBottom: 36,
+            fontSize: 15, resize: 'none', lineHeight: 1.6,
             transition: 'border-color 140ms, box-shadow 140ms',
-            fontFamily: lang === 'ar'
-              ? 'var(--font-arabic), "IBM Plex Sans Arabic", sans-serif'
-              : 'var(--font-sans), "IBM Plex Sans", sans-serif',
+            fontFamily: lang === 'ar' ? 'var(--font-arabic), sans-serif' : 'var(--font-sans), sans-serif',
             textAlign: dir === 'rtl' ? 'right' : 'left',
           }}
         />
-        {/* Character bar */}
-        <div style={{
-          position: 'absolute',
-          bottom: 10,
-          left: dir === 'rtl' ? 'auto' : 14,
-          right: dir === 'rtl' ? 14 : 'auto',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
-          <div style={{ width: 64, height: 3, background: '#E8ECF1', borderRadius: 99, overflow: 'hidden' }}>
-            <div style={{
-              height: '100%',
-              width: `${pct}%`,
-              borderRadius: 99,
-              background: pct > 90 ? '#C0492F' : '#C9A84C',
-              transition: 'width 200ms, background 200ms',
-            }} />
+        {/* Char bar */}
+        <div style={{ position: 'absolute', bottom: 10, left: dir === 'rtl' ? 'auto' : 14, right: dir === 'rtl' ? 14 : 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 64, height: 3, background: 'var(--border-default)', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: pct > 90 ? 'var(--danger-500)' : 'var(--gold-500)', transition: 'width 200ms, background 200ms' }} />
           </div>
-          <span style={{
-            fontFamily: 'var(--font-mono), monospace',
-            fontSize: 10,
-            color: pct > 90 ? '#C0492F' : '#B4BFCB',
-          }}>
+          <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, color: pct > 90 ? 'var(--danger-500)' : 'var(--text-hint)' }}>
             {value.length} / {maxLen}
           </span>
         </div>
@@ -141,64 +96,29 @@ export default function TextCard({ card, lang, studyId, initialValue = '', onCom
 
       {/* Save indicator */}
       <div style={{ minHeight: 16 }}>
-        <span style={{
-          fontFamily: 'var(--font-mono), monospace',
-          fontSize: 11,
-          color: saving ? '#C9A84C' : '#B4BFCB',
-        }}>
-          {saving
-            ? (lang === 'ar' ? '· جاري الحفظ…' : '· Saving…')
-            : lastSaved
-            ? (lang === 'ar' ? '· تم الحفظ' : '· Saved')
-            : ''}
+        <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: saving ? 'var(--gold-500)' : 'var(--text-hint)' }}>
+          {saving ? (lang === 'ar' ? '· جاري الحفظ…' : '· Saving…') : lastSaved ? (lang === 'ar' ? '· تم الحفظ' : '· Saved') : ''}
         </span>
       </div>
 
       {/* Actions */}
-      <div style={{
-        display: 'flex',
-        gap: 10,
-        flexDirection: dir === 'rtl' ? 'row-reverse' : 'row',
-      }}>
-        <button
-          className="tc-done"
-          onClick={handleComplete}
-          disabled={saving}
-          style={{
-            flex: 1,
-            background: '#0D1B2A',
-            color: '#EEF3F7',
-            border: 'none',
-            borderRadius: 9,
-            padding: '13px 0',
-            fontSize: 14,
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'background 140ms',
-            fontFamily: 'var(--font-sans), sans-serif',
-          }}
-        >
+      <div style={{ display: 'flex', gap: 10, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
+        <button className="tc-done" onClick={handleComplete} disabled={saving} style={{
+          flex: 1, background: 'var(--text-primary)', color: 'var(--bg-page)',
+          border: 'none', borderRadius: 9, padding: '13px 0',
+          fontSize: 14, fontWeight: 500, cursor: 'pointer', transition: 'opacity 140ms',
+          fontFamily: 'var(--font-sans), sans-serif',
+        }}>
           {lang === 'ar' ? 'تم — البطاقة التالية' : 'Done — next card'}
         </button>
-
         {!card.required && (
-          <button
-            className="tc-skip"
-            onClick={handleSkip}
-            disabled={saving}
-            style={{
-              background: 'transparent',
-              border: '1.5px solid #E8ECF1',
-              borderRadius: 9,
-              padding: '13px 16px',
-              fontSize: 13,
-              color: '#8795A6',
-              cursor: 'pointer',
-              transition: 'color 140ms, background 140ms',
-              fontFamily: 'var(--font-sans), sans-serif',
-              whiteSpace: 'nowrap',
-            }}
-          >
+          <button className="tc-skip" onClick={handleSkip} disabled={saving} style={{
+            background: 'transparent', border: '1.5px solid var(--border-default)',
+            borderRadius: 9, padding: '13px 16px', fontSize: 13,
+            color: 'var(--text-faint)', cursor: 'pointer',
+            transition: 'color 140ms, background 140ms',
+            fontFamily: 'var(--font-sans), sans-serif', whiteSpace: 'nowrap',
+          }}>
             {lang === 'ar' ? 'تخطّ' : 'Skip for now'}
           </button>
         )}
