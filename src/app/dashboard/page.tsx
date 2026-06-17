@@ -5,6 +5,7 @@ import type { Study } from '@/types/database'
 import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import RenameStudy from '@/components/ui/RenameStudy'
 
 // ── Logo mark — stroke uses CSS var so it adapts to dark mode ─────────────
 function LogoMark({ size = 26 }: { size?: number }) {
@@ -193,13 +194,7 @@ function StudyCard({ study }: { study: Study }) {
       </div>
 
       {/* Name + date */}
-      <h3 style={{
-        fontFamily: 'var(--font-display), serif', fontSize: 17, fontWeight: 500,
-        color: 'var(--text-primary)', marginBottom: 4, letterSpacing: '-0.01em',
-        lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-      }}>
-        {study.startup_name ?? 'Untitled study'}
-      </h3>
+      <RenameStudy studyId={study.id} currentName={study.startup_name ?? null} />
       <p style={{ fontSize: 12, color: 'var(--text-faint)', marginBottom: 20 }}>
         Updated {formatDate(study.updated_at)}
       </p>

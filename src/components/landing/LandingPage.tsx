@@ -382,24 +382,24 @@ export default function LandingPage() {
         }
         .lp-section-h2 {
           font-family: var(--font-display), serif; font-weight: 500; font-size: 38px;
-          line-height: 1.12; letter-spacing: -0.02em; color: #0D1B2A; margin-bottom: 12px;
+          line-height: 1.12; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 12px;
         }
-        .lp-section-sub { font-size: 16px; color: #647183; max-width: 520px; line-height: 1.65; margin-bottom: 56px; }
+        .lp-section-sub { font-size: 16px; color: var(--text-muted); max-width: 520px; line-height: 1.65; margin-bottom: 56px; }
 
         /* ── HOW IT WORKS ── */
-        .lp-how { background: #fff; padding: 88px 64px; }
+        .lp-how { background: var(--bg-surface); padding: 88px 64px; }
         .lp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
         .lp-step { position: relative; padding-top: 4px; }
         .lp-step-num { font-family: var(--font-mono), monospace; font-size: 11px; letter-spacing: 0.1em; color: #C9A84C; margin-bottom: 12px; display: block; }
-        .lp-step-title { font-family: var(--font-display), serif; font-size: 20px; font-weight: 500; color: #0D1B2A; margin-bottom: 8px; line-height: 1.2; }
-        .lp-step-body { font-size: 14px; color: #647183; line-height: 1.65; }
-        .lp-step-divider { position: absolute; top: 28px; right: -20px; width: 40px; height: 1px; background: #D4DBE3; }
+        .lp-step-title { font-family: var(--font-display), serif; font-size: 20px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; line-height: 1.2; }
+        .lp-step-body { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+        .lp-step-divider { position: absolute; top: 28px; right: -20px; width: 40px; height: 1px; background: var(--border-default); }
 
         /* ── EXPORT ── */
-        .lp-export { background: #F4F6F8; padding: 88px 64px; border-top: 1px solid #E8ECF1; border-bottom: 1px solid #E8ECF1; }
+        .lp-export { background: var(--bg-subtle); padding: 88px 64px; border-top: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default); }
         .lp-export-inner { max-width: 920px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
         .lp-check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-        .lp-check-li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: #4A5666; line-height: 1.5; }
+        .lp-check-li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.5; }
         .lp-check-circle { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: #F6EEDB; color: #8A6F26; }
         .lp-doc { background: #FAF7F0; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 24px 56px rgba(13,27,42,0.14), 0 4px 12px rgba(13,27,42,0.06); }
         .lp-doc-inner { position: relative; padding: 32px 36px; }
@@ -415,15 +415,15 @@ export default function LandingPage() {
         .lp-doc-line { height: 5px; border-radius: 99px; background: #EAE3D2; margin-bottom: 6px; }
 
         /* ── WHO ── */
-        .lp-for { background: #fff; padding: 88px 64px; }
+        .lp-for { background: var(--bg-surface); padding: 88px 64px; }
         .lp-for-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 52px; }
-        .lp-for-card { border: 1px solid #D4DBE3; border-radius: 16px; padding: 32px 32px 36px; }
+        .lp-for-card { border: 1px solid var(--border-default); border-radius: 16px; padding: 32px 32px 36px; background: var(--bg-surface); }
         .lp-for-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
         .lp-for-label { font-family: var(--font-mono), monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-        .lp-for-title { font-family: var(--font-display), serif; font-size: 21px; font-weight: 500; color: #0D1B2A; margin-bottom: 12px; line-height: 1.2; }
-        .lp-for-body { font-size: 14px; color: #647183; line-height: 1.7; margin-bottom: 22px; }
+        .lp-for-title { font-family: var(--font-display), serif; font-size: 21px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px; line-height: 1.2; }
+        .lp-for-body { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 22px; }
         .lp-for-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
-        .lp-for-li { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; color: #4A5666; line-height: 1.5; }
+        .lp-for-li { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; }
         .lp-for-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
 
         /* ── STATS ── */
@@ -435,12 +435,12 @@ export default function LandingPage() {
         .lp-stat-label { font-size: 14px; color: #7BA0BF; line-height: 1.5; }
 
         /* ── CTA ── */
-        .lp-cta { background: #F4F6F8; padding: 88px 64px; border-top: 1px solid #E8ECF1; }
+        .lp-cta { background: var(--bg-subtle); padding: 88px 64px; border-top: 1px solid var(--border-default); }
         .lp-cta-inner { max-width: 640px; margin: 0 auto; text-align: center; }
-        .lp-cta-arabic { font-family: var(--font-arabic), 'IBM Plex Sans Arabic', sans-serif; font-size: 15px; color: #8795A6; direction: rtl; margin-bottom: 24px; }
-        .lp-cta-h2 { font-family: var(--font-display), serif; font-weight: 500; font-size: 38px; line-height: 1.1; letter-spacing: -0.02em; color: #0D1B2A; margin-bottom: 14px; }
-        .lp-cta-sub { font-size: 15px; color: #647183; margin-bottom: 32px; line-height: 1.65; }
-        .lp-cta-disclaimer { font-size: 12px; color: #8795A6; margin-top: 14px; }
+        .lp-cta-arabic { font-family: var(--font-arabic), 'IBM Plex Sans Arabic', sans-serif; font-size: 15px; color: var(--text-faint); direction: rtl; margin-bottom: 24px; }
+        .lp-cta-h2 { font-family: var(--font-display), serif; font-weight: 500; font-size: 38px; line-height: 1.1; letter-spacing: -0.02em; color: var(--text-primary); margin-bottom: 14px; }
+        .lp-cta-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; line-height: 1.65; }
+        .lp-cta-disclaimer { font-size: 12px; color: var(--text-faint); margin-top: 14px; }
 
         /* ── CONTACT ── */
         .lp-contact { background: #0D1B2A; padding: 88px 64px; position: relative; overflow: hidden; }
