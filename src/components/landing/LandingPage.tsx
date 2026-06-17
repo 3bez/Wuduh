@@ -162,6 +162,7 @@ function ContactForm() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -170,10 +171,21 @@ function ContactForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    // TODO: wire up to your email API or Supabase function
-    await new Promise(r => setTimeout(r, 900))
-    setSent(true)
-    setLoading(false)
+    setError(null)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Failed to send message.')
+      setSent(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (sent) {
@@ -232,6 +244,9 @@ function ContactForm() {
       <button type="submit" className="lp-btn-accent lp-contact-submit" disabled={loading}>
         {loading ? 'Sending…' : 'Send message →'}
       </button>
+      {error && (
+        <p style={{ fontSize: 13, color: '#E07060', marginTop: 8 }}>{error}</p>
+      )}
     </form>
   )
 }
