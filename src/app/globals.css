@@ -100,19 +100,16 @@
     --shadow-elevated: 0 8px 32px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3);
   }
 
-  /* ── Apply tokens to base elements ── */
   body {
     background-color: var(--bg-page);
     color: var(--text-primary);
     transition: background-color 200ms ease, color 200ms ease;
   }
 
-  /* RTL — applied when Arabic language is active */
   [dir='rtl'] {
     font-family: var(--font-arabic), system-ui, sans-serif;
   }
 
-  /* Smooth motion — respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -120,27 +117,23 @@
     }
   }
 
-  /* Focus ring — gold */
   :focus-visible {
     outline: 3px solid rgba(201, 168, 76, 0.45);
     outline-offset: 2px;
   }
 
-  /* Scrollbar — subtle in dark mode */
   .dark ::-webkit-scrollbar { width: 6px; height: 6px; }
   .dark ::-webkit-scrollbar-track { background: var(--bg-page); }
   .dark ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
 }
 
 @layer components {
-  /* Eyebrow label */
   .eyebrow {
     @apply font-mono text-2xs tracking-widest uppercase;
     color: var(--text-faint);
     letter-spacing: 0.12em;
   }
 
-  /* Swipe card */
   .card-swipe {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
@@ -148,15 +141,12 @@
     box-shadow: var(--shadow-card);
   }
 
-  /* Standard UI card */
   .card {
     background: var(--bg-surface);
     border: 1px solid var(--border-default);
     border-radius: 12px;
-    box-shadow: none;
   }
 
-  /* Gold accent button */
   .btn-accent {
     @apply font-medium rounded-md px-5 py-2.5 active:translate-y-px transition-all duration-150;
     background: var(--gold-500);
@@ -164,7 +154,6 @@
   }
   .btn-accent:hover { background: var(--gold-400); }
 
-  /* Navy primary button */
   .btn-primary {
     @apply font-medium rounded-md px-5 py-2.5 active:translate-y-px transition-all duration-150;
     background: var(--text-primary);
@@ -172,7 +161,6 @@
   }
   .btn-primary:hover { opacity: 0.88; }
 
-  /* Ghost button */
   .btn-ghost {
     @apply font-medium rounded-md px-5 py-2.5 active:translate-y-px transition-all duration-150;
     background: transparent;
@@ -180,7 +168,6 @@
   }
   .btn-ghost:hover { background: var(--bg-subtle); }
 
-  /* Form inputs */
   .wuduh-input {
     background: var(--bg-input);
     border: 1.5px solid var(--border-strong);
@@ -197,4 +184,76 @@
     box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
   }
   .wuduh-input::placeholder { color: var(--text-hint); }
+
+  /* ── Mobile utilities ── */
+  .hide-mobile { display: flex !important; }
+  @media (max-width: 640px) { .hide-mobile { display: none !important; } }
+
+  .show-mobile { display: none !important; }
+  @media (max-width: 640px) { .show-mobile { display: flex !important; } }
+
+  /* Study card grid */
+  .study-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  @media (max-width: 640px) {
+    .study-grid { grid-template-columns: 1fr; gap: 14px; }
+  }
+
+  /* Export two-column → single column on mobile */
+  .export-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 300px;
+    gap: 40px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .export-grid { grid-template-columns: 1fr; }
+  }
+  .export-preview { display: block; }
+  @media (max-width: 768px) { .export-preview { display: none !important; } }
+
+  /* Responsive page padding */
+  .page-main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+  @media (max-width: 640px) { .page-main { padding: 24px 16px 64px; } }
+
+  /* Dashboard page header row */
+  .dash-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  @media (max-width: 640px) {
+    .dash-page-header { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* Overview title + export button row */
+  .ov-title-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  @media (max-width: 640px) {
+    .ov-title-row { flex-direction: column; gap: 12px; }
+    .ov-title-row a { align-self: flex-start; }
+  }
+
+  /* Overview footer buttons */
+  .ov-footer-btns {
+    margin-top: 32px;
+    display: flex;
+    gap: 10px;
+  }
+  @media (max-width: 640px) {
+    .ov-footer-btns { flex-direction: column; }
+  }
 }

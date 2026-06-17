@@ -140,7 +140,7 @@ export default function ExportPage() {
       </header>
 
       <main style={{ maxWidth: 960, margin: '0 auto', padding: '48px 20px 80px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 300px', gap: 40, alignItems: 'start' }}>
+        <div className="export-grid">
 
           {/* Left panel */}
           <div>
@@ -278,7 +278,7 @@ export default function ExportPage() {
           </div>
 
           {/* Right: document preview — intentionally paper-colored */}
-          <div style={{ position: 'sticky', top: 80 }}>
+          <div className="export-preview" style={{ position: 'sticky', top: 80 }}>
             <DocumentPreview name={name} pct={pct} lang={lang} />
             <p style={{ textAlign: 'center', marginTop: 12, fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', color: 'var(--text-hint)' }}>
               {lang === 'ar' ? 'معاينة — التصدير الفعلي بتنسيق A4' : 'Preview — actual export is A4 format'}

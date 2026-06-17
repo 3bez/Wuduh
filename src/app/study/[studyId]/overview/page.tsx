@@ -63,11 +63,21 @@ export default async function OverviewPage({ params }: PageProps) {
         .ov-continue:hover { opacity: 0.85; }
         .ov-export:hover   { background: var(--gold-400) !important; }
         .ov-cont-link:hover { background: var(--gold-100) !important; color: var(--gold-700) !important; }
+        @media (max-width: 640px) {
+          .ov-header-inner { padding: 0 16px !important; height: 52px !important; }
+          .ov-header-label { display: none !important; }
+          .ov-header-divider { display: none !important; }
+          .ov-h1 { font-size: 20px !important; }
+          .ov-stat-num { font-size: 20px !important; }
+          .ov-stat-pad { padding: 14px 8px !important; }
+          .ov-section-header { padding: 12px 14px !important; }
+          .ov-card-row { padding: 10px 14px !important; }
+        }
       `}</style>
 
       {/* ── Header ── */}
       <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ maxWidth: 1120, margin: '0 auto', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', gap: 16 }} className="ov-header-inner">
           <Link href={`/study/${studyId}`} className="ov-back" aria-label="Back to study"
             style={{ color: 'var(--text-hint)', transition: 'color 140ms', display: 'flex', alignItems: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -78,11 +88,11 @@ export default async function OverviewPage({ params }: PageProps) {
             <LogoMark />
           </Link>
           <div style={{ flex: 1 }} />
-          <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.06em' }}>
+          <span className="ov-header-label" style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.06em' }}>
             {lang === 'ar' ? 'نظرة عامة' : 'Overview'}
           </span>
           <ThemeToggle />
-          <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
+          <div className="ov-header-divider" style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
           <LogoutButton />
         </div>
       </header>
@@ -94,8 +104,8 @@ export default async function OverviewPage({ params }: PageProps) {
           <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>
             {lang === 'ar' ? 'نظرة عامة على الدراسة' : 'Study overview'}
           </p>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexDirection: dir === 'rtl' ? 'row-reverse' : 'row' }}>
-            <h1 style={{
+          <div className="ov-title-row">
+            <h1 className="ov-h1" style={{
               fontFamily: lang === 'ar' ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif',
               fontSize: 26, fontWeight: 500, color: 'var(--text-primary)',
               letterSpacing: lang === 'ar' ? 0 : '-0.02em', lineHeight: 1.2,
@@ -126,8 +136,8 @@ export default async function OverviewPage({ params }: PageProps) {
             { value: `${totalDone} / ${totalCards}`, label: lang === 'ar' ? 'بطاقات منجزة' : 'Cards answered', color: 'var(--text-primary)' },
             { value: String(totalSkipped), label: lang === 'ar' ? 'تم تخطيها' : 'Skipped', color: totalSkipped > 0 ? 'var(--warning-500)' : 'var(--text-faint)' },
           ].map((stat, i) => (
-            <div key={stat.label} style={{ padding: '20px 16px', textAlign: 'center', borderRight: i < 2 ? '1px solid var(--border-default)' : undefined }}>
-              <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 26, fontWeight: 500, color: stat.color, letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 5 }}>
+            <div key={stat.label} className="ov-stat-pad" style={{ padding: '20px 16px', textAlign: 'center', borderRight: i < 2 ? '1px solid var(--border-default)' : undefined }}>
+              <div className="ov-stat-num" style={{ fontFamily: 'var(--font-display), serif', fontSize: 26, fontWeight: 500, color: stat.color, letterSpacing: '-0.02em', lineHeight: 1, marginBottom: 5 }}>
                 {stat.value}
               </div>
               <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>

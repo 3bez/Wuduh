@@ -71,6 +71,12 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
       <style>{`
         .sj-back:hover  { color: var(--text-primary) !important; }
         .sj-overview:hover { color: var(--text-primary) !important; background: var(--bg-subtle) !important; }
+        @media (max-width: 640px) {
+          .sj-header-inner { padding: 0 12px !important; gap: 10px !important; height: 50px !important; }
+          .sj-overview { display: none !important; }
+          .sj-logo { display: none !important; }
+          .sj-divider { display: none !important; }
+        }
       `}</style>
 
       {/* ── Header ── */}
@@ -82,6 +88,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
         <div style={{
           maxWidth: 1120, margin: '0 auto', padding: '0 20px',
           height: 56, display: 'flex', alignItems: 'center', gap: 16,
+        }} className="sj-header-inner"
         }}>
           {/* Back to dashboard */}
           <Link href="/dashboard" className="sj-back" aria-label="Back to dashboard"
@@ -92,7 +99,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
           </Link>
 
           {/* Logo → dashboard */}
-          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>
+          <Link href="/dashboard" className="sj-logo" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>
             <LogoMark />
           </Link>
 
@@ -122,7 +129,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
           </Link>
 
           <ThemeToggle />
-          <div style={{ width: 1, height: 16, background: 'var(--border-default)', flexShrink: 0 }} />
+          <div className="sj-divider" style={{ width: 1, height: 16, background: 'var(--border-default)', flexShrink: 0 }} />
           <LogoutButton />
         </div>
       </header>

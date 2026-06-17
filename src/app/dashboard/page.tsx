@@ -48,6 +48,12 @@ export default async function DashboardPage() {
         .study-card-export:hover { background: var(--gold-400) !important; }
         .new-study-card:hover { border-color: var(--gold-500) !important; background: rgba(201,168,76,0.06) !important; }
         .new-study-card:hover .nsc-icon { background: var(--gold-100) !important; color: var(--gold-700) !important; }
+        @media (max-width: 640px) {
+          .db-header-inner { padding: 0 16px !important; height: 52px !important; }
+          .db-email { display: none !important; }
+          .db-wordmark { display: none !important; }
+          .db-heading { font-size: 22px !important; }
+        }
       `}</style>
 
       {/* ── Header ── */}
@@ -59,6 +65,7 @@ export default async function DashboardPage() {
         <div style={{
           maxWidth: 1120, margin: '0 auto', padding: '0 24px',
           height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }} className="db-header-inner"
         }}>
           <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <LogoMark />
@@ -66,13 +73,13 @@ export default async function DashboardPage() {
               fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18,
               color: 'var(--text-primary)', letterSpacing: '-0.01em',
             }}>Wuduh</span>
-            <span style={{
+            <span className="db-wordmark" style={{
               fontFamily: 'var(--font-arabic), sans-serif', fontSize: 13,
               color: 'var(--text-faint)', direction: 'rtl',
             }}>وضوح</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span style={{ fontSize: 13, color: 'var(--text-faint)' }}>{user.email}</span>
+            <span className="db-email" style={{ fontSize: 13, color: 'var(--text-faint)' }}>{user.email}</span>
             <ThemeToggle />
             <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
             <LogoutButton />
@@ -90,11 +97,11 @@ export default async function DashboardPage() {
             letterSpacing: '0.12em', textTransform: 'uppercase',
             color: 'var(--gold-500)', marginBottom: 10,
           }}>Dashboard</p>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+          <div className="dash-page-header">
             <div>
-              <h1 style={{
-                fontFamily: 'var(--font-display), serif', fontSize: 30, fontWeight: 500,
-                color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 6,
+              <h1 className="db-heading" style={{
+              fontFamily: 'var(--font-display), serif', fontSize: 30, fontWeight: 500,
+              color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 6,
               }}>Welcome back, {firstName}</h1>
               <p style={{ fontSize: 15, color: 'var(--text-muted)', lineHeight: 1.5 }}>
                 {hasStudies ? 'Continue where you left off, or start a new study.' : "Let's build your first feasibility study."}
@@ -116,7 +123,7 @@ export default async function DashboardPage() {
 
         {/* Grid or empty state */}
         {hasStudies ? (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          <div className="study-grid">
             {studies.map(study => <StudyCard key={study.id} study={study} />)}
             <NewStudyCard />
           </div>
