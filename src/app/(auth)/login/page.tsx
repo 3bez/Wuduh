@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { signIn } from '@/lib/auth/client'
 
 function LogoMark({ size = 36 }: { size?: number }) {
   return (
@@ -28,13 +28,19 @@ export default function LoginPage() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+
+    const { error } = await signIn.email({ email, password })
+
     if (error) {
-      setError('Incorrect email or password. Please try again.')
+      setError(
+        error.message === 'Email not verified'
+          ? 'Please verify your email first. Check your inbox.'
+          : 'Incorrect email or password. Please try again.'
+      )
       setLoading(false)
       return
     }
+
     router.push('/dashboard')
     router.refresh()
   }
@@ -58,14 +64,12 @@ export default function LoginPage() {
         .auth-link:hover { color: var(--gold-400); }
         .auth-pass-toggle { background: none; border: none; cursor: pointer; color: var(--text-hint); padding: 0; display: flex; align-items: center; transition: color 140ms; }
         .auth-pass-toggle:hover { color: var(--text-faint); }
-        /* Left decorative panel */
         .auth-panel { background: #0D1B2A; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 64px 56px; position: relative; overflow: hidden; }
         @media (max-width: 768px) { .auth-panel { display: none; } }
       `}</style>
 
       {/* ── Left panel ── */}
       <div className="auth-panel">
-        {/* Geometric net */}
         <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} aria-hidden="true">
           <defs>
             <pattern id="auth-net" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
@@ -77,9 +81,7 @@ export default function LoginPage() {
           </defs>
           <rect width="100%" height="100%" fill="url(#auth-net)" />
         </svg>
-
         <div style={{ position: 'relative', zIndex: 1, maxWidth: 360 }}>
-          {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 48 }}>
             <svg width="36" height="36" viewBox="0 0 96 96" fill="none">
               <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C" />
@@ -88,7 +90,6 @@ export default function LoginPage() {
             <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 22, color: '#fff', letterSpacing: '-0.01em' }}>Wuduh</span>
             <span style={{ fontFamily: 'var(--font-arabic), sans-serif', fontSize: 15, color: '#C9A84C', direction: 'rtl' }}>وضوح</span>
           </div>
-
           <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: 16 }}>
             Feasibility study builder
           </p>
@@ -98,8 +99,6 @@ export default function LoginPage() {
           <p style={{ fontSize: 15, color: '#7BA0BF', lineHeight: 1.7, marginBottom: 40 }}>
             Answer 52 focused cards. Walk away with an investor-ready feasibility study in Arabic or English.
           </p>
-
-          {/* Mini proof stats */}
           <div style={{ display: 'flex', gap: 24 }}>
             {[['52', 'Cards'], ['8', 'Sections'], ['2', 'Languages']].map(([n, l]) => (
               <div key={l}>
@@ -114,12 +113,7 @@ export default function LoginPage() {
       </div>
 
       {/* ── Right: form ── */}
-      <div style={{
-        width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', padding: '48px 40px',
-        background: 'var(--bg-page)',
-      }}>
-        {/* Mobile logo */}
+      <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', background: 'var(--bg-page)' }}>
         <div style={{ display: 'none', alignItems: 'center', gap: 10, marginBottom: 40 }} className="auth-mobile-logo">
           <LogoMark size={28} />
           <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18, color: 'var(--text-primary)' }}>Wuduh</span>
@@ -127,48 +121,32 @@ export default function LoginPage() {
         <style>{`.auth-mobile-logo { display: flex !important; } @media (min-width: 769px) { .auth-mobile-logo { display: none !important; } }`}</style>
 
         <div style={{ marginBottom: 32 }}>
-          <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>
-            Sign in
-          </p>
-          <h1 style={{ fontFamily: 'var(--font-display), serif', fontSize: 26, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 6 }}>
-            Welcome back
-          </h1>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>
-            Continue building your feasibility study.
-          </p>
+          <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>Sign in</p>
+          <h1 style={{ fontFamily: 'var(--font-display), serif', fontSize: 26, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 6 }}>Welcome back</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>Continue building your feasibility study.</p>
         </div>
 
-        {/* Error */}
         {error && (
-          <div style={{ background: 'var(--danger-100)', color: 'var(--danger-500)', fontSize: 13, borderRadius: 9, padding: '11px 14px', marginBottom: 20, border: '1px solid var(--danger-500)', borderColor: 'rgba(192,73,47,0.2)' }}>
+          <div style={{ background: 'var(--danger-100)', color: 'var(--danger-500)', fontSize: 13, borderRadius: 9, padding: '11px 14px', marginBottom: 20, border: '1px solid', borderColor: 'rgba(192,73,47,0.2)' }}>
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {/* Email */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label htmlFor="email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
-              Email
-            </label>
+            <label htmlFor="email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Email</label>
             <input id="email" type="email" autoComplete="email" required className="auth-input"
               value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
           </div>
 
-          {/* Password */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <label htmlFor="password" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
-                Password
-              </label>
-              <Link href="/reset-password" className="auth-link" style={{ fontSize: 12 }}>
-                Forgot password?
-              </Link>
+              <label htmlFor="password" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Password</label>
+              <Link href="/reset-password" className="auth-link" style={{ fontSize: 12 }}>Forgot password?</Link>
             </div>
             <div style={{ position: 'relative' }}>
               <input id="password" type={showPass ? 'text' : 'password'} autoComplete="current-password" required className="auth-input"
-                value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••"
-                style={{ paddingRight: 44 }} />
+                value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" style={{ paddingRight: 44 }} />
               <button type="button" className="auth-pass-toggle" onClick={() => setShowPass(v => !v)}
                 aria-label={showPass ? 'Hide password' : 'Show password'}
                 style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>
@@ -193,12 +171,9 @@ export default function LoginPage() {
 
         <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-faint)', marginTop: 28 }}>
           New to Wuduh?{' '}
-          <Link href="/signup" className="auth-link" style={{ fontWeight: 500 }}>
-            Create an account
-          </Link>
+          <Link href="/signup" className="auth-link" style={{ fontWeight: 500 }}>Create an account</Link>
         </p>
 
-        {/* Back to landing */}
         <div style={{ textAlign: 'center', marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border-subtle)' }}>
           <Link href="/" style={{ fontSize: 12, color: 'var(--text-hint)', textDecoration: 'none', transition: 'color 140ms' }}
             onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-faint)')}
