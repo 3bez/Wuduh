@@ -121,7 +121,7 @@ export async function POST(
          VALUES ($1, $2, $3, $4, $5)`,
         [studyId, user.id, pdfUrl, study.language, study.completionPercentage]
       )
-    } catch (_) {}
+    } catch (e) { console.error('[export] failed to log export record:', e) }
 
     // Mark study as exported
     await query('UPDATE studies SET status = $1 WHERE id = $2', ['exported', studyId])

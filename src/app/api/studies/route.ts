@@ -27,7 +27,7 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const studies = await query(
-    'SELECT * FROM studies WHERE user_id = $1 ORDER BY updated_at DESC',
+    'SELECT * FROM studies WHERE "userId" = $1 ORDER BY "updatedAt" DESC',
     [user.id]
   )
 

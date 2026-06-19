@@ -105,7 +105,7 @@ export async function GET(
          VALUES ($1, $2, $3, $4, $5)`,
         [studyId, user.id, null, study.language, study.completionPercentage]
       )
-    } catch (_) {}
+    } catch (e) { console.error('[export/render] failed to log export record:', e) }
 
     return new NextResponse(printHtml, {
       headers: {
