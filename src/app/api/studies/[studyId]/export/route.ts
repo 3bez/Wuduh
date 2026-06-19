@@ -1,9 +1,23 @@
 // POST /api/studies/[studyId]/export
-// Generates a PDF using PDFShift and returns a signed download URL.
+// Generates a PDF using PDFShift, uploads to MinIO, returns a presigned URL.
 
-import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { getUser } from '@/lib/auth/session'
+import { query, queryOne } from '@/lib/db'
 import { buildPdfHtml } from '@/lib/pdf/template'
+import * as Minio from 'minio'
+
+function getMinioClient() {
+  return new Minio.Client({
+    endPoint:  process.env.MINIO_ENDPOINT ?? '65.21.151.1',
+    port:      parseInt(process.env.MINIO_PORT ?? '9000'),
+    useSSL:    false,
+    accessKey: process.env.MINIO_ACCESS_KEY ?? 'wuduh',
+    secretKey: process.env.MINIO_SECRET_KEY ?? '',
+  })
+}
+
+const BUCKET = process.env.MINIO_BUCKET ?? 'wuduh-uploads'
 
 async function urlToBase64(url: string): Promise<string | null> {
   try {
@@ -11,32 +25,13 @@ async function urlToBase64(url: string): Promise<string | null> {
     if (!res.ok) return null
     const contentType = (res.headers.get('content-type') ?? 'image/png').split(';')[0].trim()
     const buffer = await res.arrayBuffer()
-    // Use Web API instead of Node.js Buffer
     const bytes = new Uint8Array(buffer)
     let binary = ''
     for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
-    const base64 = btoa(binary)
-    return `data:${contentType};base64,${base64}`
+    return `data:${contentType};base64,${btoa(binary)}`
   } catch {
     return null
   }
-}
-
-function extractStoragePath(url: string): string | null {
-  try {
-    const u = new URL(url)
-    const match = u.pathname.match(/\/object\/(?:public|sign)\/wuduh-uploads\/(.+)/)
-    return match ? match[1] : null
-  } catch {
-    return null
-  }
-}
-
-async function arrayBufferToBase64(buffer: ArrayBuffer): Promise<string> {
-  const bytes = new Uint8Array(buffer)
-  let binary = ''
-  for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
-  return btoa(binary)
 }
 
 export async function POST(
@@ -45,52 +40,43 @@ export async function POST(
 ) {
   try {
     const { studyId } = await params
-    const supabase = await createClient()
-
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { data: study } = await supabase
-      .from('studies').select('*')
-      .eq('id', studyId).eq('user_id', user.id).single()
-
+    const study = await queryOne<{
+      id: string; language: string; startupName: string | null;
+      logoUrl: string | null; completionPercentage: number; status: string
+    }>(
+      'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
+      [studyId, user.id]
+    )
     if (!study) return NextResponse.json({ error: 'Study not found' }, { status: 404 })
 
-    const { data: answersRaw } = await supabase
-      .from('answers').select('card_id, answer, status')
-      .eq('study_id', studyId)
-
-    const answers = Object.fromEntries(
-      (answersRaw ?? []).map(a => [a.card_id, { answer: a.answer, status: a.status }])
+    const answersRaw = await query<{ card_id: string; answer: unknown; status: string }>(
+      'SELECT "cardId" as card_id, answer, status FROM answers WHERE "studyId" = $1',
+      [studyId]
     )
 
-    const startupName = answers['C2']?.answer ?? study.startup_name ?? null
-    const founderName = answers['C3']?.answer ?? null
-    const rawLogoUrl  = answers['C1']?.answer ?? study.logo_url ?? null
+    const answers = Object.fromEntries(
+      answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status }])
+    )
 
-    // Convert logo to base64 (Web API)
-    let logoDataUri = null
+    const startupName = (answers['C2']?.answer as string) ?? study.startupName ?? null
+    const founderName = (answers['C3']?.answer as string) ?? null
+    const rawLogoUrl  = (answers['C1']?.answer as string) ?? study.logoUrl ?? null
+
+    // Convert logo to base64 if it's a URL
+    let logoDataUri: string | null = null
     if (rawLogoUrl) {
-      const storagePath = extractStoragePath(rawLogoUrl)
-      if (storagePath) {
-        const { data: signedData } = await supabase.storage
-          .from('wuduh-uploads').createSignedUrl(storagePath, 60)
-        if (signedData?.signedUrl) {
-          logoDataUri = await urlToBase64(signedData.signedUrl)
-        }
-      } else if (rawLogoUrl.startsWith('data:')) {
+      if (rawLogoUrl.startsWith('data:')) {
         logoDataUri = rawLogoUrl
+      } else if (rawLogoUrl.startsWith('http')) {
+        logoDataUri = await urlToBase64(rawLogoUrl)
       }
     }
 
     if (logoDataUri) {
       answers['C1'] = { answer: logoDataUri, status: 'done' }
-    } else if (answers['C1']) {
-      answers['C1'] = { answer: null, status: 'skipped' }
-    }
-
-    if (startupName && startupName !== study.startup_name) {
-      await supabase.from('studies').update({ startup_name: startupName }).eq('id', studyId)
     }
 
     const html = buildPdfHtml({
@@ -98,7 +84,7 @@ export async function POST(
       founder_name: founderName,
       logo_url: logoDataUri,
       language: study.language,
-      completion_percentage: study.completion_percentage,
+      completion_percentage: study.completionPercentage,
       answers,
     })
 
@@ -116,33 +102,29 @@ export async function POST(
       throw new Error(`PDFShift error ${pdfResponse.status}: ${errText}`)
     }
 
-    // Convert PDF to base64 using Web API (no Buffer)
-    const pdfArrayBuffer = await pdfResponse.arrayBuffer()
-    const pdfBase64 = await arrayBufferToBase64(pdfArrayBuffer)
+    // Upload PDF to MinIO
+    const pdfBuffer = Buffer.from(await pdfResponse.arrayBuffer())
+    const filename  = `${user.id}/${studyId}/export-${Date.now()}.pdf`
+    const minio     = getMinioClient()
 
-    // Upload to Supabase Storage as base64-decoded bytes
-    const pdfBytes = Uint8Array.from(atob(pdfBase64), c => c.charCodeAt(0))
-    const filename = `${user.id}/${studyId}/export-${Date.now()}.pdf`
+    await minio.putObject(BUCKET, filename, pdfBuffer, pdfBuffer.length, {
+      'Content-Type': 'application/pdf',
+    })
 
-    const { error: uploadError } = await supabase.storage
-      .from('wuduh-uploads')
-      .upload(filename, pdfBytes, { contentType: 'application/pdf', upsert: true })
+    // Generate presigned URL valid for 1 hour
+    const pdfUrl = await minio.presignedGetObject(BUCKET, filename, 3600)
 
-    if (uploadError) throw new Error(uploadError.message)
-
-    const { data: signed } = await supabase.storage
-      .from('wuduh-uploads').createSignedUrl(filename, 3600)
-
-    const pdfUrl = signed?.signedUrl ?? null
-
+    // Save export record
     try {
-      await supabase.from('exports').insert({
-        study_id: studyId, user_id: user.id, pdf_url: pdfUrl,
-        language: study.language, completion_snapshot: study.completion_percentage,
-      })
+      await query(
+        `INSERT INTO exports ("studyId", "userId", pdf_url, language, "completionSnapshot")
+         VALUES ($1, $2, $3, $4, $5)`,
+        [studyId, user.id, pdfUrl, study.language, study.completionPercentage]
+      )
     } catch (_) {}
 
-    await supabase.from('studies').update({ status: 'exported' }).eq('id', studyId)
+    // Mark study as exported
+    await query('UPDATE studies SET status = $1 WHERE id = $2', ['exported', studyId])
 
     return NextResponse.json({ ok: true, url: pdfUrl })
   } catch (err) {
