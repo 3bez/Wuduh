@@ -24,13 +24,19 @@ export async function POST(
   const { card_id, answer, status } = await request.json()
   if (!card_id || !status) return NextResponse.json({ error: 'card_id and status are required' }, { status: 400 })
 
-  // Upsert answer
+  // Upsert answer — wrap non-object answers as JSON
+  const jsonAnswer = answer === null || answer === undefined
+    ? null
+    : typeof answer === 'string' || typeof answer === 'number' || typeof answer === 'boolean'
+    ? JSON.stringify(answer)
+    : JSON.stringify(answer)
+
   await query(
     `INSERT INTO answers (study_id, card_id, answer, status)
-     VALUES ($1, $2, $3, $4)
+     VALUES ($1, $2, $3::jsonb, $4)
      ON CONFLICT (study_id, card_id)
-     DO UPDATE SET answer = EXCLUDED.answer, status = EXCLUDED.status, "updated_at" = now()`,
-    [studyId, card_id, answer ?? null, status]
+     DO UPDATE SET answer = EXCLUDED.answer, status = EXCLUDED.status, updated_at = now()`,
+    [studyId, card_id, jsonAnswer, status]
   )
 
   // Recalculate completion %
