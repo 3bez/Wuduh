@@ -29,20 +29,25 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
-    const { error } = await signIn.email({ email, password })
+    try {
+      const { error } = await signIn.email({ email, password })
 
-    if (error) {
-      setError(
-        error.message === 'Email not verified'
-          ? 'Please verify your email first. Check your inbox.'
-          : 'Incorrect email or password. Please try again.'
-      )
+      if (error) {
+        setError(
+          error.message === 'Email not verified'
+            ? 'Please verify your email first. Check your inbox.'
+            : 'Incorrect email or password. Please try again.'
+        )
+        setLoading(false)
+        return
+      }
+
+      router.push('/dashboard')
+      router.refresh()
+    } catch {
+      setError('Something went wrong. Please try again.')
       setLoading(false)
-      return
     }
-
-    router.push('/dashboard')
-    router.refresh()
   }
 
   return (
