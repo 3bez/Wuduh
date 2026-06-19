@@ -1,12 +1,4 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
-  "regions": ["iad1"],
-  "functions": {
-    "src/app/api/studies/[studyId]/export/route.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    }
-  }
+  "_note": "This project is deployed on Coolify, not Vercel. This file is kept for reference only.",
+  "_deployment": "See wrangler.toml for deployment notes."
 }

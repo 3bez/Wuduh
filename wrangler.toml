@@ -1,4 +1,38 @@
-# Wuduh — deployment notes
+# Wuduh deployment notes
 
-Deployed via Coolify on a self-hosted VPS.
-See Dockerfile for build configuration.
+Deployed via Coolify (self-hosted) on a VPS.
+
+## Resources on Coolify
+
+### 1. Wuduh app
+- Build: Dockerfile (standalone Next.js)
+- Port: 3000
+- Domain: wuduh.site
+
+### 2. PostgreSQL 17
+- Container: postgresql-database-l5s41fmie8bxtzwa6adhswtj
+- Port: 5432
+- Database: wuduh
+
+### 3. MinIO (Docker Compose)
+- API port: 9000
+- Console port: 9001 (http://VPS_IP:9001)
+- Bucket: wuduh-uploads
+
+## Environment variables (set in Coolify)
+
+DATABASE_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL,
+NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SUPABASE_URL (legacy, can be removed),
+MINIO_ENDPOINT, MINIO_PORT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_BUCKET,
+RESEND_API_KEY, PDFSHIFT_API_KEY
+
+## DNS (Cloudflare)
+
+wuduh.site A record → VPS IP (DNS only, no proxy)
+www.wuduh.site A record → VPS IP (DNS only, no proxy)
+Resend DKIM + SPF records for email sending
+
+## Database migrations
+
+Run in order via psql:
+1. supabase/migrations/003_self_hosted_schema.sql
