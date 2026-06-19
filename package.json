@@ -19,6 +19,7 @@
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.511.0",
+    "minio": "^8.0.7",
     "next": "latest",
     "pg": "^8.21.0",
     "react": "^19.0.0",

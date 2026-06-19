@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import type { CardConfig, Language } from '@/types/cards'
 import { localise } from '@/lib/cards/loader'
-import { createClient } from '@/lib/supabase/client'
 import { useAutoSave } from '@/hooks/useAutoSave'
 
 interface Props {
@@ -12,26 +11,18 @@ interface Props {
 }
 
 export default function UploadCard({ card, lang, studyId, userId, initialUrl, onComplete, onSkip }: Props) {
-  const [preview, setPreview]       = useState<string | null>(null)
-  const [uploading, setUploading]   = useState(false)
+  const [preview, setPreview]         = useState<string | null>(null)
+  const [uploading, setUploading]     = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
-  const [dragging, setDragging]     = useState(false)
-  const { save, saving }            = useAutoSave(studyId)
-  const content                     = localise(card, lang)
-  const dir                         = lang === 'ar' ? 'rtl' : 'ltr'
-  const fileRef                     = useRef<HTMLInputElement>(null)
-  const config                      = card.upload_config ?? { accept: 'image/*', max_mb: 5, preview: true }
+  const [dragging, setDragging]       = useState(false)
+  const { save, saving }              = useAutoSave(studyId)
+  const content                       = localise(card, lang)
+  const dir                           = lang === 'ar' ? 'rtl' : 'ltr'
+  const fileRef                       = useRef<HTMLInputElement>(null)
+  const config                        = card.upload_config ?? { accept: 'image/*', max_mb: 5, preview: true }
 
   useEffect(() => {
-    if (!initialUrl) return
-    if (!initialUrl.startsWith('http')) {
-      const supabase = createClient()
-      supabase.storage.from('wuduh-uploads')
-        .createSignedUrl(initialUrl, 60 * 60 * 24 * 7)
-        .then(({ data }) => { if (data?.signedUrl) setPreview(data.signedUrl) })
-    } else {
-      setPreview(initialUrl)
-    }
+    if (initialUrl) setPreview(initialUrl)
   }, [initialUrl])
 
   async function handleFile(file: File) {
@@ -42,15 +33,18 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
     }
     setUploading(true)
     try {
-      const supabase = createClient()
-      const ext  = file.name.split('.').pop()
-      const path = `${userId}/${studyId}/${card.id}-${Date.now()}.${ext}`
-      const { error: storageError } = await supabase.storage.from('wuduh-uploads').upload(path, file, { upsert: true })
-      if (storageError) throw new Error(storageError.message)
-      const { data: signed, error: signError } = await supabase.storage.from('wuduh-uploads').createSignedUrl(path, 60 * 60 * 24 * 7)
-      if (signError || !signed?.signedUrl) throw new Error(signError?.message ?? 'Could not sign URL')
-      setPreview(signed.signedUrl)
-      await save({ card_id: card.id, answer: path, status: 'done' })
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('studyId', studyId)
+      formData.append('cardId', card.id)
+
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error ?? 'Upload failed')
+
+      setPreview(data.url)
+      await save({ card_id: card.id, answer: data.url, status: 'done' })
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed')
     } finally {
@@ -92,7 +86,6 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
         onClick={() => !busy && fileRef.current?.click()}
         role="button" tabIndex={0}
         onKeyDown={e => e.key === 'Enter' && !busy && fileRef.current?.click()}
-        aria-label={lang === 'ar' ? 'انقر أو اسحب لرفع صورة' : 'Click or drag to upload an image'}
         style={{
           border: `1.5px dashed ${dragging ? 'var(--gold-500)' : 'var(--border-strong)'}`,
           borderRadius: 12, background: dragging ? 'var(--gold-100)' : 'var(--bg-input)',
@@ -122,7 +115,7 @@ export default function UploadCard({ card, lang, studyId, userId, initialUrl, on
                 {lang === 'ar' ? 'تغيير الصورة' : 'Change image'}
               </button>
             </div>
-            <button onClick={e => { e.stopPropagation(); setPreview(null) }} aria-label="Remove image" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-hint)', padding: 4, flexShrink: 0, transition: 'color 140ms' }}>
+            <button onClick={e => { e.stopPropagation(); setPreview(null) }} aria-label="Remove image" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-hint)', padding: 4, flexShrink: 0 }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
           </div>
