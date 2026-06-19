@@ -35,7 +35,7 @@ export async function POST(
     `INSERT INTO answers ("studyId", "cardId", answer, status)
      VALUES ($1, $2, $3::jsonb, $4)
      ON CONFLICT ("studyId", "cardId")
-     DO UPDATE SET answer = EXCLUDED.answer, status = EXCLUDED.status, updated_at = now()`,
+     DO UPDATE SET answer = EXCLUDED.answer, status = EXCLUDED.status, "updatedAt" = now()`,
     [studyId, card_id, jsonAnswer, status]
   )
 
@@ -50,7 +50,7 @@ export async function POST(
   const completion = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
 
   await query(
-    'UPDATE studies SET "completionPercentage" = $1, updated_at = now() WHERE id = $2',
+    'UPDATE studies SET "completionPercentage" = $1, "updatedAt" = now() WHERE id = $2',
     [completion, studyId]
   )
 

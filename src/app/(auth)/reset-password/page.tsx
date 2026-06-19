@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
+import { authClient } from '@/lib/auth/client'
 
 function LogoMark() {
   return (
@@ -26,13 +26,13 @@ export default function ResetPasswordPage() {
     setError(null)
     setLoading(true)
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/api/auth/callback?next=/reset-password/update`,
+    const { error } = await authClient.forgetPassword({
+      email,
+      redirectTo: `${window.location.origin}/reset-password/update`,
     })
 
     if (error) {
-      setError(error.message)
+      setError(error.message ?? 'Something went wrong.')
       setLoading(false)
       return
     }
@@ -42,19 +42,9 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', background: 'var(--bg-page)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '32px 24px',
-    }}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
       <style>{`
-        .rp-input {
-          width: 100%; padding: 12px 14px; font-size: 15px;
-          background: var(--bg-input); color: var(--text-primary);
-          border: 1.5px solid var(--border-strong); border-radius: 10px;
-          outline: none; transition: border-color 140ms, box-shadow 140ms;
-          font-family: var(--font-sans), sans-serif;
-        }
+        .rp-input { width: 100%; padding: 12px 14px; font-size: 15px; background: var(--bg-input); color: var(--text-primary); border: 1.5px solid var(--border-strong); border-radius: 10px; outline: none; transition: border-color 140ms, box-shadow 140ms; font-family: var(--font-sans), sans-serif; }
         .rp-input::placeholder { color: var(--text-hint); }
         .rp-input:focus { border-color: rgba(201,168,76,0.65); box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
         .rp-submit { transition: opacity 140ms; }
@@ -65,121 +55,43 @@ export default function ResetPasswordPage() {
       `}</style>
 
       <div style={{ width: '100%', maxWidth: 400 }}>
-        {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 40 }}>
           <LogoMark />
-          <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 20, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-            Wuduh
-          </span>
+          <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 20, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>Wuduh</span>
         </div>
 
-        <div style={{
-          background: 'var(--bg-surface)', border: '1px solid var(--border-default)',
-          borderRadius: 20, padding: '40px 36px',
-        }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 20, padding: '40px 36px' }}>
           {sent ? (
             <>
-              <div style={{
-                width: 52, height: 52, borderRadius: '50%',
-                background: 'var(--gold-100)', margin: '0 auto 20px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                  <polyline points="22,6 12,13 2,6" />
-                </svg>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--gold-100)', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold-500)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
               </div>
-              <h2 style={{
-                fontFamily: 'var(--font-display), serif', fontSize: 22, fontWeight: 500,
-                color: 'var(--text-primary)', letterSpacing: '-0.015em',
-                textAlign: 'center', marginBottom: 10,
-              }}>
-                Check your email
-              </h2>
+              <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 22, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.015em', textAlign: 'center', marginBottom: 10 }}>Check your email</h2>
               <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.65, textAlign: 'center', marginBottom: 28 }}>
-                We sent a password reset link to{' '}
-                <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{email}</strong>.
-                Click the link to set a new password.
+                We sent a password reset link to <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{email}</strong>.
               </p>
-              <div style={{
-                background: 'var(--bg-subtle)', borderRadius: 10,
-                padding: '12px 16px', marginBottom: 24,
-              }}>
+              <div style={{ background: 'var(--bg-subtle)', borderRadius: 10, padding: '12px 16px', marginBottom: 24 }}>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
                   Didn&apos;t get it? Check your spam folder, or{' '}
-                  <button
-                    onClick={() => setSent(false)}
-                    style={{
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      color: 'var(--gold-500)', fontSize: 13, padding: 0,
-                      fontFamily: 'var(--font-sans), sans-serif',
-                    }}
-                  >
-                    try a different email
-                  </button>.
+                  <button onClick={() => setSent(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--gold-500)', fontSize: 13, padding: 0, fontFamily: 'var(--font-sans), sans-serif' }}>try a different email</button>.
                 </p>
               </div>
-              <Link href="/login" style={{
-                display: 'block', textAlign: 'center',
-                background: 'var(--text-primary)', color: 'var(--bg-page)',
-                fontSize: 14, fontWeight: 500, borderRadius: 9, padding: '12px 0',
-                textDecoration: 'none',
-              }}>
-                Back to sign in
-              </Link>
+              <Link href="/login" style={{ display: 'block', textAlign: 'center', background: 'var(--text-primary)', color: 'var(--bg-page)', fontSize: 14, fontWeight: 500, borderRadius: 9, padding: '12px 0', textDecoration: 'none' }}>Back to sign in</Link>
             </>
           ) : (
             <>
-              <p style={{
-                fontFamily: 'var(--font-mono), monospace', fontSize: 10,
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-                color: 'var(--gold-500)', marginBottom: 10,
-              }}>
-                Password reset
-              </p>
-              <h1 style={{
-                fontFamily: 'var(--font-display), serif', fontSize: 24, fontWeight: 500,
-                color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2,
-                marginBottom: 8,
-              }}>
-                Forgot your password?
-              </h1>
-              <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 28 }}>
-                Enter the email you used to create your account and we&apos;ll send you a reset link.
-              </p>
+              <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>Password reset</p>
+              <h1 style={{ fontFamily: 'var(--font-display), serif', fontSize: 24, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>Forgot your password?</h1>
+              <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 28 }}>Enter the email you used to create your account and we&apos;ll send you a reset link.</p>
 
-              {error && (
-                <div style={{
-                  background: 'var(--danger-100)', color: 'var(--danger-500)',
-                  fontSize: 13, borderRadius: 9, padding: '11px 14px', marginBottom: 20,
-                  border: '1px solid', borderColor: 'rgba(192,73,47,0.2)',
-                }}>
-                  {error}
-                </div>
-              )}
+              {error && <div style={{ background: 'var(--danger-100)', color: 'var(--danger-500)', fontSize: 13, borderRadius: 9, padding: '11px 14px', marginBottom: 20, border: '1px solid', borderColor: 'rgba(192,73,47,0.2)' }}>{error}</div>}
 
               <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <label htmlFor="rp-email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>
-                    Email address
-                  </label>
-                  <input
-                    id="rp-email" type="email" autoComplete="email" required
-                    className="rp-input" autoFocus
-                    value={email} onChange={e => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                  />
+                  <label htmlFor="rp-email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Email address</label>
+                  <input id="rp-email" type="email" autoComplete="email" required className="rp-input" autoFocus value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
                 </div>
-
-                <button
-                  type="submit" disabled={loading} className="rp-submit"
-                  style={{
-                    width: '100%', background: 'var(--text-primary)', color: 'var(--bg-page)',
-                    border: 'none', borderRadius: 10, padding: '13px 0',
-                    fontSize: 15, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer',
-                    fontFamily: 'var(--font-sans), sans-serif',
-                  }}
-                >
+                <button type="submit" disabled={loading} className="rp-submit" style={{ width: '100%', background: 'var(--text-primary)', color: 'var(--bg-page)', border: 'none', borderRadius: 10, padding: '13px 0', fontSize: 15, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>
                   {loading ? 'Sending link…' : 'Send reset link →'}
                 </button>
               </form>
@@ -188,10 +100,7 @@ export default function ResetPasswordPage() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-faint)', marginTop: 24 }}>
-          Remember your password?{' '}
-          <Link href="/login" className="rp-link" style={{ fontWeight: 500 }}>
-            Sign in
-          </Link>
+          Remember your password? <Link href="/login" className="rp-link" style={{ fontWeight: 500 }}>Sign in</Link>
         </p>
       </div>
     </div>

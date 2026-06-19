@@ -13,7 +13,7 @@ export async function PATCH(
   const body = await request.json()
 
   await query(
-    'UPDATE studies SET "startupName" = $1, updated_at = now() WHERE id = $2 AND "userId" = $3',
+    'UPDATE studies SET "startupName" = $1, "updatedAt" = now() WHERE id = $2 AND "userId" = $3',
     [body.startup_name, studyId, user.id]
   )
 
