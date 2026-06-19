@@ -15,10 +15,13 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
+      // Replace callback URL to go to dashboard after verification
+      const verifyUrl = new URL(url)
+      verifyUrl.searchParams.set('callbackURL', '/dashboard')
       await sendEmail({
         to: user.email,
         subject: 'Verify your Wuduh account',
-        html: verificationEmailHtml(user.name ?? 'Founder', url),
+        html: verificationEmailHtml(user.name ?? 'Founder', verifyUrl.toString()),
       })
     },
     autoSignInAfterVerification: true,
