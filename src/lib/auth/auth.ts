@@ -1,15 +1,24 @@
 import { betterAuth } from 'better-auth'
 import { Pool } from 'pg'
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+function createPool() {
+  const connectionString = process.env.DATABASE_URL
+
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set')
+  }
+
+  return new Pool({
+    connectionString,
+    ssl: false,
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+  })
+}
 
 export const auth = betterAuth({
-  database: {
-    type: 'pg',
-    pool,
-  },
+  database: createPool(),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -27,7 +36,11 @@ export const auth = betterAuth({
   advanced: {
     cookiePrefix: 'wuduh',
   },
-  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL ?? 'https://wuduh.site'],
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL ?? 'https://wuduh.site',
+    'https://wuduh.site',
+    'http://localhost:3000',
+  ],
 })
 
 async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
