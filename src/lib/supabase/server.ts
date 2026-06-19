@@ -1,30 +1,5 @@
-// Server-side Supabase client — used in Server Components, Route Handlers, Server Actions
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
-import type { Database } from '@/types/database'
-
-export async function createClient() {
-  const cookieStore = await cookies()
-
-  return createServerClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // setAll called from a Server Component — cookies can't be set.
-            // Middleware handles session refresh instead.
-          }
-        },
-      },
-    }
-  )
-}
+// DEPRECATED — Supabase has been removed from this project.
+// Auth is now handled by Better Auth (src/lib/auth/).
+// This file exists only to prevent accidental import errors.
+// Safe to delete entirely.
+export {}

@@ -1,10 +1,5 @@
-// Browser-side Supabase client — used in Client Components ('use client')
-import { createBrowserClient } from '@supabase/ssr'
-import type { Database } from '@/types/database'
-
-export function createClient() {
-  return createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
-}
+// DEPRECATED — Supabase has been removed from this project.
+// Auth is now handled by Better Auth (src/lib/auth/).
+// This file exists only to prevent accidental import errors.
+// Safe to delete entirely.
+export {}
