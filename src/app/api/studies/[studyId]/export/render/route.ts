@@ -1,93 +1,76 @@
-// @ts-nocheck
 // GET /api/studies/[studyId]/export/render
 // Returns the full HTML document for browser-side PDF printing.
 
-import { createClient } from '@/lib/supabase/server'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getUser } from '@/lib/auth/session'
+import { queryOne, query } from '@/lib/db'
+import { buildPdfHtml } from '@/lib/pdf/template'
 
-async function urlToBase64(url) {
+async function urlToBase64(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
     if (!res.ok) return null
     const contentType = (res.headers.get('content-type') ?? 'image/png').split(';')[0].trim()
     const buffer = await res.arrayBuffer()
-    const base64 = Buffer.from(buffer).toString('base64')
-    return `data:${contentType};base64,${base64}`
+    const bytes = new Uint8Array(buffer)
+    let binary = ''
+    for (let i = 0; i < bytes.byteLength; i++) binary += String.fromCharCode(bytes[i])
+    return `data:${contentType};base64,${btoa(binary)}`
   } catch {
     return null
   }
 }
 
-function extractStoragePath(url) {
-  try {
-    const u = new URL(url)
-    const match = u.pathname.match(/\/object\/(?:public|sign)\/wuduh-uploads\/(.+)/)
-    return match ? match[1] : null
-  } catch {
-    return null
-  }
-}
-
-export async function GET(request, { params }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ studyId: string }> }
+) {
   try {
     const { studyId } = await params
-    const supabase = await createClient()
-
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getUser()
     if (!user) return new NextResponse('Unauthorized', { status: 401 })
 
-    const { data: study } = await supabase
-      .from('studies')
-      .select('*')
-      .eq('id', studyId)
-      .eq('user_id', user.id)
-      .single()
-
+    const study = await queryOne<{
+      id: string; language: string; startupName: string | null;
+      logoUrl: string | null; completionPercentage: number
+    }>(
+      'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
+      [studyId, user.id]
+    )
     if (!study) return new NextResponse('Not found', { status: 404 })
 
-    const { data: answersRaw } = await supabase
-      .from('answers')
-      .select('card_id, answer, status')
-      .eq('study_id', studyId)
-
-    const answers = Object.fromEntries(
-      (answersRaw ?? []).map(a => [a.card_id, { answer: a.answer, status: a.status }])
+    const answersRaw = await query<{ card_id: string; answer: unknown; status: string }>(
+      'SELECT "cardId" as card_id, answer, status FROM answers WHERE "studyId" = $1',
+      [studyId]
     )
 
-    const startupName = answers['C2']?.answer ?? study.startup_name ?? null
-    const founderName = answers['C3']?.answer ?? null
-    const rawLogoUrl  = answers['C1']?.answer ?? study.logo_url ?? null
+    const answers = Object.fromEntries(
+      answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status }])
+    )
 
-    let logoDataUri = null
+    const startupName = (answers['C2']?.answer as string) ?? study.startupName ?? null
+    const founderName = (answers['C3']?.answer as string) ?? null
+    const rawLogoUrl  = (answers['C1']?.answer as string) ?? study.logoUrl ?? null
+
+    let logoDataUri: string | null = null
     if (rawLogoUrl) {
-      const storagePath = extractStoragePath(rawLogoUrl)
-      if (storagePath) {
-        const { data: signedData } = await supabase.storage
-          .from('wuduh-uploads')
-          .createSignedUrl(storagePath, 60)
-        if (signedData?.signedUrl) {
-          logoDataUri = await urlToBase64(signedData.signedUrl)
-        }
-      } else if (rawLogoUrl.startsWith('data:')) {
+      if (rawLogoUrl.startsWith('data:')) {
         logoDataUri = rawLogoUrl
+      } else if (rawLogoUrl.startsWith('http')) {
+        logoDataUri = await urlToBase64(rawLogoUrl)
       }
     }
 
     if (logoDataUri) {
       answers['C1'] = { answer: logoDataUri, status: 'done' }
-    } else if (answers['C1']) {
-      answers['C1'] = { answer: null, status: 'skipped' }
     }
-
-    // Dynamically import to avoid module-level errors
-    const { buildPdfHtml } = await import('@/lib/pdf/template')
 
     const html = buildPdfHtml({
       startup_name: startupName,
       founder_name: founderName,
       logo_url: logoDataUri,
       language: study.language,
-      completion_percentage: study.completion_percentage,
+      completion_percentage: study.completionPercentage,
       answers,
     })
 
@@ -115,15 +98,13 @@ export async function GET(request, { params }) {
       </body>`
     )
 
-    // Log export — ignore errors
+    // Log export
     try {
-      await supabase.from('exports').insert({
-        study_id: studyId,
-        user_id: user.id,
-        pdf_url: null,
-        language: study.language,
-        completion_snapshot: study.completion_percentage,
-      })
+      await query(
+        `INSERT INTO exports ("studyId", "userId", pdf_url, language, "completionSnapshot")
+         VALUES ($1, $2, $3, $4, $5)`,
+        [studyId, user.id, null, study.language, study.completionPercentage]
+      )
     } catch (_) {}
 
     return new NextResponse(printHtml, {
