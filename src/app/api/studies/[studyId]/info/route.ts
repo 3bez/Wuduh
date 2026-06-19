@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/auth/session'
+import { queryOne } from '@/lib/db'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -6,17 +7,13 @@ export async function GET(
   { params }: { params: Promise<{ studyId: string }> }
 ) {
   const { studyId } = await params
-  const supabase    = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: study } = await supabase
-    .from('studies')
-    .select('startup_name, language, completion_percentage, status')
-    .eq('id', studyId)
-    .eq('user_id', user.id)
-    .single()
+  const study = await queryOne(
+    'SELECT startup_name, language, completion_percentage, status FROM studies WHERE id = $1 AND user_id = $2',
+    [studyId, user.id]
+  )
 
   if (!study) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 

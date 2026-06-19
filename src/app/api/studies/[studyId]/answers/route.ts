@@ -2,8 +2,9 @@
 // Upserts a single card answer. Idempotent — safe to call multiple times.
 // Also recalculates and updates the study's completion_percentage.
 
-import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { getUser } from '@/lib/auth/session'
+import { query, queryOne } from '@/lib/db'
 import { MANDATORY_CARDS } from '@/lib/cards/loader'
 
 export async function POST(
@@ -11,71 +12,41 @@ export async function POST(
   { params }: { params: Promise<{ studyId: string }> }
 ) {
   const { studyId } = await params
-  const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: study } = await supabase
-    .from('studies')
-    .select('id, user_id')
-    .eq('id', studyId)
-    .eq('user_id', user.id)
-    .single()
-
+  const study = await queryOne(
+    'SELECT id FROM studies WHERE id = $1 AND user_id = $2',
+    [studyId, user.id]
+  )
   if (!study) return NextResponse.json({ error: 'Study not found' }, { status: 404 })
 
-  const body = await request.json()
-  const { card_id, answer, status } = body
+  const { card_id, answer, status } = await request.json()
+  if (!card_id || !status) return NextResponse.json({ error: 'card_id and status are required' }, { status: 400 })
 
-  if (!card_id || !status) {
-    return NextResponse.json({ error: 'card_id and status are required' }, { status: 400 })
-  }
-
-  // Check if answer exists for this card
-  const { data: existing } = await supabase
-    .from('answers')
-    .select('id')
-    .eq('study_id', studyId)
-    .eq('card_id', card_id)
-    .maybeSingle()
-
-  let saveError = null
-
-  if (existing) {
-    const { error } = await supabase
-      .from('answers')
-      .update({ answer: answer ?? null, status, updated_at: new Date().toISOString() })
-      .eq('study_id', studyId)
-      .eq('card_id', card_id)
-    saveError = error
-  } else {
-    const { error } = await supabase
-      .from('answers')
-      .insert({ study_id: studyId, card_id, answer: answer ?? null, status })
-    saveError = error
-  }
-
-  if (saveError) {
-    return NextResponse.json({ error: saveError.message }, { status: 500 })
-  }
+  // Upsert answer
+  await query(
+    `INSERT INTO answers (study_id, card_id, answer, status)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (study_id, card_id)
+     DO UPDATE SET answer = EXCLUDED.answer, status = EXCLUDED.status, "updated_at" = now()`,
+    [studyId, card_id, answer ?? null, status]
+  )
 
   // Recalculate completion %
-  const { data: allAnswers } = await supabase
-    .from('answers')
-    .select('card_id, status')
-    .eq('study_id', studyId)
-
-  const answeredIds = new Set(
-    (allAnswers ?? []).filter(a => a.status === 'done').map(a => a.card_id)
+  const allAnswers = await query<{ card_id: string; status: string }>(
+    'SELECT card_id, status FROM answers WHERE study_id = $1',
+    [studyId]
   )
+
+  const answeredIds = new Set(allAnswers.filter(a => a.status === 'done').map(a => a.card_id))
   const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
   const completion = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
 
-  await supabase
-    .from('studies')
-    .update({ completion_percentage: completion, updated_at: new Date().toISOString() })
-    .eq('id', studyId)
+  await query(
+    'UPDATE studies SET completion_percentage = $1, updated_at = now() WHERE id = $2',
+    [completion, studyId]
+  )
 
   return NextResponse.json({ ok: true, completion })
 }

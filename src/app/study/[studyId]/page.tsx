@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { getUser } from '@/lib/auth/session'
+import { queryOne, query } from '@/lib/db'
 import { ALL_CARDS, getCard, MANDATORY_CARDS, sectionLabel } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
 import CardShell from '@/components/cards/CardShell'
@@ -27,26 +28,30 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   const { studyId } = await params
   const { card: cardId, lang: langOverride } = await searchParams
 
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const user = await getUser()
   if (!user) redirect('/login')
 
-  const { data: study } = await supabase
-    .from('studies').select('*')
-    .eq('id', studyId).eq('user_id', user.id).single()
-
+  const study = await queryOne<{
+    id: string; language: string; startup_name: string | null; logo_url: string | null
+  }>(
+    'SELECT * FROM studies WHERE id = $1 AND user_id = $2',
+    [studyId, user.id]
+  )
   if (!study) redirect('/dashboard')
 
-  const { data: answersRaw } = await supabase
-    .from('answers').select('card_id, answer, status').eq('study_id', studyId)
-
-  const answers = Object.fromEntries(
-    (answersRaw ?? []).map(a => [a.card_id, { answer: a.answer, status: a.status }])
+  const answersRaw = await query<{ card_id: string; answer: unknown; status: string }>(
+    'SELECT card_id, answer, status FROM answers WHERE study_id = $1',
+    [studyId]
   )
 
-  const lang: Language = (langOverride as Language) ?? study.language ?? 'en'
+  const answers = Object.fromEntries(
+    answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status }])
+  )
+
+  const lang: Language = (langOverride as Language) ?? (study.language as Language) ?? 'en'
+
   if (langOverride && langOverride !== study.language) {
-    await supabase.from('studies').update({ language: lang }).eq('id', studyId)
+    await query('UPDATE studies SET language = $1 WHERE id = $2', [lang, studyId])
   }
 
   let activeCardId = cardId
@@ -69,7 +74,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }} dir={dir}>
       <style>{`
-        .sj-back:hover  { color: var(--text-primary) !important; }
+        .sj-back:hover { color: var(--text-primary) !important; }
         .sj-overview:hover { color: var(--text-primary) !important; background: var(--bg-subtle) !important; }
         @media (max-width: 640px) {
           .sj-header-inner { padding: 0 12px !important; gap: 10px !important; height: 50px !important; }
@@ -79,61 +84,38 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
         }
       `}</style>
 
-      {/* ── Header ── */}
-      <header style={{
-        background: 'var(--bg-surface)',
-        borderBottom: '1px solid var(--border-default)',
-        position: 'sticky', top: 0, zIndex: 50,
-      }}>
-        <div className="sj-header-inner" style={{
-          maxWidth: 1120, margin: '0 auto', padding: '0 20px',
-          height: 56, display: 'flex', alignItems: 'center', gap: 16,
-        }}>
-          {/* Back to dashboard */}
+      <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', position: 'sticky', top: 0, zIndex: 50 }}>
+        <div className="sj-header-inner" style={{ maxWidth: 1120, margin: '0 auto', padding: '0 20px', height: 56, display: 'flex', alignItems: 'center', gap: 16 }}>
           <Link href="/dashboard" className="sj-back" aria-label="Back to dashboard"
             style={{ color: 'var(--text-hint)', transition: 'color 140ms', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d={dir === 'rtl' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'} />
             </svg>
           </Link>
-
-          {/* Logo → dashboard */}
           <Link href="/dashboard" className="sj-logo" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none', flexShrink: 0 }}>
             <LogoMark />
           </Link>
-
-          {/* Progress */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>
                 {card.section !== 'cover' ? currentSectionLabel : (lang === 'ar' ? 'الغلاف' : 'Cover')}
               </span>
-              <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, color: 'var(--text-faint)', letterSpacing: '0.04em' }}>
-                {completionPct}%
-              </span>
+              <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, color: 'var(--text-faint)', letterSpacing: '0.04em' }}>{completionPct}%</span>
             </div>
             <div style={{ height: 3, background: 'var(--border-default)', borderRadius: 99, overflow: 'hidden' }}>
-              <div style={{
-                height: '100%', width: `${completionPct}%`, borderRadius: 99,
-                background: completionPct === 100 ? 'var(--teal-500)' : 'var(--gold-500)',
-                transition: 'width 600ms cubic-bezier(0.22,0.61,0.36,1)',
-              }} />
+              <div style={{ height: '100%', width: `${completionPct}%`, borderRadius: 99, background: completionPct === 100 ? 'var(--teal-500)' : 'var(--gold-500)', transition: 'width 600ms cubic-bezier(0.22,0.61,0.36,1)' }} />
             </div>
           </div>
-
-          {/* Overview */}
           <Link href={`/study/${studyId}/overview`} className="sj-overview"
             style={{ fontSize: 12, color: 'var(--text-faint)', textDecoration: 'none', padding: '5px 10px', borderRadius: 6, transition: 'color 140ms, background 140ms', whiteSpace: 'nowrap', flexShrink: 0 }}>
             {lang === 'ar' ? 'نظرة عامة' : 'Overview'}
           </Link>
-
           <ThemeToggle />
           <div className="sj-divider" style={{ width: 1, height: 16, background: 'var(--border-default)', flexShrink: 0 }} />
           <LogoutButton />
         </div>
       </header>
 
-      {/* ── Card area ── */}
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '40px 20px 80px' }}>
         <CardShell
           card={card} lang={lang} studyId={studyId} userId={user.id}
