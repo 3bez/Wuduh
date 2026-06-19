@@ -16,7 +16,7 @@ export async function POST(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const study = await queryOne(
-    'SELECT id FROM studies WHERE id = $1 AND user_id = $2',
+    'SELECT id FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
   if (!study) return NextResponse.json({ error: 'Study not found' }, { status: 404 })
@@ -32,16 +32,16 @@ export async function POST(
     : JSON.stringify(answer)
 
   await query(
-    `INSERT INTO answers (study_id, card_id, answer, status)
+    `INSERT INTO answers ("studyId", "cardId", answer, status)
      VALUES ($1, $2, $3::jsonb, $4)
-     ON CONFLICT (study_id, card_id)
+     ON CONFLICT ("studyId", "cardId")
      DO UPDATE SET answer = EXCLUDED.answer, status = EXCLUDED.status, updated_at = now()`,
     [studyId, card_id, jsonAnswer, status]
   )
 
   // Recalculate completion %
   const allAnswers = await query<{ card_id: string; status: string }>(
-    'SELECT card_id, status FROM answers WHERE study_id = $1',
+    'SELECT "cardId" as card_id, status FROM answers WHERE "studyId" = $1',
     [studyId]
   )
 
@@ -50,7 +50,7 @@ export async function POST(
   const completion = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
 
   await query(
-    'UPDATE studies SET completion_percentage = $1, updated_at = now() WHERE id = $2',
+    'UPDATE studies SET "completionPercentage" = $1, updated_at = now() WHERE id = $2',
     [completion, studyId]
   )
 

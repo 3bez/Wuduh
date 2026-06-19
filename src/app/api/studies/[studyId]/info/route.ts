@@ -11,7 +11,7 @@ export async function GET(
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const study = await queryOne(
-    'SELECT startup_name, language, completion_percentage, status FROM studies WHERE id = $1 AND user_id = $2',
+    'SELECT "startupName" as startup_name, language, "completionPercentage" as completion_percentage, status FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
 

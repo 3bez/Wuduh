@@ -25,20 +25,20 @@ export default async function DashboardPage() {
   const user = await getUser()
   if (!user) redirect('/login')
 
-  const profile = await queryOne<{ full_name: string }>(
-    'SELECT full_name FROM profiles WHERE id = $1',
+  const profile = await queryOne<{ fullName: string }>(
+    'SELECT "fullName" FROM profiles WHERE id = $1',
     [user.id]
   )
 
   const studies = await query<{
-    id: string; startup_name: string | null; language: string;
-    status: string; logo_url: string | null; completion_percentage: number; updated_at: string
+    id: string; "startupName": string | null; language: string;
+    status: string; "logoUrl": string | null; "completionPercentage": number; "updatedAt": string
   }>(
-    'SELECT * FROM studies WHERE user_id = $1 ORDER BY updated_at DESC',
+    'SELECT * FROM studies WHERE "userId" = $1 ORDER BY "updatedAt" DESC',
     [user.id]
   )
 
-  const firstName = profile?.full_name?.split(' ')[0] ?? user.name?.split(' ')[0] ?? 'Founder'
+  const firstName = profile?.fullName?.split(' ')[0] ?? user.name?.split(' ')[0] ?? 'Founder'
   const hasStudies = studies.length > 0
 
   return (
@@ -109,8 +109,8 @@ export default async function DashboardPage() {
   )
 }
 
-function StudyCard({ study }: { study: { id: string; startup_name: string | null; language: string; status: string; logo_url: string | null; completion_percentage: number; updated_at: string } }) {
-  const pct = study.completion_percentage ?? 0
+function StudyCard({ study }: { study: { id: string; startupName: string | null; language: string; status: string; logoUrl: string | null; completionPercentage: number; updatedAt: string } }) {
+  const pct = study.completionPercentage ?? 0
   const statusLabel = pct === 100 ? 'Complete' : pct === 0 ? 'Not started' : 'In progress'
   const statusStyle = pct === 100
     ? { background: 'var(--success-100)', color: 'var(--success-500)' }
@@ -129,9 +129,9 @@ function StudyCard({ study }: { study: { id: string; startup_name: string | null
     <div className="study-card" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)', borderRadius: 16, padding: 24, display: 'flex', flexDirection: 'column' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--bg-subtle)', border: '1px solid var(--border-default)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
-          {study.logo_url ? (
+          {study.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={study.logo_url} alt="Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
+            <img src={study.logoUrl} alt="Logo" style={{ width: 32, height: 32, objectFit: 'contain' }} />
           ) : (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-hint)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
@@ -148,8 +148,8 @@ function StudyCard({ study }: { study: { id: string; startup_name: string | null
         </div>
       </div>
 
-      <RenameStudy studyId={study.id} currentName={study.startup_name ?? null} />
-      <p style={{ fontSize: 12, color: 'var(--text-faint)', marginBottom: 20 }}>Updated {formatDate(study.updated_at)}</p>
+      <RenameStudy studyId={study.id} currentName={study.startupName ?? null} />
+      <p style={{ fontSize: 12, color: 'var(--text-faint)', marginBottom: 20 }}>Updated {formatDate(study.updatedAt)}</p>
 
       <div style={{ marginBottom: 20, marginTop: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>

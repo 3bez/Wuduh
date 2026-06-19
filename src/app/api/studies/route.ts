@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   const { language, startup_name } = await request.json()
 
   const study = await queryOne<{ id: string }>(
-    `INSERT INTO studies (user_id, language, startup_name)
+    `INSERT INTO studies ("userId", language, "startupName")
      VALUES ($1, $2, $3)
      RETURNING id`,
     [user.id, language ?? 'en', startup_name ?? null]

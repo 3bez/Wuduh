@@ -32,15 +32,15 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   if (!user) redirect('/login')
 
   const study = await queryOne<{
-    id: string; language: string; startup_name: string | null; logo_url: string | null
+    id: string; language: string; startupName: string | null; logoUrl: string | null
   }>(
-    'SELECT * FROM studies WHERE id = $1 AND user_id = $2',
+    'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
   if (!study) redirect('/dashboard')
 
   const answersRaw = await query<{ card_id: string; answer: unknown; status: string }>(
-    'SELECT card_id, answer, status FROM answers WHERE study_id = $1',
+    'SELECT "cardId" as card_id, answer, status FROM answers WHERE "studyId" = $1',
     [studyId]
   )
 
