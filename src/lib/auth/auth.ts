@@ -1,24 +1,14 @@
 import { betterAuth } from 'better-auth'
 import { Pool } from 'pg'
 
-function createPool() {
-  const connectionString = process.env.DATABASE_URL
-
-  if (!connectionString) {
-    throw new Error('DATABASE_URL environment variable is not set')
-  }
-
-  return new Pool({
-    connectionString,
+export const auth = betterAuth({
+  database: new Pool({
+    connectionString: process.env.DATABASE_URL,
     ssl: false,
     max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
-  })
-}
-
-export const auth = betterAuth({
-  database: createPool(),
+  }),
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
@@ -35,6 +25,19 @@ export const auth = betterAuth({
   },
   advanced: {
     cookiePrefix: 'wuduh',
+  },
+  // Map Better Auth table names to our existing table names
+  user: {
+    modelName: 'users',
+  },
+  session: {
+    modelName: 'sessions',
+  },
+  account: {
+    modelName: 'accounts',
+  },
+  verification: {
+    modelName: 'verifications',
   },
   trustedOrigins: [
     process.env.BETTER_AUTH_URL ?? 'https://wuduh.site',
