@@ -63,7 +63,7 @@ src/
 │   ├── auth/                # Better Auth config (auth.ts, client.ts, session.ts)
 │   ├── cards/               # Card loader and section definitions
 │   ├── db/                  # PostgreSQL pool and query helpers
-│   └── pdf/                 # PDF HTML template and generator
+│   └── pdf/                 # PDF HTML template
 ├── hooks/
 │   └── useAutoSave.ts       # Debounced auto-save hook
 └── types/
@@ -139,3 +139,11 @@ Card types:
 - `lang` — language selection (first card, sets study language)
 
 Each card has English and Arabic translations including prompt, helper text, hint, and example.
+
+## Roadmap
+
+The MVP is delivered and live at wuduh.site. Remaining work is sequenced so that monetization comes last and the AI validator follows it:
+
+1. **Next feature phases** — financial projections engine + export charts, theme gallery + designer marketplace, accelerator white-labeling, living document (return-and-update with version history), investor shareable link, documentation hub, and an accelerator API. Edge-level JWT auth hardening sits alongside these as a technical item.
+2. **Final phase — Payment system.** Moyasar (MADA support), SAR 99 per export. Intentionally sequenced last; monetization is switched on once the product depth is complete.
+3. **After payment — AI input validator.** The last item on the roadmap, deferred until payment ships. Planned as on-device (in-browser) inference so it adds no server cost or external dependency.

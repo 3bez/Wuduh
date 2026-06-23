@@ -618,7 +618,9 @@ export function buildPdfHtml(data: StudyData): string {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="${fontUrl}" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
+html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@page{size:A4;margin:0}
 :root{
   --navy-900:#0D1B2A;--gold-500:#C9A84C;--gold-600:#A6852F;--gold-700:#8A6F26;
   --gold-100:#F6EEDB;--teal-100:#D8F1EE;--teal-700:#0A6E66;

@@ -12,6 +12,13 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmail({
+        to: user.email,
+        subject: 'Reset your Wuduh password',
+        html: resetPasswordEmailHtml(user.name ?? 'Founder', url),
+      })
+    },
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url }) => {
@@ -72,6 +79,23 @@ function verificationEmailHtml(name: string, url: string) {
       </a>
       <p style="font-size:12px;color:#B4BFCB;margin-top:32px;">
         If you didn't create a Wuduh account, you can safely ignore this email.
+      </p>
+    </div>
+  `
+}
+
+function resetPasswordEmailHtml(name: string, url: string) {
+  return `
+    <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#0D1B2A;">
+      <h1 style="font-size:22px;font-weight:500;margin:0 0 12px;">Reset your password, ${name.split(' ')[0]}.</h1>
+      <p style="font-size:15px;color:#647183;line-height:1.7;margin:0 0 28px;">
+        We received a request to reset the password on your Wuduh account. Click the button below to choose a new one. This link expires in one hour.
+      </p>
+      <a href="${url}" style="display:inline-block;background:#C9A84C;color:#0D1B2A;font-size:14px;font-weight:600;padding:12px 28px;border-radius:9px;text-decoration:none;">
+        Reset password →
+      </a>
+      <p style="font-size:12px;color:#B4BFCB;margin-top:32px;">
+        If you didn't request a password reset, you can safely ignore this email — your password will stay the same.
       </p>
     </div>
   `
