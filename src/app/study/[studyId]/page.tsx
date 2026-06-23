@@ -4,6 +4,7 @@ import { queryOne, query } from '@/lib/db'
 import { ALL_CARDS, getCard, MANDATORY_CARDS, sectionLabel } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
 import CardShell from '@/components/cards/CardShell'
+import ProjectionsChart from '@/components/cards/ProjectionsChart'
 import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
@@ -121,6 +122,18 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
           card={card} lang={lang} studyId={studyId} userId={user.id}
           existingAnswer={answers[card.id]?.answer} completionPct={completionPct}
         />
+
+        {/* ── Financial projections chart — shown after S4 ── */}
+        {['s4', 's5', 's6', 's7', 's8'].includes(card.section) && (
+          <div style={{ marginTop: 32 }}>
+            <ProjectionsChart
+              answers={Object.fromEntries(
+                Object.entries(answers).map(([k, v]) => [k, v.answer])
+              )}
+              lang={lang}
+            />
+          </div>
+        )}
       </main>
     </div>
   )

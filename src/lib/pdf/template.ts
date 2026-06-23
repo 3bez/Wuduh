@@ -3,6 +3,7 @@
 
 import { ALL_CARDS, SECTIONS } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
+import { runProjections, type ProjectionResult } from '@/lib/projections/engine'
 
 interface AnswerMap {
   [cardId: string]: {
@@ -229,6 +230,220 @@ function renderTeamTable(rows: Record<string, string>[], lang: Language): string
   </table>`
 }
 
+// ── Projections SVG chart (server-side, no canvas, no client JS) ────────────
+
+const SVG_W    = 560
+const SVG_H    = 220
+const SVG_PL   = 58   // left padding (Y axis labels)
+const SVG_PR   = 12
+const SVG_PT   = 12
+const SVG_PB   = 30   // bottom padding (X axis labels)
+const PLOT_W   = SVG_W - SVG_PL - SVG_PR
+const PLOT_H   = SVG_H - SVG_PT - SVG_PB
+
+function pdfFormatSar(n: number): string {
+  if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (Math.abs(n) >= 1_000)     return `${(n / 1_000).toFixed(0)}K`
+  return String(Math.round(n))
+}
+
+function pdfToX(i: number): number {
+  return SVG_PL + (i / 11) * PLOT_W
+}
+
+function buildProjectionSvg(result: ProjectionResult, lang: Language): string {
+  const isAr  = lang === 'ar'
+  const { months } = result
+
+  const allVals = [
+    ...months.map(m => m.revenue),
+    ...months.map(m => m.totalCosts),
+    ...(result.initialCash !== null ? months.map(m => m.cashBalance) : []),
+    0,
+  ]
+  const maxVal  = Math.max(...allVals)
+  const minVal  = Math.min(...allVals, ...months.map(m => m.cumulativeProfit))
+  const ySpan   = (maxVal - minVal) || 1
+  const yPadded = ySpan * 1.1
+  const yTop    = maxVal + ySpan * 0.05
+
+  function toY(v: number): number {
+    return SVG_PT + PLOT_H - ((v - (yTop - yPadded)) / yPadded) * PLOT_H
+  }
+
+  const baseY = toY(0)
+
+  function points(vals: number[]): string {
+    return vals.map((v, i) => `${pdfToX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ')
+  }
+
+  function areaPoints(vals: number[]): string {
+    const line = vals.map((v, i) => `${pdfToX(i).toFixed(1)},${toY(v).toFixed(1)}`).join(' ')
+    const last = pdfToX(11).toFixed(1)
+    const first = pdfToX(0).toFixed(1)
+    return `${line} ${last},${baseY.toFixed(1)} ${first},${baseY.toFixed(1)}`
+  }
+
+  // Y axis ticks
+  const tickStep = Math.ceil(yPadded / 4 / 1000) * 1000 || 100
+  const yTicks: number[] = []
+  for (let v = 0; v <= maxVal + tickStep; v += tickStep) yTicks.push(v)
+  if (minVal < 0) for (let v = -tickStep; v >= minVal; v -= tickStep) yTicks.push(v)
+
+  const revVals  = months.map(m => m.revenue)
+  const costVals = months.map(m => m.totalCosts)
+  const cashVals = result.initialCash !== null ? months.map(m => m.cashBalance) : []
+
+  const breakevenIdx = result.breakevenMonth !== null ? result.breakevenMonth - 1 : null
+
+  // X axis — show M1, M3, M6, M9, M12
+  const xLabels = [0, 2, 5, 8, 11]
+
+  return `<svg viewBox="0 0 ${SVG_W} ${SVG_H}" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pg-rev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C9A84C" stop-opacity="0.18"/><stop offset="100%" stop-color="#C9A84C" stop-opacity="0.02"/></linearGradient>
+    <linearGradient id="pg-cost" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8795A6" stop-opacity="0.14"/><stop offset="100%" stop-color="#8795A6" stop-opacity="0.01"/></linearGradient>
+    <linearGradient id="pg-cash" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0D9488" stop-opacity="0.12"/><stop offset="100%" stop-color="#0D9488" stop-opacity="0.01"/></linearGradient>
+  </defs>
+
+  ${yTicks.map(v => {
+    const y   = toY(v)
+    const isZ = v === 0
+    return `<line x1="${SVG_PL}" y1="${y.toFixed(1)}" x2="${SVG_W - SVG_PR}" y2="${y.toFixed(1)}" stroke="${isZ ? '#D4DBE3' : '#EAE3D2'}" stroke-width="${isZ ? 1 : 0.5}" ${isZ ? '' : 'stroke-dasharray="3 3"'}/>
+    <text x="${SVG_PL - 5}" y="${(y + 3.5).toFixed(1)}" text-anchor="end" font-size="8" font-family="IBM Plex Mono,monospace" fill="#8795A6">${pdfFormatSar(v)}</text>`
+  }).join('')}
+
+  ${cashVals.length ? `<polygon points="${areaPoints(cashVals)}" fill="url(#pg-cash)"/>` : ''}
+  <polygon points="${areaPoints(revVals)}"  fill="url(#pg-rev)"/>
+  <polygon points="${areaPoints(costVals)}" fill="url(#pg-cost)"/>
+
+  ${cashVals.length ? `<polyline points="${points(cashVals)}" fill="none" stroke="#0D9488" stroke-width="1.5" stroke-dasharray="4 3" stroke-linejoin="round"/>` : ''}
+  <polyline points="${points(revVals)}"  fill="none" stroke="#C9A84C" stroke-width="2"   stroke-linejoin="round" stroke-linecap="round"/>
+  <polyline points="${points(costVals)}" fill="none" stroke="#8795A6" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+  ${xLabels.map(i => `<text x="${pdfToX(i).toFixed(1)}" y="${SVG_H - SVG_PB + 12}" text-anchor="middle" font-size="8" font-family="IBM Plex Mono,monospace" fill="#8795A6">${isAr ? `ش${i + 1}` : `M${i + 1}`}</text>`).join('')}
+
+  ${breakevenIdx !== null ? (() => {
+    const bx = pdfToX(breakevenIdx)
+    const by = toY(months[breakevenIdx].revenue)
+    return `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="5" fill="#0D9488"/>
+    <circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="9" fill="#0D9488" fill-opacity="0.15"/>
+    <text x="${bx.toFixed(1)}" y="${(by - 12).toFixed(1)}" text-anchor="middle" font-size="8" font-family="IBM Plex Mono,monospace" fill="#0A6E66">${isAr ? 'تعادل' : 'B/E'}</text>`
+  })() : ''}
+</svg>`
+}
+
+function renderProjectionsPage(data: StudyData, pageNum: number): string {
+  const { language: lang, answers } = data
+  const isAr = lang === 'ar'
+  const dir  = isAr ? 'rtl' : 'ltr'
+  const startupName = rawAnswer(answers, 'C2') || data.startup_name || 'Wuduh'
+
+  // Build the answers map the engine expects (cardId → raw value)
+  const rawAnswers: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(answers)) {
+    rawAnswers[k] = v.answer
+  }
+
+  const result = runProjections(rawAnswers)
+  if (!result) return '' // cards not filled — page is omitted silently
+
+  const { mrrMonth12, totalRevenueYear1, grossMarginPct, breakevenMonth,
+          runwayMonths, cashRunsOutMonth, flags, dataCompleteness } = result
+
+  function pdfSar(n: number) { return isAr ? `${pdfFormatSar(n)} ر` : `SAR ${pdfFormatSar(n)}` }
+
+  const metrics = [
+    { label: isAr ? 'MRR الشهر 12'       : 'MRR month 12',    value: pdfSar(mrrMonth12) },
+    { label: isAr ? 'إجمالي إيرادات س1'  : 'Total revenue Y1', value: pdfSar(totalRevenueYear1) },
+    { label: isAr ? 'هامش الربح الإجمالي': 'Gross margin',     value: `${grossMarginPct.toFixed(1)}%` },
+    { label: isAr ? 'نقطة التعادل'        : 'Breakeven',
+      value: breakevenMonth
+        ? (isAr ? `الشهر ${breakevenMonth}` : `Month ${breakevenMonth}`)
+        : (isAr ? 'لم تُبلغ' : 'Not reached Y1') },
+    ...(runwayMonths !== null ? [{
+      label: isAr ? 'المسار المالي' : 'Runway',
+      value: cashRunsOutMonth
+        ? (isAr ? `ينفد الشهر ${cashRunsOutMonth}` : `Runs out M${cashRunsOutMonth}`)
+        : (isAr ? `${runwayMonths} شهراً` : `${runwayMonths} months`),
+    }] : []),
+  ]
+
+  const legendItems = [
+    { color: '#C9A84C', dash: false, label: isAr ? 'الإيرادات' : 'Revenue' },
+    { color: '#8795A6', dash: false, label: isAr ? 'التكاليف الكلية' : 'Total costs' },
+    ...(result.initialCash !== null
+      ? [{ color: '#0D9488', dash: true, label: isAr ? 'الرصيد النقدي' : 'Cash balance' }]
+      : []),
+    ...(breakevenMonth !== null
+      ? [{ color: '#0D9488', dash: false, dot: true, label: isAr ? 'نقطة التعادل' : 'Breakeven' }]
+      : []),
+  ] as { color: string; dash: boolean; dot?: boolean; label: string }[]
+
+  const assumptions = rawAnswers['8.4'] ? String(rawAnswers['8.4']) : null
+
+  const numStr  = isAr ? '05.5 — التوقعات المالية' : '05.5 — Financial Projections'
+  const pageLabel = `${esc(startupName)} · ${new Date().getFullYear()}`
+
+  return `
+  <div class="page section-page proj-page" dir="${dir}">
+    ${patternBg('pn-proj')}
+    ${sectionHeader(numStr, isAr ? 'التوقعات المالية — السنة الأولى' : 'Financial Projections — Year 1', pageLabel)}
+    <div class="section-body">
+
+      ${dataCompleteness === 'partial' ? `<div class="proj-partial-note">${isAr ? '⚠ بعض بطاقات التوقعات لم تكتمل. الأرقام تقديرية.' : '⚠ Some projection cards are incomplete. Numbers are approximate.'}</div>` : ''}
+
+      <!-- Chart -->
+      <div class="proj-chart-wrap">
+        ${buildProjectionSvg(result, lang)}
+      </div>
+
+      <!-- Legend -->
+      <div class="proj-legend">
+        ${legendItems.map(item => `
+          <div class="proj-legend-item">
+            ${item.dot
+              ? `<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="${item.color}"/></svg>`
+              : `<svg width="20" height="2" viewBox="0 0 20 2"><line x1="0" y1="1" x2="20" y2="1" stroke="${item.color}" stroke-width="2"${item.dash ? ' stroke-dasharray="4 3"' : ''}/></svg>`
+            }
+            <span>${esc(item.label)}</span>
+          </div>`).join('')}
+      </div>
+
+      <!-- Metrics grid -->
+      <div class="proj-metrics">
+        ${metrics.map(m => `
+          <div class="proj-metric">
+            <div class="proj-metric-label">${esc(m.label)}</div>
+            <div class="proj-metric-value">${esc(m.value)}</div>
+          </div>`).join('')}
+      </div>
+
+      <!-- Flags -->
+      ${flags.length > 0 ? `
+        <div class="proj-flags">
+          ${flags.map(f => `
+            <div class="proj-flag proj-flag-${f.severity}">
+              <span class="proj-flag-icon">${f.severity === 'warning' ? '⚠' : 'ℹ'}</span>
+              <span>${esc(isAr ? f.messageAr : f.messageEn)}</span>
+            </div>`).join('')}
+        </div>` : ''}
+
+      <!-- Key assumptions (from card 8.4) -->
+      ${assumptions ? `
+        <div class="proj-assumptions">
+          <div class="content-q">${isAr ? 'الافتراضات الأساسية لهذا التوقع' : 'Key assumptions underlying this projection'}</div>
+          <div class="content-a">${esc(assumptions)}</div>
+        </div>` : ''}
+
+      <!-- Disclaimer -->
+      <p class="proj-disclaimer">${isAr ? 'التوقعات تقديرات المؤسس. النتائج الفعلية قد تختلف.' : 'Projections are founder estimates. Actual results may differ.'}</p>
+
+    </div>
+    ${pageFooter(lang, startupName, pageNum)}
+  </div>`
+}
+
 function renderRiskTable(rows: Record<string, string>[], lang: Language): string {
   if (!rows.length) return ''
   const [h1, h2, h3] = lang === 'ar'
@@ -291,6 +506,13 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'التحقق' : 'Customer validation', answer(answers, '3.6')),
   ].join(''))
 
+  // ── Projections page (between S4 and S5, only if 4.6 is filled) ──
+  const projectionsPage = renderProjectionsPage(data, 6)
+  const hasProjections  = projectionsPage !== ''
+
+  // Page numbers shift if projections page exists
+  const pn = (base: number) => base + (hasProjections ? 1 : 0)
+
   const s4 = renderSection(data, 's4', 5, [
     qa(lang === 'ar' ? 'آلية الإيرادات' : 'Revenue mechanism', answer(answers, '4.1')),
     qa(lang === 'ar' ? 'نموذج التسعير' : 'Pricing model', answer(answers, '4.2')),
@@ -299,7 +521,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'الإيرادات الحالية' : 'Existing revenue', answer(answers, '4.5')),
   ].join(''))
 
-  const s5 = renderSection(data, 's5', 6, [
+  const s5 = renderSection(data, 's5', pn(6), [
     cq(lang === 'ar' ? 'تحليل المنافسين' : 'Competitor analysis'),
     renderCompetitorTable(compRows, lang),
     compRows.length ? cd : '',
@@ -307,7 +529,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'لماذا الآن' : 'Why now', answer(answers, '5.5')),
   ].join(''))
 
-  const s6 = renderSection(data, 's6', 7, [
+  const s6 = renderSection(data, 's6', pn(7), [
     qa(lang === 'ar' ? 'أول 100 عميل' : 'First 100 customers', answer(answers, '6.1')),
     qa(lang === 'ar' ? 'قنوات التسويق' : 'Marketing channels', answer(answers, '6.2')),
     qa(lang === 'ar' ? 'استراتيجية المبيعات' : 'Sales strategy', answer(answers, '6.3')),
@@ -316,7 +538,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'الشراكات' : 'Partnerships', answer(answers, '6.6')),
   ].join(''))
 
-  const s7 = renderSection(data, 's7', 8, [
+  const s7 = renderSection(data, 's7', pn(8), [
     cq(lang === 'ar' ? 'الفريق' : 'The team'),
     renderTeamTable(teamRows, lang),
     teamRows.length ? cd : '',
@@ -327,7 +549,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'أول توظيف' : 'First hires', answer(answers, '7.6')),
   ].join(''))
 
-  const s8 = renderSection(data, 's8', 9, [
+  const s8 = renderSection(data, 's8', pn(9), [
     cq(lang === 'ar' ? 'تقييم المخاطر' : 'Risk assessment'),
     renderRiskTable(riskRows, lang),
     riskRows.length ? cd : '',
@@ -419,11 +641,29 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 .pf-brand-name{font-family:var(--fd);font-weight:600;font-size:12px;color:var(--navy-900)}
 .pf-meta{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate-400)}
 .pf-page{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:var(--slate-400)}
+
+/* PROJECTIONS PAGE */
+.proj-page .section-body{padding:20px 56px 28px}
+.proj-chart-wrap{border:1px solid var(--paper-line);border-radius:10px;padding:16px 12px 12px;margin-bottom:12px;background:#fff}
+.proj-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;padding-left:4px}
+.proj-legend-item{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate-400)}
+.proj-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.proj-metric{background:var(--gold-100);border-radius:8px;padding:10px 12px}
+.proj-metric-label{font-family:var(--fm);font-size:8px;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold-700);margin-bottom:4px}
+.proj-metric-value{font-family:var(--fd);font-size:15px;font-weight:500;color:var(--navy-900);letter-spacing:-0.01em}
+.proj-flags{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.proj-flag{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--slate-600);line-height:1.55;padding:7px 10px;border-radius:6px}
+.proj-flag-warning{background:#F8ECCE;color:#7A5A18}
+.proj-flag-info{background:#F4F6F8;color:var(--slate-600)}
+.proj-flag-icon{flex-shrink:0;font-size:11px}
+.proj-assumptions{margin:12px 0 8px}
+.proj-disclaimer{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:var(--slate-400);margin-top:10px}
+.proj-partial-note{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:#B4811E;background:#F8ECCE;padding:5px 10px;border-radius:4px;margin-bottom:12px}
 </style>
 </head>
 <body>
   ${renderCover(data)}
-  ${s1}${s2}${s3}${s4}${s5}${s6}${s7}${s8}
+  ${s1}${s2}${s3}${s4}${projectionsPage}${s5}${s6}${s7}${s8}
 </body>
 </html>`
 }

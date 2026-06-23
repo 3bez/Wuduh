@@ -3,12 +3,12 @@
     "product": "Wuduh",
     "version": "1.0.0",
     "description": "Complete card configuration for the Wuduh feasibility study builder. 54 cards across 8 sections plus a cover page. This file is the single source of truth for all card content. Any change to a prompt, hint, or example is made here and takes effect immediately without a code change.",
-    "total_cards": 54,
-    "mandatory_cards": 39,
+    "total_cards": 58,
+    "mandatory_cards": 41,
     "optional_cards": 15,
     "sections": 9,
     "languages": ["en", "ar"],
-    "card_types": ["lang", "upload", "text", "table"],
+    "card_types": ["lang", "upload", "text", "table", "projections"],
     "last_updated": "2026-06-16"
   },
 
@@ -829,6 +829,172 @@
         "helper": "اختياري — لكن إذا كان الأمر كذلك، فهذا أهم شيء في دراستك.",
         "hint": "حتى عميل واحد يدفع يغير المحادثة بأكملها مع المستثمر. إذا كان لديك إيرادات، ابدأ بها هنا — المبلغ الدقيق وتاريخ البدء وما إذا كانت تنمو. إذا لم يكن كذلك، قل متى تتوقع حصولك على أول عميل يدفع وما هو الإنجاز الذي يطلق ذلك.",
         "example": "أول عميل يدفع وقّع يونيو 2026 بـ 149 ريال/شهر. حالياً 3 تجارب — 2 يتحولان للدفع هذا الشهر. الإيرادات الشهرية المتكررة: 149 ريال. الهدف: 5,000 ريال MRR بنهاية الربع الثالث 2026."
+      }
+    },
+
+    {
+      "id": "4.6",
+      "section": "s4",
+      "order": 30,
+      "type": "table",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s4_customer_ramp",
+      "max_length": null,
+      "en": {
+        "category": "Business Model",
+        "prompt": "How many customers do you expect each month in year 1?",
+        "helper": "Fill in your best estimate month by month. Revenue is calculated automatically from your price.",
+        "hint": "Be realistic, not aspirational. Month 1 is almost never 100 customers — most B2B startups close 2–5 in their first month. Your ramp should reflect the GTM plan you described in section 6: if you said '15 customers by end of Q1', your table should show 5, 10, 15 across months 1–3. Investors compare this table against what you wrote in your acquisition plan — they need to match.",
+        "example": null
+      },
+      "ar": {
+        "category": "نموذج الأعمال",
+        "prompt": "كم عدد العملاء الذين تتوقعهم كل شهر في السنة الأولى؟",
+        "helper": "أدخل تقديرك الأفضل شهراً بشهر. الإيرادات تُحسب تلقائياً من سعرك.",
+        "hint": "كن واقعياً لا تطلعياً. الشهر الأول نادراً ما يكون 100 عميل — معظم الشركات الناشئة بين الشركات تُغلق 2–5 في شهرها الأول. يجب أن يعكس منحدرك خطة الوصول للسوق التي وصفتها في القسم 6: إذا قلت '15 عميلاً بنهاية الربع الأول'، فيجب أن يُظهر جدولك 5 و10 و15 عبر الأشهر 1–3. المستثمرون يقارنون هذا الجدول بما كتبته في خطة الاستحواذ — يجب أن يتطابقا.",
+        "example": null
+      },
+      "table_columns": [
+        {
+          "key": "month",
+          "en": "Month",
+          "ar": "الشهر",
+          "width_pct": 20,
+          "type": "select",
+          "options_en": ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6", "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12"],
+          "options_ar": ["الشهر 1", "الشهر 2", "الشهر 3", "الشهر 4", "الشهر 5", "الشهر 6", "الشهر 7", "الشهر 8", "الشهر 9", "الشهر 10", "الشهر 11", "الشهر 12"],
+          "prefilled": true
+        },
+        {
+          "key": "customers",
+          "en": "Customers",
+          "ar": "العملاء",
+          "width_pct": 30,
+          "type": "number",
+          "placeholder_en": "e.g. 5",
+          "placeholder_ar": "مثال: 5"
+        },
+        {
+          "key": "revenue_sar",
+          "en": "Revenue (SAR)",
+          "ar": "الإيرادات (ريال)",
+          "width_pct": 50,
+          "type": "number",
+          "auto_calculate": true,
+          "formula": "customers * price_per_customer",
+          "source_card": "4.3",
+          "placeholder_en": "Auto-calculated from your price",
+          "placeholder_ar": "تُحسب تلقائياً من سعرك"
+        }
+      ],
+      "max_rows": 12,
+      "fixed_rows": 12
+    },
+
+    {
+      "id": "4.7",
+      "section": "s4",
+      "order": 31,
+      "type": "table",
+      "required": true,
+      "export_visible": true,
+      "export_placement": "s4_cost_breakdown",
+      "max_length": null,
+      "en": {
+        "category": "Business Model",
+        "prompt": "What are your fixed costs each month? Break them down.",
+        "helper": "List each cost item and its monthly SAR amount. Add a row for each.",
+        "hint": "Fixed costs are what you pay regardless of how many customers you have: hosting, salaries, tools, rent, subscriptions. Do not include payment processing fees here — those are variable (per transaction). If you plan to hire at a specific month, include that salary from the month it starts. Be specific: 'hosting SAR 2,400' is better than 'tech costs SAR 5,000'. This table drives the cost line on your projections chart.",
+        "example": null
+      },
+      "ar": {
+        "category": "نموذج الأعمال",
+        "prompt": "ما هي تكاليفك الثابتة كل شهر؟ فصّلها.",
+        "helper": "اذكر كل بند تكلفة ومبلغه الشهري بالريال. أضف صفاً لكل منها.",
+        "hint": "التكاليف الثابتة هي ما تدفعه بغض النظر عن عدد عملائك: الاستضافة والرواتب والأدوات والإيجار والاشتراكات. لا تُدرج رسوم معالجة الدفع هنا — تلك متغيرة (لكل معاملة). إذا كنت تخطط للتوظيف في شهر محدد، أدرج هذا الراتب من الشهر الذي يبدأ فيه. كن محدداً: 'الاستضافة 2,400 ريال' أفضل من 'تكاليف تقنية 5,000 ريال'. هذا الجدول يُحرّك خط التكلفة على مخطط توقعاتك.",
+        "example": null
+      },
+      "table_columns": [
+        {
+          "key": "cost_item",
+          "en": "Cost item",
+          "ar": "بند التكلفة",
+          "width_pct": 50,
+          "type": "text",
+          "placeholder_en": "e.g. Server hosting",
+          "placeholder_ar": "مثال: استضافة الخوادم"
+        },
+        {
+          "key": "monthly_sar",
+          "en": "Monthly (SAR)",
+          "ar": "شهرياً (ريال)",
+          "width_pct": 30,
+          "type": "number",
+          "placeholder_en": "e.g. 2400",
+          "placeholder_ar": "مثال: 2400"
+        },
+        {
+          "key": "starts_month",
+          "en": "Starts month",
+          "ar": "يبدأ الشهر",
+          "width_pct": 20,
+          "type": "number",
+          "placeholder_en": "1",
+          "placeholder_ar": "1",
+          "default": 1
+        }
+      ],
+      "max_rows": 10
+    },
+
+    {
+      "id": "4.8",
+      "section": "s4",
+      "order": 32,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s4_variable_cost",
+      "max_length": 200,
+      "en": {
+        "category": "Business Model",
+        "prompt": "What does it cost you per customer per month? (variable cost)",
+        "helper": "Optional — a single SAR number. Leave blank if you are not sure yet.",
+        "hint": "Variable costs scale with your customer count: payment processing fees (typically 1.5–2.5% of revenue in Saudi Arabia), per-seat infrastructure costs, per-user support cost. If your price is SAR 149/month and Moyasar takes 2.25%, your variable cost per customer is SAR 3.35. If you have no meaningful variable costs, enter 0. This number is used to calculate your gross margin.",
+        "example": "SAR 3.35 per customer per month — Moyasar payment processing fee (2.25% of SAR 149). No other per-customer variable costs at this stage."
+      },
+      "ar": {
+        "category": "نموذج الأعمال",
+        "prompt": "ما تكلفتك لكل عميل شهرياً؟ (التكلفة المتغيرة)",
+        "helper": "اختياري — رقم ريال واحد. اتركه فارغاً إذا لم تكن متأكداً بعد.",
+        "hint": "تكاليف متغيرة تتناسب مع عدد عملائك: رسوم معالجة الدفع (عادةً 1.5–2.5% من الإيرادات في المملكة العربية السعودية)، تكاليف البنية التحتية لكل مقعد، تكلفة الدعم لكل مستخدم. إذا كان سعرك 149 ريال/شهر وأخذ ميسّر 2.25%، فتكلفتك المتغيرة لكل عميل هي 3.35 ريال. إذا لم يكن لديك تكاليف متغيرة ذات معنى، أدخل 0. يُستخدم هذا الرقم لحساب هامش ربحك الإجمالي.",
+        "example": "3.35 ريال لكل عميل شهرياً — رسوم معالجة دفع ميسّر (2.25% من 149 ريال). لا توجد تكاليف متغيرة أخرى لكل عميل في هذه المرحلة."
+      }
+    },
+
+    {
+      "id": "4.9",
+      "section": "s4",
+      "order": 33,
+      "type": "text",
+      "required": false,
+      "export_visible": true,
+      "export_placement": "s4_runway",
+      "max_length": 200,
+      "en": {
+        "category": "Business Model",
+        "prompt": "How much runway do you have? (current cash)",
+        "helper": "Optional — your current cash in hand and where it came from.",
+        "hint": "Runway = how long you can operate before you run out of money. State your current cash balance in SAR and its source (personal savings, pre-seed investment, family and friends). This lets the projections chart show a runway line alongside your revenue curve — investors want to see how close to breakeven you get before the money runs out. If you have no external funding and are bootstrapping, say so.",
+        "example": "SAR 120,000 in the bank — personal savings. No external investment yet. At current burn of SAR 2,400/month, runway is 50 months before the first hire. Target: reach SAR 5,000 MRR before making any full-time hire."
+      },
+      "ar": {
+        "category": "نموذج الأعمال",
+        "prompt": "ما مدى طول مسارك المالي؟ (النقد الحالي)",
+        "helper": "اختياري — رصيدك النقدي الحالي ومصدره.",
+        "hint": "المسار المالي = كم من الوقت يمكنك العمل قبل نفاد المال. أذكر رصيدك النقدي الحالي بالريال ومصدره (مدخرات شخصية، استثمار ما قبل البذرة، الأسرة والأصدقاء). يتيح ذلك لمخطط التوقعات عرض خط المسار المالي جنباً إلى جنب مع منحنى إيراداتك — يريد المستثمرون رؤية مدى قرب التعادل قبل نفاد الأموال. إذا لم يكن لديك تمويل خارجي وتعتمد على التمويل الذاتي، قل ذلك.",
+        "example": "120,000 ريال في البنك — مدخرات شخصية. لا استثمار خارجي حتى الآن. بمعدل حرق حالي 2,400 ريال/شهر، المسار المالي 50 شهراً قبل أول توظيف. الهدف: الوصول إلى 5,000 ريال MRR قبل إجراء أي توظيف بدوام كامل."
       }
     },
 
