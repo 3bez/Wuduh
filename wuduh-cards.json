@@ -1022,9 +1022,9 @@
         "example": null
       },
       "table_columns": [
-        { "key": "competitor", "en": "Competitor", "ar": "المنافس", "width_pct": 22 },
-        { "key": "strength",   "en": "What they do well", "ar": "ما يفعلونه جيداً", "width_pct": 38 },
-        { "key": "weakness",   "en": "Where they fall short", "ar": "أين يقصّرون", "width_pct": 40 }
+        { "key": "competitor", "en": "Competitor",         "ar": "المنافس",           "width_pct": 22, "type": "text", "placeholder_en": "e.g. Foodics",                                        "placeholder_ar": "مثال: فودكس" },
+        { "key": "strength",   "en": "What they do well",  "ar": "ما يفعلونه جيداً",  "width_pct": 38, "type": "text", "placeholder_en": "e.g. Strong brand, large sales team",              "placeholder_ar": "مثال: علامة تجارية قوية، فريق مبيعات كبير" },
+        { "key": "weakness",   "en": "Where they fall short", "ar": "أين يقصّرون",        "width_pct": 40, "type": "text", "placeholder_en": "e.g. Expensive, poor UX for small businesses",      "placeholder_ar": "مثال: مكلف، تجربة مستخدم ضعيفة للمشاريع الصغيرة" }
       ],
       "max_rows": 5
     },
@@ -1303,9 +1303,9 @@
         "example": null
       },
       "table_columns": [
-        { "key": "name",       "en": "Name",       "ar": "الاسم",   "width_pct": 25 },
-        { "key": "role",       "en": "Role",       "ar": "الدور",   "width_pct": 25 },
-        { "key": "background", "en": "Background", "ar": "الخلفية", "width_pct": 50 }
+        { "key": "name",       "en": "Name",       "ar": "الاسم",   "width_pct": 25, "type": "text", "placeholder_en": "e.g. Abdullah Alangari",              "placeholder_ar": "مثال: عبدالله الأنجري" },
+        { "key": "role",       "en": "Role",       "ar": "الدور",   "width_pct": 25, "type": "text", "placeholder_en": "e.g. CEO & Co-founder",                "placeholder_ar": "مثال: الرئيس التنفيذي والمؤسس المشارك" },
+        { "key": "background", "en": "Background", "ar": "الخلفية", "width_pct": 50, "type": "text", "placeholder_en": "e.g. 5 years in SaaS product, ex-Foodics",    "placeholder_ar": "مثال: 5 سنوات في منتجات SaaS، سابقاً في فودكس" }
       ],
       "max_rows": 5
     },
@@ -1459,9 +1459,9 @@
         "example": null
       },
       "table_columns": [
-        { "key": "risk",        "en": "Risk",         "ar": "الخطر",       "width_pct": 35 },
-        { "key": "likelihood",  "en": "Likelihood",   "ar": "الاحتمالية", "width_pct": 15 },
-        { "key": "mitigation",  "en": "Mitigation",   "ar": "التخفيف",    "width_pct": 50 }
+        { "key": "risk",        "en": "Risk",           "ar": "الخطر",       "width_pct": 35, "type": "text",   "placeholder_en": "e.g. Low customer adoption in month 1",         "placeholder_ar": "مثال: انخفاض اعتماد العملاء في الشهر الأول" },
+        { "key": "likelihood",  "en": "Likelihood",     "ar": "الاحتمالية", "width_pct": 15, "type": "select", "options_en": ["High", "Medium", "Low"], "options_ar": ["عالٍ", "متوسط", "منخفض"] },
+        { "key": "mitigation",  "en": "Mitigation plan", "ar": "خطة التخفيف",    "width_pct": 50, "type": "text",   "placeholder_en": "e.g. Pre-sell to 3 studios before launch",        "placeholder_ar": "مثال: البيع المسبق لـ 3 استوديوهات قبل الإطلاق" }
       ],
       "max_rows": 5,
       "likelihood_options": {

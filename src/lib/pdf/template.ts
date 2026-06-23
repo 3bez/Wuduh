@@ -521,6 +521,16 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'المرحلة' : 'Stage', answer(answers, '2.5')),
     qa(lang === 'ar' ? 'الميزات الرئيسية' : 'Key features', answer(answers, '2.6')),
     qa(lang === 'ar' ? 'ما لا يفعله' : 'What it does not do', answer(answers, '2.7')),
+    (() => {
+      const imageUrl = rawAnswer(answers, '2.8')
+      if (!imageUrl) return ''
+      const isImage = /\.(png|jpe?g|webp|svg)$/i.test(imageUrl)
+      if (isImage) {
+        return `<div class="content-q">${lang === 'ar' ? 'صور ونماذج وعروض توضيحية' : 'Visuals, mockups & demos'}</div>
+               <div class="s2-visual-wrap"><img src="${imageUrl}" alt="Product visual" class="s2-visual" /></div><div class="content-divider"></div>`
+      }
+      return qa(lang === 'ar' ? 'صور ونماذج' : 'Visuals & mockups', lang === 'ar' ? 'ملف مرفق' : 'File attached')
+    })(),
   ].join(''))
 
   const s3 = renderSection(data, 's3', 4, [
@@ -562,6 +572,8 @@ export function buildPdfHtml(data: StudyData): string {
     cq(lang === 'ar' ? 'تحليل المنافسين' : 'Competitor analysis'),
     renderCompetitorTable(compRows, lang),
     compRows.length ? cd : '',
+    qa(lang === 'ar' ? 'التموضع في السوق' : 'Market positioning', answer(answers, '5.2')),
+    qa(lang === 'ar' ? 'تكاليف التحوّل (الخندق)' : 'Switching costs (moat)', answer(answers, '5.3')),
     qa(lang === 'ar' ? 'الميزة غير العادلة' : 'Unfair advantage', answer(answers, '5.4')),
     qa(lang === 'ar' ? 'لماذا الآن' : 'Why now', answer(answers, '5.5')),
   ].join(''))
@@ -696,6 +708,10 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 .proj-assumptions{margin:12px 0 8px}
 .proj-disclaimer{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:var(--slate-400);margin-top:10px}
 .proj-partial-note{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:#B4811E;background:#F8ECCE;padding:5px 10px;border-radius:4px;margin-bottom:12px}
+
+/* SOLUTION VISUAL (card 2.8) */
+.s2-visual-wrap{margin:8px 0 16px;border:1px solid var(--paper-line);border-radius:8px;overflow:hidden;background:#fff}
+.s2-visual{width:100%;max-height:320px;object-fit:contain;display:block}
 </style>
 </head>
 <body>
