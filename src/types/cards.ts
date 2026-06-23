@@ -11,11 +11,24 @@ export interface CardLocalised {
   example: string | null
 }
 
+export type ColumnType = 'text' | 'number' | 'select' | 'auto_calculate'
+
 export interface TableColumn {
   key: string
   en: string
   ar: string
   width_pct: number
+  // optional extended fields
+  type?: ColumnType
+  placeholder_en?: string
+  placeholder_ar?: string
+  options_en?: string[]
+  options_ar?: string[]
+  prefilled?: boolean
+  auto_calculate?: boolean
+  formula?: string
+  source_card?: string
+  default?: number | string
 }
 
 export interface UploadConfig {
@@ -48,7 +61,8 @@ export interface CardConfig {
   upload_config?: UploadConfig      // upload cards
   table_columns?: TableColumn[]     // table cards
   max_rows?: number                 // table cards
-  likelihood_options?: { en: string[]; ar: string[] }  // risk table
+  fixed_rows?: number               // table cards — fixed row count, no add/delete
+  likelihood_options?: { en: string[]; ar: string[] }  // risk table (legacy — use column type:select instead)
 }
 
 export interface SectionConfig {

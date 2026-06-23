@@ -16,10 +16,11 @@ interface Props {
   studyId: string
   userId: string
   existingAnswer?: unknown
+  studyAnswers?: Record<string, unknown>
   completionPct: number
 }
 
-export default function CardShell({ card, lang, studyId, userId, existingAnswer, completionPct }: Props) {
+export default function CardShell({ card, lang, studyId, userId, existingAnswer, studyAnswers, completionPct }: Props) {
   const router  = useRouter()
   const content = localise(card, lang)
   const dir     = lang === 'ar' ? 'rtl' : 'ltr'
@@ -148,7 +149,7 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
 
           {card.type === 'lang'   && <LangCard card={card} studyId={studyId} onComplete={handleLangComplete} />}
           {card.type === 'text'   && <TextCard card={card} lang={lang} studyId={studyId} initialValue={typeof existingAnswer === 'string' ? existingAnswer : ''} onComplete={goNext} onSkip={goNext} />}
-          {card.type === 'table'  && <TableCard card={card} lang={lang} studyId={studyId} initialRows={Array.isArray(existingAnswer) ? existingAnswer as Record<string, string>[] : undefined} onComplete={goNext} onSkip={goNext} />}
+          {card.type === 'table'  && <TableCard card={card} lang={lang} studyId={studyId} initialRows={Array.isArray(existingAnswer) ? existingAnswer as Record<string, string>[] : undefined} studyAnswers={studyAnswers} onComplete={goNext} onSkip={goNext} />}
           {card.type === 'upload' && <UploadCard card={card} lang={lang} studyId={studyId} userId={userId} initialUrl={typeof existingAnswer === 'string' ? existingAnswer : undefined} onComplete={goNext} onSkip={goNext} />}
         </div>
 

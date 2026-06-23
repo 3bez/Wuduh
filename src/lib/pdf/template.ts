@@ -444,6 +444,32 @@ function renderProjectionsPage(data: StudyData, pageNum: number): string {
   </div>`
 }
 
+function renderRampTable(rows: Record<string, string>[], lang: Language): string {
+  if (!rows.length) return ''
+  const [h1, h2, h3] = lang === 'ar'
+    ? ['الشهر', 'العملاء', 'الإيرادات (ريال)']
+    : ['Month', 'Customers', 'Revenue (SAR)']
+  const filled = rows.filter(r => r.customers && String(r.customers).trim() !== '')
+  if (!filled.length) return ''
+  return `<table class="comp-table">
+    <thead><tr><th style="width:25%">${h1}</th><th style="width:25%">${h2}</th><th style="width:50%">${h3}</th></tr></thead>
+    <tbody>${filled.map(r => `<tr><td>${esc(r.month)}</td><td>${esc(r.customers)}</td><td>${esc(r.revenue_sar)}</td></tr>`).join('')}</tbody>
+  </table>`
+}
+
+function renderCostTable(rows: Record<string, string>[], lang: Language): string {
+  if (!rows.length) return ''
+  const [h1, h2, h3] = lang === 'ar'
+    ? ['بند التكلفة', 'شهرياً (ريال)', 'يبدأ الشهر']
+    : ['Cost item', 'Monthly (SAR)', 'Starts month']
+  const filled = rows.filter(r => r.cost_item && String(r.cost_item).trim() !== '')
+  if (!filled.length) return ''
+  return `<table class="comp-table">
+    <thead><tr><th style="width:50%">${h1}</th><th style="width:25%">${h2}</th><th style="width:25%">${h3}</th></tr></thead>
+    <tbody>${filled.map(r => `<tr><td>${esc(r.cost_item)}</td><td>${esc(r.monthly_sar)}</td><td>${esc(r.starts_month || '1')}</td></tr>`).join('')}</tbody>
+  </table>`
+}
+
 function renderRiskTable(rows: Record<string, string>[], lang: Language): string {
   if (!rows.length) return ''
   const [h1, h2, h3] = lang === 'ar'
@@ -513,12 +539,23 @@ export function buildPdfHtml(data: StudyData): string {
   // Page numbers shift if projections page exists
   const pn = (base: number) => base + (hasProjections ? 1 : 0)
 
+  const rampRows = tableRows(answers, '4.6')
+  const costRows  = tableRows(answers, '4.7')
+
   const s4 = renderSection(data, 's4', 5, [
     qa(lang === 'ar' ? 'آلية الإيرادات' : 'Revenue mechanism', answer(answers, '4.1')),
     qa(lang === 'ar' ? 'نموذج التسعير' : 'Pricing model', answer(answers, '4.2')),
     qa(lang === 'ar' ? 'السعر للعميل' : 'Price per customer', answer(answers, '4.3')),
     qa(lang === 'ar' ? 'التكاليف' : 'Main costs', answer(answers, '4.4')),
     qa(lang === 'ar' ? 'الإيرادات الحالية' : 'Existing revenue', answer(answers, '4.5')),
+    rampRows.length ? `<div class="content-q">${lang === 'ar' ? 'توقعات العملاء — السنة الأولى' : 'Customer ramp — year 1'}</div>` : '',
+    renderRampTable(rampRows, lang),
+    rampRows.length ? cd : '',
+    costRows.length ? `<div class="content-q">${lang === 'ar' ? 'التكاليف الثابتة الشهرية' : 'Monthly fixed costs'}</div>` : '',
+    renderCostTable(costRows, lang),
+    costRows.length ? cd : '',
+    qa(lang === 'ar' ? 'التكلفة المتغيرة لكل عميل' : 'Variable cost per customer', answer(answers, '4.8')),
+    qa(lang === 'ar' ? 'المسار المالي' : 'Funding runway', answer(answers, '4.9')),
   ].join(''))
 
   const s5 = renderSection(data, 's5', pn(6), [

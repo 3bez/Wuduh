@@ -120,7 +120,11 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '40px 20px 80px' }}>
         <CardShell
           card={card} lang={lang} studyId={studyId} userId={user.id}
-          existingAnswer={answers[card.id]?.answer} completionPct={completionPct}
+          existingAnswer={answers[card.id]?.answer}
+          studyAnswers={Object.fromEntries(
+            Object.entries(answers).map(([k, v]) => [k, v.answer])
+          )}
+          completionPct={completionPct}
         />
 
         {/* ── Financial projections chart — shown after S4 ── */}
