@@ -59,12 +59,17 @@ export const auth = betterAuth({
 async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
   const { Resend } = await import('resend')
   const resend = new Resend(process.env.RESEND_API_KEY)
-  await resend.emails.send({
+  const { data, error } = await resend.emails.send({
     from: 'Wuduh <hello@wuduh.site>',
     to,
     subject,
     html,
   })
+  if (error) {
+    console.error('[email] Resend failed:', JSON.stringify(error))
+    throw new Error(`Resend: ${error.message ?? 'send failed'}`)
+  }
+  console.log('[email] sent', data?.id, '→', to)
 }
 
 function verificationEmailHtml(name: string, url: string) {
