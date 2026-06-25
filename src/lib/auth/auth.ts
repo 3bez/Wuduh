@@ -21,6 +21,7 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
+    sendOnSignUp: true,
     sendVerificationEmail: async ({ user, url }) => {
       // Replace callback URL to go to dashboard after verification
       const verifyUrl = new URL(url)

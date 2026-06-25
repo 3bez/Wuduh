@@ -979,7 +979,7 @@
       "required": false,
       "export_visible": true,
       "export_placement": "s4_runway",
-      "max_length": 200,
+      "max_length": 400,
       "en": {
         "category": "Business Model",
         "prompt": "How much runway do you have? (current cash)",
