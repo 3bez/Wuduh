@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUser } from '@/lib/auth/session'
+import { getVerifiedUser } from '@/lib/auth/session'
 import * as Minio from 'minio'
 
 function getMinioClient() {
@@ -15,7 +15,7 @@ function getMinioClient() {
 const BUCKET = process.env.MINIO_BUCKET ?? 'wuduh-uploads'
 
 export async function POST(request: NextRequest) {
-  const user = await getUser()
+  const user = await getVerifiedUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {

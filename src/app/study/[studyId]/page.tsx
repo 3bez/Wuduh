@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { getUser } from '@/lib/auth/session'
+import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
 import { ALL_CARDS, getCard, MANDATORY_CARDS, sectionLabel } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
@@ -29,8 +29,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   const { studyId } = await params
   const { card: cardId, lang: langOverride } = await searchParams
 
-  const user = await getUser()
-  if (!user) redirect('/login')
+  const user = await requireVerifiedUser()
 
   const study = await queryOne<{
     id: string; language: string; startupName: string | null; logoUrl: string | null

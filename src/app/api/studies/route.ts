@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUser } from '@/lib/auth/session'
+import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
 
 // POST /api/studies — create a new study
 export async function POST(request: NextRequest) {
-  const user = await getUser()
+  const user = await getVerifiedUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { language, startup_name } = await request.json()
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
 // GET /api/studies — list user's studies
 export async function GET() {
-  const user = await getUser()
+  const user = await getVerifiedUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const studies = await query(

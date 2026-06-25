@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { getUser } from '@/lib/auth/session'
+import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
 import { SECTIONS, getCardsForSection, MANDATORY_CARDS } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
@@ -22,8 +22,7 @@ function LogoMark() {
 
 export default async function OverviewPage({ params }: PageProps) {
   const { studyId } = await params
-  const user        = await getUser()
-  if (!user) redirect('/login')
+  const user        = await requireVerifiedUser()
 
   const study = await queryOne<{ id: string; language: string; startupName: string | null }>(
     'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',

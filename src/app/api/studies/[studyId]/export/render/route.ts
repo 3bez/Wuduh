@@ -2,7 +2,7 @@
 // Returns the full HTML document for browser-side PDF printing.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getUser } from '@/lib/auth/session'
+import { getVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
 import { buildPdfHtml } from '@/lib/pdf/template'
 
@@ -27,7 +27,7 @@ export async function GET(
 ) {
   try {
     const { studyId } = await params
-    const user = await getUser()
+    const user = await getVerifiedUser()
     if (!user) return new NextResponse('Unauthorized', { status: 401 })
 
     const study = await queryOne<{

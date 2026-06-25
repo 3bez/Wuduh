@@ -1,5 +1,4 @@
-import { redirect } from 'next/navigation'
-import { getUser } from '@/lib/auth/session'
+import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
 import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
@@ -22,8 +21,7 @@ function formatDate(date: string) {
 }
 
 export default async function DashboardPage() {
-  const user = await getUser()
-  if (!user) redirect('/login')
+  const user = await requireVerifiedUser()
 
   const profile = await queryOne<{ fullName: string }>(
     'SELECT "fullName" FROM profiles WHERE id = $1',

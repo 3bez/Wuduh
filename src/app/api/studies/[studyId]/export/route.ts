@@ -2,7 +2,7 @@
 // Generates a PDF using PDFShift, uploads to MinIO, returns a presigned URL.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getUser } from '@/lib/auth/session'
+import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
 import { buildPdfHtml } from '@/lib/pdf/template'
 import * as Minio from 'minio'
@@ -40,7 +40,7 @@ export async function POST(
 ) {
   try {
     const { studyId } = await params
-    const user = await getUser()
+    const user = await getVerifiedUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const study = await queryOne<{

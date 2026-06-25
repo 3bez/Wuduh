@@ -3,7 +3,7 @@
 // Also recalculates and updates the study's completion_percentage.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getUser } from '@/lib/auth/session'
+import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
 import { MANDATORY_CARDS } from '@/lib/cards/loader'
 
@@ -12,7 +12,7 @@ export async function POST(
   { params }: { params: Promise<{ studyId: string }> }
 ) {
   const { studyId } = await params
-  const user = await getUser()
+  const user = await getVerifiedUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const study = await queryOne(
