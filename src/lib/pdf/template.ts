@@ -382,7 +382,7 @@ function renderProjectionsPage(data: StudyData, pageNum: number): string {
 
   const assumptions = rawAnswers['8.4'] ? String(rawAnswers['8.4']) : null
 
-  const numStr  = isAr ? '05.5 — التوقعات المالية' : '05.5 — Financial Projections'
+  const numStr  = isAr ? '04.5 — التوقعات المالية' : '04.5 — Financial Projections'
   const pageLabel = `${esc(startupName)} · ${new Date().getFullYear()}`
 
   return `
@@ -632,9 +632,14 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 
 /* PAGE */
-.page{background:var(--paper);width:210mm;position:relative;overflow:hidden;page-break-after:always}
+.page{background:var(--paper);width:210mm;min-height:297mm;position:relative;display:flex;flex-direction:column;page-break-after:always}
 .page:last-child{page-break-after:auto}
+.page .section-body{flex:1 0 auto}
+.page .page-footer{margin-top:auto}
 .page-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* keep related content together across page breaks */
+.content-q{break-inside:avoid}
+.comp-table tr,.risk-table tr{break-inside:avoid}
 
 /* COVER — fills full A4 height, meta grid pinned to bottom */
 .cover{display:flex;flex-direction:column;min-height:297mm}

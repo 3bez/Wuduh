@@ -844,14 +844,14 @@
       "en": {
         "category": "Business Model",
         "prompt": "How many customers do you expect each month in year 1?",
-        "helper": "Fill in your best estimate month by month. Revenue is calculated automatically from your price.",
+        "helper": "Add a row only for the months you have an estimate for — e.g. Month 1, Month 4, Month 12. We fill in the months between automatically. Revenue is calculated from your price.",
         "hint": "Be realistic, not aspirational. Month 1 is almost never 100 customers — most B2B startups close 2–5 in their first month. Your ramp should reflect the GTM plan you described in section 6: if you said '15 customers by end of Q1', your table should show 5, 10, 15 across months 1–3. Investors compare this table against what you wrote in your acquisition plan — they need to match.",
         "example": null
       },
       "ar": {
         "category": "نموذج الأعمال",
         "prompt": "كم عدد العملاء الذين تتوقعهم كل شهر في السنة الأولى؟",
-        "helper": "أدخل تقديرك الأفضل شهراً بشهر. الإيرادات تُحسب تلقائياً من سعرك.",
+        "helper": "أضف صفاً فقط للأشهر التي لديك تقدير لها — مثل الشهر 1، الشهر 4، الشهر 12. نملأ الأشهر بينها تلقائياً. الإيرادات تُحسب من سعرك.",
         "hint": "كن واقعياً لا تطلعياً. الشهر الأول نادراً ما يكون 100 عميل — معظم الشركات الناشئة بين الشركات تُغلق 2–5 في شهرها الأول. يجب أن يعكس منحدرك خطة الوصول للسوق التي وصفتها في القسم 6: إذا قلت '15 عميلاً بنهاية الربع الأول'، فيجب أن يُظهر جدولك 5 و10 و15 عبر الأشهر 1–3. المستثمرون يقارنون هذا الجدول بما كتبته في خطة الاستحواذ — يجب أن يتطابقا.",
         "example": null
       },
@@ -863,8 +863,7 @@
           "width_pct": 20,
           "type": "select",
           "options_en": ["Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6", "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12"],
-          "options_ar": ["الشهر 1", "الشهر 2", "الشهر 3", "الشهر 4", "الشهر 5", "الشهر 6", "الشهر 7", "الشهر 8", "الشهر 9", "الشهر 10", "الشهر 11", "الشهر 12"],
-          "prefilled": true
+          "options_ar": ["الشهر 1", "الشهر 2", "الشهر 3", "الشهر 4", "الشهر 5", "الشهر 6", "الشهر 7", "الشهر 8", "الشهر 9", "الشهر 10", "الشهر 11", "الشهر 12"]
         },
         {
           "key": "customers",
@@ -888,8 +887,7 @@
           "placeholder_ar": "تُحسب تلقائياً من سعرك"
         }
       ],
-      "max_rows": 12,
-      "fixed_rows": 12
+      "max_rows": 12
     },
 
     {

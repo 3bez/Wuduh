@@ -114,19 +114,59 @@ function extractSarNumber(text: unknown): number | null {
 }
 
 /**
- * Parse the customer ramp table (card 4.6).
- * Returns an array of 12 numbers (one per month), filling gaps with 0.
+ * Parse the customer ramp table (card 4.6) into a full 12-month array.
+ *
+ * Founders rarely fill all 12 rows. Treating blanks as "0 customers" is wrong
+ * for a recurring-revenue model and produces nonsense headline metrics
+ * (MRR month 12 = 0, breakeven month 1, etc). Instead we interpolate:
+ *   - months BEFORE the first entered value  -> 0   (not launched yet)
+ *   - gaps BETWEEN two entered values        -> linear interpolation
+ *   - months AFTER the last entered value     -> carry the last value forward
+ *
+ * So "Month 1: 14, Month 4: 50" means grow 14 -> 50 by month 4, then hold 50.
  */
 function parseRamp(raw: unknown): number[] {
-  const result = new Array<number>(12).fill(0)
-  if (!Array.isArray(raw)) return result
+  const entered = new Array<number | null>(12).fill(null)
+  if (!Array.isArray(raw)) return new Array<number>(12).fill(0)
 
   for (const row of raw as RampRow[]) {
-    // Month label → 0-based index  ("Month 3" → 2)
+    // Month label -> 0-based index  ("Month 3" -> 2)
     const monthStr = String(row.month ?? '').replace(/[^\d]/g, '')
     const idx = parseInt(monthStr, 10) - 1
     if (idx < 0 || idx > 11) continue
-    result[idx] = toNum(row.customers, 0)
+    // Only count a month as "entered" if a customers value was actually typed
+    const c = row.customers
+    if (c === '' || c === null || c === undefined) continue
+    entered[idx] = toNum(c, 0)
+  }
+
+  return interpolateRamp(entered)
+}
+
+/**
+ * Fill a sparse array of entered customer counts into a continuous 12-month ramp.
+ * See parseRamp() for the interpolation rules.
+ */
+function interpolateRamp(entered: (number | null)[]): number[] {
+  const result = new Array<number>(12).fill(0)
+  const idxs = entered
+    .map((v, i) => (v !== null ? i : -1))
+    .filter(i => i >= 0)
+  if (idxs.length === 0) return result
+
+  const lastIdx = idxs[idxs.length - 1]
+
+  for (let i = idxs[0]; i < 12; i++) {
+    if (entered[i] !== null) {
+      result[i] = entered[i] as number
+    } else if (i > lastIdx) {
+      result[i] = entered[lastIdx] as number          // carry forward
+    } else {
+      const prev = idxs.filter(k => k < i).pop() as number
+      const next = idxs.find(k => k > i) as number
+      const slope = ((entered[next] as number) - (entered[prev] as number)) / (next - prev)
+      result[i] = Math.round((entered[prev] as number) + slope * (i - prev))
+    }
   }
   return result
 }
