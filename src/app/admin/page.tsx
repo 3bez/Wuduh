@@ -221,6 +221,7 @@ export default async function AdminPage() {
           <Stat label="Export rate" value={`${pct(usersWithExport, usersWithStudy)}%`} sub="of founders who started" accent="teal" />
         </div>
 
+        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker A: KPI rendered ==</div>
         {/* Funnel + Activity */}
         <div className="ad-3col" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 14, marginBottom: 32 }}>
           <Panel title="Conversion funnel" subtitle="Unique founders at each step">
@@ -257,6 +258,7 @@ export default async function AdminPage() {
           </Panel>
         </div>
 
+        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker B: funnel + activity rendered ==</div>
         {/* Breakdowns */}
         <div className="ad-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
           <Panel title="Studies by status">
@@ -280,6 +282,7 @@ export default async function AdminPage() {
           </Panel>
         </div>
 
+        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker C: breakdowns rendered ==</div>
         {/* Card drop-off */}
         <Panel title="Most-skipped cards" subtitle="Where founders leave a card blank — candidates to simplify or reword" style={{ marginBottom: 32 }}>
           {skippedCards.length === 0 ? (
@@ -307,6 +310,7 @@ export default async function AdminPage() {
           )}
         </Panel>
 
+        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker D: skipped cards rendered ==</div>
         {/* Recent users */}
         <Panel title="Recent signups" subtitle="Newest 12 accounts" style={{ marginBottom: 32 }}>
           <div className="ad-tablewrap">
@@ -333,6 +337,7 @@ export default async function AdminPage() {
           </div>
         </Panel>
 
+        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker E: recent users rendered ==</div>
         {/* Recent exports */}
         <Panel title="Recent exports" subtitle="Newest 12 PDF exports">
           <div className="ad-tablewrap">
