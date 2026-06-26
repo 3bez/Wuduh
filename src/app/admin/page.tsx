@@ -2,8 +2,8 @@ import { requireAdmin } from '@/lib/auth/admin'
 import { query, queryOne } from '@/lib/db'
 import { ALL_CARDS } from '@/lib/cards/loader'
 import Link from 'next/link'
-import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import { logoutAdmin } from './actions'
 
 // Back office must always reflect live data — never cache.
 export const dynamic = 'force-dynamic'
@@ -45,7 +45,7 @@ function LogoMark({ size = 26 }: { size?: number }) {
 }
 
 export default async function AdminPage() {
-  const user = await requireAdmin()
+  await requireAdmin()
 
   // ── one round-trip per logical group, run in parallel ──
   const [
@@ -176,17 +176,18 @@ export default async function AdminPage() {
       {/* Header */}
       <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', position: 'sticky', top: 0, zIndex: 50 }}>
         <div className="ad-header-inner" style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <LogoMark />
             <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>Wuduh</span>
             <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '3px 8px', borderRadius: 6 }}>Admin</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Link href="/dashboard" className="ad-link" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>My dashboard</Link>
-            <span className="ad-email" style={{ fontSize: 13, color: 'var(--text-faint)' }}>{user.email}</span>
+            <a href="/" className="ad-link" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>View site ↗</a>
             <ThemeToggle />
             <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
-            <LogoutButton />
+            <form action={logoutAdmin}>
+              <button type="submit" style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--text-muted)', padding: 0, fontFamily: 'inherit' }}>Log out</button>
+            </form>
           </div>
         </div>
       </header>
