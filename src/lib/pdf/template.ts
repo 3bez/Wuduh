@@ -639,6 +639,7 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
    trailing page. Only the cover gets a dedicated page. These rules keep
    individual blocks from splitting awkwardly across a page boundary. */
 .qa-block{break-inside:avoid}
+.content-q{break-after:avoid}
 .section-header{break-inside:avoid;break-after:avoid}
 .comp-table thead,.risk-table thead,.comp-table tr,.risk-table tr{break-inside:avoid}
 
