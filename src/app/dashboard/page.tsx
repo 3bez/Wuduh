@@ -4,6 +4,7 @@ import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
 import RenameStudy from '@/components/ui/RenameStudy'
+import { isAdminEmail } from '@/lib/auth/admin'
 
 function LogoMark({ size = 26 }: { size?: number }) {
   return (
@@ -22,6 +23,7 @@ function formatDate(date: string) {
 
 export default async function DashboardPage() {
   const user = await requireVerifiedUser()
+  const showAdmin = isAdminEmail(user.email)
 
   const profile = await queryOne<{ fullName: string }>(
     'SELECT "fullName" FROM profiles WHERE id = $1',
@@ -65,6 +67,9 @@ export default async function DashboardPage() {
             <span className="db-wordmark" style={{ fontFamily: 'var(--font-arabic), sans-serif', fontSize: 13, color: 'var(--text-faint)', direction: 'rtl' }}>وضوح</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {showAdmin && (
+              <Link href="/admin" style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '4px 9px', borderRadius: 6, textDecoration: 'none' }}>Admin</Link>
+            )}
             <span className="db-email" style={{ fontSize: 13, color: 'var(--text-faint)' }}>{user.email}</span>
             <ThemeToggle />
             <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
