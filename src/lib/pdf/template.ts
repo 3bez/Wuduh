@@ -97,7 +97,7 @@ function sectionHeader(num: string, title: string, label: string): string {
 
 function qa(label: string, value: string): string {
   if (!value) return ''
-  return `<div class="content-q">${esc(label)}</div><div class="content-a">${value}</div><div class="content-divider"></div>`
+  return `<div class="qa-block"><div class="content-q">${esc(label)}</div><div class="content-a">${value}</div></div><div class="content-divider"></div>`
 }
 
 function patternBg(id: string): string {
@@ -629,20 +629,22 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#
 }
 body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 
-/* PAGE — flows to natural height; each section starts on a fresh page.
-   No forced 297mm height (that caused empty voids) and no in-flow footer
-   (that caused blank footer-only pages). The footer is now drawn by the
-   renderer on every page instead. */
-.page{background:var(--paper);width:210mm;position:relative;display:flex;flex-direction:column;page-break-after:always}
-.page:last-child{page-break-after:auto}
+/* PAGE — flows to natural content height. Sections flow continuously
+   (no forced page break between them), which is what prevents a near-full
+   section from spilling onto a blank trailing page. The footer is drawn by
+   the renderer on every page; only the cover gets its own dedicated page. */
+.page{background:var(--paper);width:210mm;position:relative;display:flex;flex-direction:column}
 .page-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-/* keep related content together across page breaks */
-.content-q{break-inside:avoid}
-.comp-table tr,.risk-table tr{break-inside:avoid}
+/* Sections flow continuously, so a near-full section never spawns a blank
+   trailing page. Only the cover gets a dedicated page. These rules keep
+   individual blocks from splitting awkwardly across a page boundary. */
+.qa-block{break-inside:avoid}
+.section-header{break-inside:avoid;break-after:avoid}
+.comp-table thead,.risk-table thead,.comp-table tr,.risk-table tr{break-inside:avoid}
 
 /* COVER — full A4 hero; height accounts for the reserved footer margin so it
    never leaks onto a second page. Title block is centered; meta pinned bottom. */
-.cover{display:flex;flex-direction:column;min-height:280mm}
+.cover{display:flex;flex-direction:column;min-height:280mm;page-break-after:always}
 .cover-header{background:var(--navy-900);padding:36px 56px 40px;position:relative;overflow:hidden;flex-shrink:0}
 .cover-header-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.35}
 .cover-header-inner{position:relative;display:flex;align-items:flex-start;justify-content:space-between}
@@ -693,7 +695,7 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 
 /* PROJECTIONS PAGE */
 .proj-page .section-body{padding:20px 56px 28px}
-.proj-chart-wrap{border:1px solid var(--paper-line);border-radius:10px;padding:16px 12px 12px;margin-bottom:12px;background:#fff}
+.proj-chart-wrap{border:1px solid var(--paper-line);border-radius:10px;padding:16px 12px 12px;margin-bottom:12px;background:#fff;break-inside:avoid}
 .proj-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;padding-left:4px}
 .proj-legend-item{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:9px;letter-spacing:0.06em;text-transform:uppercase;color:var(--slate-400)}
 .proj-metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
@@ -710,7 +712,7 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 .proj-partial-note{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:#B4811E;background:#F8ECCE;padding:5px 10px;border-radius:4px;margin-bottom:12px}
 
 /* SOLUTION VISUAL (card 2.8) */
-.s2-visual-wrap{margin:8px 0 16px;border:1px solid var(--paper-line);border-radius:8px;overflow:hidden;background:#fff}
+.s2-visual-wrap{margin:8px 0 16px;border:1px solid var(--paper-line);border-radius:8px;overflow:hidden;background:#fff;break-inside:avoid}
 .s2-visual{width:100%;max-height:360px;object-fit:contain;display:block}
 </style>
 </head>
