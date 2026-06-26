@@ -203,6 +203,10 @@ export default async function AdminPage() {
           </p>
         </div>
 
+        <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--text-faint)', marginBottom: 24, padding: '8px 12px', border: '1px dashed var(--border-strong)', borderRadius: 8 }}>
+          debug · users {totalUsers} · studies {totalStudies} · exports {totalExports} · rows[ status {byStatus.length} · lang {studiesByLang.length} · daily {daily.length} · skipped {skippedCards.length} · recentUsers {recentUsers.length} · recentExports {recentExports.length} ]
+        </div>
+
         {/* KPI grid */}
         <div className="ad-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 14 }}>
           <Stat label="Total users" value={fmt(totalUsers)} sub={`${fmt(users7d)} new this week`} />
