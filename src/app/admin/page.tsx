@@ -33,6 +33,7 @@ const CARD_LABEL = new Map<string, string>(
   ALL_CARDS.map(c => [c.id, c.en?.category || c.en?.prompt || c.id])
 )
 
+// ── presentational components (defined ABOVE the page component) ─────
 function LogoMark({ size = 26 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 96 96" fill="none" aria-hidden="true">
@@ -41,6 +42,114 @@ function LogoMark({ size = 26 }: { size?: number }) {
         stroke="var(--text-primary)" strokeWidth="7.8" fill="none"
         strokeLinejoin="round" strokeLinecap="round" />
     </svg>
+  )
+}
+
+function Stat({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: 'gold' | 'teal' }) {
+  const valColor = accent === 'gold' ? 'var(--gold-700)' : accent === 'teal' ? 'var(--teal-500)' : 'var(--text-primary)'
+  return (
+    <div className="ad-card" style={{ padding: '18px 20px' }}>
+      <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 10 }}>{label}</div>
+      <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 30, fontWeight: 600, color: valColor, letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
+      {sub && <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>{sub}</div>}
+    </div>
+  )
+}
+
+function Panel({ title, subtitle, children, style }: { title: string; subtitle?: string; children: React.ReactNode; style?: React.CSSProperties }) {
+  return (
+    <section className="ad-card" style={{ padding: 22, ...style }}>
+      <div style={{ marginBottom: 18 }}>
+        <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>{title}</h2>
+        {subtitle && <p style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 3 }}>{subtitle}</p>}
+      </div>
+      {children}
+    </section>
+  )
+}
+
+function MiniBars({ title, total, values, labels, color }: { title: string; total: number; values: number[]; labels: string[]; color: string }) {
+  const max = Math.max(1, ...values)
+  const W = 160, H = 46, gap = 2
+  const bw = (W - gap * (values.length - 1)) / values.length
+  return (
+    <div>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
+        <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>{title}</span>
+        <span style={{ fontFamily: 'var(--font-display), serif', fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(total)}</span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="none" style={{ display: 'block', height: 46 }} aria-hidden="true">
+        {values.map((v, i) => {
+          const h = v === 0 ? 1.5 : Math.max(2, (v / max) * (H - 2))
+          return <rect key={i} x={i * (bw + gap)} y={H - h} width={bw} height={h} rx={1} fill={v === 0 ? 'var(--border-default)' : color} />
+        })}
+      </svg>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
+        <span style={{ fontSize: 9, color: 'var(--text-hint)', fontFamily: 'var(--font-mono), monospace' }}>{labels[0]}</span>
+        <span style={{ fontSize: 9, color: 'var(--text-hint)', fontFamily: 'var(--font-mono), monospace' }}>{labels[labels.length - 1]}</span>
+      </div>
+    </div>
+  )
+}
+
+function DistRows({ rows, total }: { rows: { label: string; value: number; color: string }[]; total: number }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {rows.map(r => (
+        <div key={r.label}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{r.label}</span>
+            <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--text-muted)' }}>
+              {fmt(r.value)} <span style={{ color: 'var(--text-hint)' }}>· {pct(r.value, total)}%</span>
+            </span>
+          </div>
+          <div style={{ height: 8, background: 'var(--bg-subtle)', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${Math.max(r.value > 0 ? 2 : 0, pct(r.value, total))}%`, background: r.color, borderRadius: 99 }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function Table({ head, children }: { head: string[]; children: React.ReactNode }) {
+  return (
+    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 540 }}>
+      <thead>
+        <tr>
+          {head.map(h => (
+            <th key={h} style={{ textAlign: 'left', padding: '0 12px 10px', fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', fontWeight: 500 }}>{h}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{children}</tbody>
+    </table>
+  )
+}
+
+function Td({ children, mono, muted }: { children: React.ReactNode; mono?: boolean; muted?: boolean }) {
+  return (
+    <td style={{ padding: '12px', fontSize: 13, verticalAlign: 'top',
+      fontFamily: mono ? 'var(--font-mono), monospace' : 'var(--font-sans), sans-serif',
+      color: muted ? 'var(--text-faint)' : 'var(--text-secondary)' }}>
+      {children}
+    </td>
+  )
+}
+
+function Pill({ text, bg, fg }: { text: string; bg: string; fg: string }) {
+  return (
+    <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', padding: '3px 8px', borderRadius: 99, background: bg, color: fg, whiteSpace: 'nowrap' }}>{text}</span>
+  )
+}
+
+function Empty({ text }: { text: string }) {
+  return <p style={{ fontSize: 13, color: 'var(--text-faint)', padding: '8px 0' }}>{text}</p>
+}
+
+function EmptyRow({ cols, text }: { cols: number; text: string }) {
+  return (
+    <tr><td colSpan={cols} style={{ padding: '20px 12px', fontSize: 13, color: 'var(--text-faint)', textAlign: 'center' }}>{text}</td></tr>
   )
 }
 
@@ -203,10 +312,6 @@ export default async function AdminPage() {
           </p>
         </div>
 
-        <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--text-faint)', marginBottom: 24, padding: '8px 12px', border: '1px dashed var(--border-strong)', borderRadius: 8 }}>
-          debug · users {totalUsers} · studies {totalStudies} · exports {totalExports} · rows[ status {byStatus.length} · lang {studiesByLang.length} · daily {daily.length} · skipped {skippedCards.length} · recentUsers {recentUsers.length} · recentExports {recentExports.length} ]
-        </div>
-
         {/* KPI grid */}
         <div className="ad-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 14 }}>
           <Stat label="Total users" value={fmt(totalUsers)} sub={`${fmt(users7d)} new this week`} />
@@ -221,7 +326,6 @@ export default async function AdminPage() {
           <Stat label="Export rate" value={`${pct(usersWithExport, usersWithStudy)}%`} sub="of founders who started" accent="teal" />
         </div>
 
-        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker A: KPI rendered ==</div>
         {/* Funnel + Activity */}
         <div className="ad-3col" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 14, marginBottom: 32 }}>
           <Panel title="Conversion funnel" subtitle="Unique founders at each step">
@@ -258,7 +362,6 @@ export default async function AdminPage() {
           </Panel>
         </div>
 
-        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker B: funnel + activity rendered ==</div>
         {/* Breakdowns */}
         <div className="ad-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
           <Panel title="Studies by status">
@@ -282,7 +385,6 @@ export default async function AdminPage() {
           </Panel>
         </div>
 
-        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker C: breakdowns rendered ==</div>
         {/* Card drop-off */}
         <Panel title="Most-skipped cards" subtitle="Where founders leave a card blank — candidates to simplify or reword" style={{ marginBottom: 32 }}>
           {skippedCards.length === 0 ? (
@@ -310,7 +412,6 @@ export default async function AdminPage() {
           )}
         </Panel>
 
-        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker D: skipped cards rendered ==</div>
         {/* Recent users */}
         <Panel title="Recent signups" subtitle="Newest 12 accounts" style={{ marginBottom: 32 }}>
           <div className="ad-tablewrap">
@@ -337,7 +438,6 @@ export default async function AdminPage() {
           </div>
         </Panel>
 
-        <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#7CFF7C', padding: '3px 0' }}>== marker E: recent users rendered ==</div>
         {/* Recent exports */}
         <Panel title="Recent exports" subtitle="Newest 12 PDF exports">
           <div className="ad-tablewrap">
@@ -362,114 +462,5 @@ export default async function AdminPage() {
         </Panel>
       </main>
     </div>
-  )
-}
-
-// ── presentational components ──────────────────────────────────────
-function Stat({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: 'gold' | 'teal' }) {
-  const valColor = accent === 'gold' ? 'var(--gold-700)' : accent === 'teal' ? 'var(--teal-500)' : 'var(--text-primary)'
-  return (
-    <div className="ad-card" style={{ padding: '18px 20px' }}>
-      <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 10 }}>{label}</div>
-      <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 30, fontWeight: 600, color: valColor, letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
-      {sub && <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>{sub}</div>}
-    </div>
-  )
-}
-
-function Panel({ title, subtitle, children, style }: { title: string; subtitle?: string; children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <section className="ad-card" style={{ padding: 22, ...style }}>
-      <div style={{ marginBottom: 18 }}>
-        <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>{title}</h2>
-        {subtitle && <p style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 3 }}>{subtitle}</p>}
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function MiniBars({ title, total, values, labels, color }: { title: string; total: number; values: number[]; labels: string[]; color: string }) {
-  const max = Math.max(1, ...values)
-  const W = 160, H = 46, gap = 2
-  const bw = (W - gap * (values.length - 1)) / values.length
-  return (
-    <div>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--text-faint)' }}>{title}</span>
-        <span style={{ fontFamily: 'var(--font-display), serif', fontSize: 17, fontWeight: 600, color: 'var(--text-primary)' }}>{fmt(total)}</span>
-      </div>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" preserveAspectRatio="none" style={{ display: 'block', height: 46 }} aria-hidden="true">
-        {values.map((v, i) => {
-          const h = v === 0 ? 1.5 : Math.max(2, (v / max) * (H - 2))
-          return <rect key={i} x={i * (bw + gap)} y={H - h} width={bw} height={h} rx={1} fill={v === 0 ? 'var(--border-default)' : color} />
-        })}
-      </svg>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 5 }}>
-        <span style={{ fontSize: 9, color: 'var(--text-hint)', fontFamily: 'var(--font-mono), monospace' }}>{labels[0]}</span>
-        <span style={{ fontSize: 9, color: 'var(--text-hint)', fontFamily: 'var(--font-mono), monospace' }}>{labels[labels.length - 1]}</span>
-      </div>
-    </div>
-  )
-}
-
-function DistRows({ rows, total }: { rows: { label: string; value: number; color: string }[]; total: number }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {rows.map(r => (
-        <div key={r.label}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{r.label}</span>
-            <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--text-muted)' }}>
-              {fmt(r.value)} <span style={{ color: 'var(--text-hint)' }}>· {pct(r.value, total)}%</span>
-            </span>
-          </div>
-          <div style={{ height: 8, background: 'var(--bg-subtle)', borderRadius: 99, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.max(r.value > 0 ? 2 : 0, pct(r.value, total))}%`, background: r.color, borderRadius: 99 }} />
-          </div>
-        </div>
-      ))}
-    </div>
-  )
-}
-
-function Table({ head, children }: { head: string[]; children: React.ReactNode }) {
-  return (
-    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 540 }}>
-      <thead>
-        <tr>
-          {head.map(h => (
-            <th key={h} style={{ textAlign: 'left', padding: '0 12px 10px', fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', fontWeight: 500 }}>{h}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>{children}</tbody>
-    </table>
-  )
-}
-
-function Td({ children, mono, muted }: { children: React.ReactNode; mono?: boolean; muted?: boolean }) {
-  return (
-    <td style={{ padding: '12px', fontSize: 13, verticalAlign: 'top',
-      fontFamily: mono ? 'var(--font-mono), monospace' : 'var(--font-sans), sans-serif',
-      color: muted ? 'var(--text-faint)' : 'var(--text-secondary)' }}>
-      {children}
-    </td>
-  )
-}
-
-function Pill({ text, bg, fg }: { text: string; bg: string; fg: string }) {
-  return (
-    <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', padding: '3px 8px', borderRadius: 99, background: bg, color: fg, whiteSpace: 'nowrap' }}>{text}</span>
-  )
-}
-
-function Empty({ text }: { text: string }) {
-  return <p style={{ fontSize: 13, color: 'var(--text-faint)', padding: '8px 0' }}>{text}</p>
-}
-
-function EmptyRow({ cols, text }: { cols: number; text: string }) {
-  return (
-    <tr><td colSpan={cols} style={{ padding: '20px 12px', fontSize: 13, color: 'var(--text-faint)', textAlign: 'center' }}>{text}</td></tr>
   )
 }
