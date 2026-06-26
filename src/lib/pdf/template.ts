@@ -68,23 +68,23 @@ function disclaimer(lang: Language, cardIds: string[]): string {
   return `<div class="disclaimer"><div class="disclaimer-label">${esc(label)}</div><div class="disclaimer-text">${esc(text)}</div></div>`
 }
 
-function pageFooter(lang: Language, startupName: string, pageNum: number): string {
+// Footer rendered by PDFShift on EVERY page (page numbers via {{page}}/{{total}}).
+// Pulled out of the page flow so short sections can't spawn blank footer-only pages.
+// NOTE: external fonts don't load inside PDFShift footers, so use system fallbacks here.
+export function buildPdfFooter(lang: Language, startupName: string): string {
+  const isAr = lang === 'ar'
+  const dir  = isAr ? 'rtl' : 'ltr'
   const date = new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
-  const meta = lang === 'ar'
+  const meta = isAr
     ? `${esc(startupName)} · دراسة جدوى · ${date}`
     : `${esc(startupName)} · Feasibility Study · ${date}`
-  return `
-  <div class="page-footer">
-    <div class="pf-brand">
-      <svg width="14" height="14" viewBox="0 0 96 96" fill="none">
-        <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/>
-        <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
-      </svg>
-      <span class="pf-brand-name">Wuduh</span>
-    </div>
-    <span class="pf-meta">${meta}</span>
-    <span class="pf-page">${lang === 'ar' ? `صفحة ${pageNum}` : `Page ${pageNum}`}</span>
-  </div>`
+  const pageLabel = isAr ? 'صفحة {{page}} / {{total}}' : 'Page {{page}} / {{total}}'
+  const logoSvg = `<svg width="12" height="12" viewBox="0 0 96 96" fill="none" style="vertical-align:middle"><path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C"/><path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81" stroke="#0D1B2A" stroke-width="7.8" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>`
+  return `<div style="box-sizing:border-box;width:100%;height:100%;direction:${dir};display:flex;align-items:center;justify-content:space-between;padding:6px 56px 0;border-top:1px solid #EAE3D2;font-family:'Courier New',monospace;color:#8795A6;font-size:8px;letter-spacing:0.08em">
+  <span style="display:flex;align-items:center;gap:6px;font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:11px;color:#0D1B2A;letter-spacing:0">${logoSvg}<span>Wuduh</span></span>
+  <span style="text-transform:uppercase">${meta}</span>
+  <span>${pageLabel}</span>
+</div>`
 }
 
 function sectionHeader(num: string, title: string, label: string): string {
@@ -183,7 +183,6 @@ function renderCover(data: StudyData): string {
       </div>
     </div>
 
-    ${pageFooter(lang, startupName, 1)}
   </div>`
 }
 
@@ -204,7 +203,6 @@ function renderSection(data: StudyData, sectionId: string, pageNum: number, cont
       ${content}
       ${disclaimer(lang, skipped)}
     </div>
-    ${pageFooter(lang, startupName, pageNum)}
   </div>`
 }
 
@@ -233,7 +231,7 @@ function renderTeamTable(rows: Record<string, string>[], lang: Language): string
 // ── Projections SVG chart (server-side, no canvas, no client JS) ────────────
 
 const SVG_W    = 560
-const SVG_H    = 220
+const SVG_H    = 300
 const SVG_PL   = 58   // left padding (Y axis labels)
 const SVG_PR   = 12
 const SVG_PT   = 12
@@ -440,7 +438,6 @@ function renderProjectionsPage(data: StudyData, pageNum: number): string {
       <p class="proj-disclaimer">${isAr ? 'التوقعات تقديرات المؤسس. النتائج الفعلية قد تختلف.' : 'Projections are founder estimates. Actual results may differ.'}</p>
 
     </div>
-    ${pageFooter(lang, startupName, pageNum)}
   </div>`
 }
 
@@ -524,7 +521,8 @@ export function buildPdfHtml(data: StudyData): string {
     (() => {
       const imageUrl = rawAnswer(answers, '2.8')
       if (!imageUrl) return ''
-      const isImage = /\.(png|jpe?g|webp|svg)$/i.test(imageUrl)
+      const imagePath = imageUrl.split('?')[0]
+      const isImage = imageUrl.startsWith('data:image') || /\.(png|jpe?g|webp|svg|gif)$/i.test(imagePath)
       if (isImage) {
         return `<div class="content-q">${lang === 'ar' ? 'صور ونماذج وعروض توضيحية' : 'Visuals, mockups & demos'}</div>
                <div class="s2-visual-wrap"><img src="${imageUrl}" alt="Product visual" class="s2-visual" /></div><div class="content-divider"></div>`
@@ -619,7 +617,7 @@ export function buildPdfHtml(data: StudyData): string {
 <link href="${fontUrl}" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
-html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#FAF7F0}
 @page{size:A4;margin:0}
 :root{
   --navy-900:#0D1B2A;--gold-500:#C9A84C;--gold-600:#A6852F;--gold-700:#8A6F26;
@@ -631,26 +629,28 @@ html,body{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 
-/* PAGE */
-.page{background:var(--paper);width:210mm;min-height:297mm;position:relative;display:flex;flex-direction:column;page-break-after:always}
+/* PAGE — flows to natural height; each section starts on a fresh page.
+   No forced 297mm height (that caused empty voids) and no in-flow footer
+   (that caused blank footer-only pages). The footer is now drawn by the
+   renderer on every page instead. */
+.page{background:var(--paper);width:210mm;position:relative;display:flex;flex-direction:column;page-break-after:always}
 .page:last-child{page-break-after:auto}
-.page .section-body{flex:1 0 auto}
-.page .page-footer{margin-top:auto}
 .page-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 /* keep related content together across page breaks */
 .content-q{break-inside:avoid}
 .comp-table tr,.risk-table tr{break-inside:avoid}
 
-/* COVER — fills full A4 height, meta grid pinned to bottom */
-.cover{display:flex;flex-direction:column;min-height:297mm}
+/* COVER — full A4 hero; height accounts for the reserved footer margin so it
+   never leaks onto a second page. Title block is centered; meta pinned bottom. */
+.cover{display:flex;flex-direction:column;min-height:280mm}
 .cover-header{background:var(--navy-900);padding:36px 56px 40px;position:relative;overflow:hidden;flex-shrink:0}
 .cover-header-net{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.35}
 .cover-header-inner{position:relative;display:flex;align-items:flex-start;justify-content:space-between}
 .cover-brand{display:flex;align-items:center;gap:12px}
 .cover-brand-name{font-family:var(--fd);font-size:20px;font-weight:600;color:#fff;letter-spacing:-0.01em}
 .cover-doc-type{font-family:var(--fm);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy-300);margin-top:14px;text-align:${dir === 'rtl' ? 'left' : 'right'}}
-/* cover-body grows to fill remaining A4 height and spaces content / meta at top / bottom */
-.cover-body{padding:44px 56px 48px;flex:1;display:flex;flex-direction:column;justify-content:space-between}
+.cover-body{padding:44px 56px 48px;flex:1;display:flex;flex-direction:column}
+.cover-content{flex:1;display:flex;flex-direction:column;justify-content:center}
 .cover-logo-slot{width:76px;height:76px;border-radius:14px;border:2px dashed var(--paper-line);display:flex;align-items:center;justify-content:center;margin-bottom:32px}
 .cover-logo-placeholder{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate-400)}
 .cover-eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold-600);margin-bottom:10px}
@@ -691,13 +691,6 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 .disclaimer-label{font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold-700);margin-bottom:5px}
 .disclaimer-text{font-size:13px;color:var(--slate-600);line-height:1.6}
 
-/* FOOTER */
-.page-footer{padding:13px 56px;border-top:1px solid var(--paper-line);display:flex;align-items:center;justify-content:space-between}
-.pf-brand{display:flex;align-items:center;gap:7px}
-.pf-brand-name{font-family:var(--fd);font-weight:600;font-size:12px;color:var(--navy-900)}
-.pf-meta{font-family:var(--fm);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--slate-400)}
-.pf-page{font-family:var(--fm);font-size:9px;letter-spacing:0.06em;color:var(--slate-400)}
-
 /* PROJECTIONS PAGE */
 .proj-page .section-body{padding:20px 56px 28px}
 .proj-chart-wrap{border:1px solid var(--paper-line);border-radius:10px;padding:16px 12px 12px;margin-bottom:12px;background:#fff}
@@ -718,7 +711,7 @@ body{font-family:var(--fs);background:var(--paper);margin:0;padding:0}
 
 /* SOLUTION VISUAL (card 2.8) */
 .s2-visual-wrap{margin:8px 0 16px;border:1px solid var(--paper-line);border-radius:8px;overflow:hidden;background:#fff}
-.s2-visual{width:100%;max-height:320px;object-fit:contain;display:block}
+.s2-visual{width:100%;max-height:360px;object-fit:contain;display:block}
 </style>
 </head>
 <body>

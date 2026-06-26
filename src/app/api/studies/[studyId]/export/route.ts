@@ -4,16 +4,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
-import { buildPdfHtml } from '@/lib/pdf/template'
+import { buildPdfHtml, buildPdfFooter } from '@/lib/pdf/template'
+import type { Language } from '@/types/cards'
 import * as Minio from 'minio'
 
 function getMinioClient() {
+  const endPoint  = process.env.MINIO_ENDPOINT
+  const accessKey = process.env.MINIO_ACCESS_KEY
+  const secretKey = process.env.MINIO_SECRET_KEY
+  if (!endPoint || !accessKey || !secretKey) {
+    throw new Error('MinIO is not configured: set MINIO_ENDPOINT, MINIO_ACCESS_KEY and MINIO_SECRET_KEY')
+  }
   return new Minio.Client({
-    endPoint:  process.env.MINIO_ENDPOINT ?? '65.21.151.1',
+    endPoint,
     port:      parseInt(process.env.MINIO_PORT ?? '9000'),
     useSSL:    false,
-    accessKey: process.env.MINIO_ACCESS_KEY ?? 'wuduh',
-    secretKey: process.env.MINIO_SECRET_KEY ?? '',
+    accessKey,
+    secretKey,
   })
 }
 
@@ -79,6 +86,17 @@ export async function POST(
       answers['C1'] = { answer: logoDataUri, status: 'done' }
     }
 
+    // Embed the solution visual (card 2.8) as base64 so PDFShift can render it.
+    // Its raw value is a MinIO/presigned URL PDFShift usually can't fetch directly,
+    // which is why it previously fell back to printing "File attached".
+    const rawVisual = (answers['2.8']?.answer as string) ?? null
+    if (rawVisual && rawVisual.startsWith('http')) {
+      const visualDataUri = await urlToBase64(rawVisual)
+      if (visualDataUri) {
+        answers['2.8'] = { answer: visualDataUri, status: answers['2.8']?.status ?? 'done' }
+      }
+    }
+
     const html = buildPdfHtml({
       startup_name: startupName,
       founder_name: founderName,
@@ -94,7 +112,23 @@ export async function POST(
     const pdfResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
       method: 'POST',
       headers: { 'X-API-Key': apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: html, format: 'A4', margin: '0', landscape: false }),
+      body: JSON.stringify({
+        source: html,
+        format: 'A4',
+        landscape: false,
+        // Reserve space at the bottom for the repeating footer; keep the rest full-bleed.
+        margin: { top: '0', right: '0', bottom: '14mm', left: '0' },
+        // Footer drawn by PDFShift on EVERY page (real page numbers via {{page}}/{{total}}).
+        // Pulling it out of the page flow is what stops short sections from spawning
+        // blank footer-only pages, in any study.
+        footer: {
+          source: buildPdfFooter(study.language as Language, startupName ?? 'Wuduh'),
+          height: '14mm',
+          start_at: 1,
+        },
+        // Safety net: drop any genuinely empty page in edge-case studies.
+        remove_blank: true,
+      }),
     })
 
     if (!pdfResponse.ok) {
