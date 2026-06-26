@@ -33,7 +33,7 @@ function LogoMark({ size = 26 }: { size?: number }) {
 function Stat({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: 'gold' | 'teal' }) {
   const valColor = accent === 'gold' ? 'var(--gold-700)' : accent === 'teal' ? 'var(--teal-500)' : 'var(--text-primary)'
   return (
-    <div className="ad-card" style={{ padding: '18px 20px' }}>
+    <div className="wb-card" style={{ padding: '18px 20px' }}>
       <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 10 }}>{label}</div>
       <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 30, fontWeight: 600, color: valColor, letterSpacing: '-0.02em', lineHeight: 1 }}>{value}</div>
       {sub && <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>{sub}</div>}
@@ -43,7 +43,7 @@ function Stat({ label, value, sub, accent }: { label: string; value: string; sub
 
 function Panel({ title, subtitle, children, style }: { title: string; subtitle?: string; children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <section className="ad-card" style={{ padding: 22, ...style }}>
+    <section className="wb-card" style={{ padding: 22, ...style }}>
       <div style={{ marginBottom: 18 }}>
         <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>{title}</h2>
         {subtitle && <p style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 3 }}>{subtitle}</p>}
@@ -137,26 +137,26 @@ export default function AdminDashboard() {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
       <style>{`
-        .ad-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 14px; }
-        .ad-row:hover { background: var(--bg-subtle); }
-        .ad-link:hover { opacity: 0.85; }
-        @media (max-width: 900px) { .ad-3col { grid-template-columns: 1fr !important; } }
+        .wb-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 14px; }
+        .wb-row:hover { background: var(--bg-subtle); }
+        .wb-link:hover { opacity: 0.85; }
+        @media (max-width: 900px) { .wb-3col { grid-template-columns: 1fr !important; } }
         @media (max-width: 640px) {
-          .ad-header-inner { padding: 0 16px !important; height: 52px !important; }
-          .ad-kpi { grid-template-columns: repeat(2, 1fr) !important; }
-          .ad-tablewrap { overflow-x: auto; }
+          .wb-header-inner { padding: 0 16px !important; height: 52px !important; }
+          .wb-kpi { grid-template-columns: repeat(2, 1fr) !important; }
+          .wb-tablewrap { overflow-x: auto; }
         }
       `}</style>
 
       <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="ad-header-inner" style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="wb-header-inner" style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <LogoMark />
             <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>Wuduh</span>
             <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '3px 8px', borderRadius: 6 }}>Admin</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <a href="/" className="ad-link" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>View site ↗</a>
+            <a href="/" className="wb-link" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>View site ↗</a>
             <ThemeToggle />
             <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
             <form action={logoutAdmin}>
@@ -174,13 +174,13 @@ export default function AdminDashboard() {
         </div>
 
         {error && (
-          <div className="ad-card" style={{ padding: 22, color: 'var(--danger-500)', fontSize: 14 }}>
+          <div className="wb-card" style={{ padding: 22, color: 'var(--danger-500)', fontSize: 14 }}>
             Couldn&apos;t load stats: {error}
           </div>
         )}
 
         {!data && !error && (
-          <div className="ad-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-faint)', fontSize: 14 }}>
+          <div className="wb-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-faint)', fontSize: 14 }}>
             Loading your data…
           </div>
         )}
@@ -234,20 +234,20 @@ function Dashboard({ data }: { data: Stats }) {
 
   return (
     <>
-      <div className="ad-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 14 }}>
+      <div className="wb-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 14 }}>
         <Stat label="Total users" value={fmt(totalUsers)} sub={`${fmt(users7d)} new this week`} />
         <Stat label="Verified" value={fmt(verifiedUsers)} sub={`${pct(verifiedUsers, totalUsers)}% of users`} accent="teal" />
         <Stat label="Active sessions" value={fmt(activeSessions)} sub="signed in now" />
         <Stat label="Total studies" value={fmt(totalStudies)} sub={`${fmt(completedStudies)} completed`} />
       </div>
-      <div className="ad-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
+      <div className="wb-kpi" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
         <Stat label="Avg completion" value={`${avgCompletion}%`} sub="across all studies" accent="gold" />
         <Stat label="Total exports" value={fmt(totalExports)} sub={`${fmt(exports30d)} in last 30 days`} accent="gold" />
         <Stat label="Studies / user" value={totalUsers ? (totalStudies / totalUsers).toFixed(1) : '0'} sub="average" />
         <Stat label="Export rate" value={`${pct(usersWithExport, usersWithStudy)}%`} sub="of founders who started" accent="teal" />
       </div>
 
-      <div className="ad-3col" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 14, marginBottom: 32 }}>
+      <div className="wb-3col" style={{ display: 'grid', gridTemplateColumns: '1fr 1.4fr', gap: 14, marginBottom: 32 }}>
         <Panel title="Conversion funnel" subtitle="Unique founders at each step">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {funnel.map((f, i) => {
@@ -280,7 +280,7 @@ function Dashboard({ data }: { data: Stats }) {
         </Panel>
       </div>
 
-      <div className="ad-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
+      <div className="wb-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
         <Panel title="Studies by status">
           <DistRows rows={[
             { label: 'Draft', value: draft, color: 'var(--text-faint)' },
@@ -327,14 +327,14 @@ function Dashboard({ data }: { data: Stats }) {
       </Panel>
 
       <Panel title="Recent signups" subtitle="Newest 12 accounts" style={{ marginBottom: 32 }}>
-        <div className="ad-tablewrap">
+        <div className="wb-tablewrap">
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 540 }}>
             <thead><tr>{['User', 'Status', 'Studies', 'Exports', 'Joined'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
             <tbody>
               {recentUsers.length === 0 ? (
                 <tr><td colSpan={5} style={{ padding: '20px 12px', fontSize: 13, color: 'var(--text-faint)', textAlign: 'center' }}>No users yet.</td></tr>
               ) : recentUsers.map((u, i) => (
-                <tr key={i} className="ad-row" style={{ borderTop: '1px solid var(--border-default)' }}>
+                <tr key={i} className="wb-row" style={{ borderTop: '1px solid var(--border-default)' }}>
                   <td style={tdStyle}>
                     <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{String(u.email ?? '')}</div>
                     {u.name ? <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{String(u.name)}</div> : null}
@@ -355,14 +355,14 @@ function Dashboard({ data }: { data: Stats }) {
       </Panel>
 
       <Panel title="Recent exports" subtitle="Newest 12 PDF exports">
-        <div className="ad-tablewrap">
+        <div className="wb-tablewrap">
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 540 }}>
             <thead><tr>{['Study', 'Founder', 'Lang', 'Completion', 'When'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
             <tbody>
               {recentExports.length === 0 ? (
                 <tr><td colSpan={5} style={{ padding: '20px 12px', fontSize: 13, color: 'var(--text-faint)', textAlign: 'center' }}>No exports yet.</td></tr>
               ) : recentExports.map((e, i) => (
-                <tr key={i} className="ad-row" style={{ borderTop: '1px solid var(--border-default)' }}>
+                <tr key={i} className="wb-row" style={{ borderTop: '1px solid var(--border-default)' }}>
                   <td style={tdStyle}>{e.startupName ? String(e.startupName) : <span style={{ color: 'var(--text-faint)' }}>Untitled</span>}</td>
                   <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{e.email ? String(e.email) : '—'}</td>
                   <td style={tdStyle}>
