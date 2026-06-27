@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
-import { ALL_CARDS, getCard, sectionLabel } from '@/lib/cards/loader'
+import { getCard, getCardsForSector, sectionLabel } from '@/lib/cards/loader'
+import type { Sector } from '@/types/cards'
 import type { Language } from '@/types/cards'
 import CardShell from '@/components/cards/CardShell'
 import ProjectionsChart from '@/components/cards/ProjectionsChart'
@@ -33,7 +34,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   const user = await requireVerifiedUser()
 
   const study = await queryOne<{
-    id: string; language: string; startupName: string | null; logoUrl: string | null; completionPercentage: number
+    id: string; language: string; startupName: string | null; logoUrl: string | null; completionPercentage: number; sector: string
   }>(
     'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
@@ -55,9 +56,12 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
     await query('UPDATE studies SET language = $1 WHERE id = $2', [lang, studyId])
   }
 
+  const sector = (study.sector ?? 'general') as Sector
+  const visibleCards = getCardsForSector(sector)
+
   let activeCardId = cardId
   if (!activeCardId) {
-    const firstIncomplete = ALL_CARDS.find(c => !answers[c.id] || answers[c.id].status === 'skipped')
+    const firstIncomplete = visibleCards.find(c => !answers[c.id] || answers[c.id].status === 'skipped')
     activeCardId = firstIncomplete?.id ?? 'C0'
   }
 
@@ -123,6 +127,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
             Object.entries(answers).map(([k, v]) => [k, v.answer])
           )}
           completionPct={completionPct}
+          visibleCards={visibleCards}
         />
 
         {/* ── Financial projections chart — shown after S4 ── */}

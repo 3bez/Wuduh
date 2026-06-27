@@ -1,7 +1,8 @@
 // Types for wuduh-cards.json — the single source of truth for all card content
 
-export type CardType = 'lang' | 'upload' | 'text' | 'table'
+export type CardType = 'lang' | 'upload' | 'text' | 'table' | 'sector'
 export type Language = 'en' | 'ar'
+export type Sector = 'general' | 'fintech' | 'ecommerce' | 'saas'
 
 export interface CardLocalised {
   category: string
@@ -45,6 +46,20 @@ export interface LangOption {
   dir: 'ltr' | 'rtl'
 }
 
+/** Per-sector overrides for a card (flips, relabels). */
+export interface SectorOverride {
+  required?: boolean                 // flip mandatory ↔ optional
+  en?: Partial<CardLocalised>        // relabel English content
+  ar?: Partial<CardLocalised>        // relabel Arabic content
+}
+
+export interface SectorOption {
+  value: Sector
+  label_en: string
+  label_ar: string
+  icon?: string
+}
+
 export interface CardConfig {
   id: string
   section: string
@@ -56,8 +71,13 @@ export interface CardConfig {
   max_length?: number | null
   en: CardLocalised
   ar: CardLocalised
+  /** Which sectors show this card. "all" = every sector. Omit = "all". */
+  sectors?: Sector[] | 'all'
+  /** Per-sector overrides for flips/relabels. */
+  overrides?: Partial<Record<Sector, SectorOverride>>
   // type-specific fields
   options?: LangOption[]            // lang cards
+  sector_options?: SectorOption[]   // sector picker cards
   upload_config?: UploadConfig      // upload cards
   table_columns?: TableColumn[]     // table cards
   max_rows?: number                 // table cards

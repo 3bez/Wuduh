@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import type { CardConfig, Language } from '@/types/cards'
+import type { CardConfig, Language, Sector } from '@/types/cards'
 import { localise, getNextCard, getPrevCard, sectionLabel, ALL_CARDS } from '@/lib/cards/loader'
 import HintPanel from './HintPanel'
 import LangCard from './LangCard'
+import SectorCard from './SectorCard'
 import TextCard from './TextCard'
 import TableCard from './TableCard'
 import UploadCard from './UploadCard'
@@ -61,7 +62,15 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
   function handleLangComplete(chosenLang: Language) {
     setVisible(false)
     setTimeout(() => {
-      router.push(`/study/${studyId}?card=${next?.id ?? 'C1'}&lang=${chosenLang}`)
+      router.push(`/study/${studyId}?card=${next?.id ?? 'C0b'}&lang=${chosenLang}`)
+      router.refresh()
+    }, 150)
+  }
+
+  function handleSectorComplete(_sector: Sector) {
+    setVisible(false)
+    setTimeout(() => {
+      router.push(`/study/${studyId}?card=${next?.id ?? 'C1'}`)
       router.refresh()
     }, 150)
   }
@@ -151,6 +160,7 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
           )}
 
           {card.type === 'lang'   && <LangCard card={card} studyId={studyId} onComplete={handleLangComplete} />}
+          {card.type === 'sector' && <SectorCard card={card} lang={lang} studyId={studyId} onComplete={handleSectorComplete} />}
           {card.type === 'text'   && <TextCard card={card} lang={lang} studyId={studyId} initialValue={typeof existingAnswer === 'string' ? existingAnswer : ''} onComplete={goNext} onSkip={goNext} />}
           {card.type === 'table'  && <TableCard card={card} lang={lang} studyId={studyId} initialRows={Array.isArray(existingAnswer) ? existingAnswer as Record<string, string>[] : undefined} studyAnswers={studyAnswers} onComplete={goNext} onSkip={goNext} />}
           {card.type === 'upload' && <UploadCard card={card} lang={lang} studyId={studyId} userId={userId} initialUrl={typeof existingAnswer === 'string' ? existingAnswer : undefined} onComplete={goNext} onSkip={goNext} />}

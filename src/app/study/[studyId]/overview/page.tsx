@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
-import { SECTIONS, getCardsForSection } from '@/lib/cards/loader'
+import { SECTIONS, getSectionCards } from '@/lib/cards/loader'
+import type { Sector } from '@/types/cards'
 import type { Language } from '@/types/cards'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
@@ -26,7 +27,7 @@ export default async function OverviewPage({ params, searchParams }: PageProps) 
   const { lang: langOverride } = await searchParams
   const user        = await requireVerifiedUser()
 
-  const study = await queryOne<{ id: string; language: string; startupName: string | null; completionPercentage: number }>(
+  const study = await queryOne<{ id: string; language: string; startupName: string | null; completionPercentage: number; sector: string }>(
     'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
@@ -48,10 +49,11 @@ export default async function OverviewPage({ params, searchParams }: PageProps) 
   }
 
   const completionPct = study.completionPercentage ?? 0
+  const sector = (study.sector ?? 'general') as Sector
 
   const contentSections = SECTIONS.filter(s => s.id !== 'cover')
   const sectionStats = contentSections.map(section => {
-    const cards   = getCardsForSection(section.id)
+    const cards   = getSectionCards(section.id, sector)
     const done    = cards.filter(c => answers[c.id] === 'done').length
     const skipped = cards.filter(c => answers[c.id] === 'skipped').length
     const total   = cards.length

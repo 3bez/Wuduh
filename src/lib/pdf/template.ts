@@ -1,8 +1,8 @@
 // PDF template builder — takes study data and produces a complete HTML string
 // that Puppeteer renders into a PDF.
 
-import { ALL_CARDS, SECTIONS } from '@/lib/cards/loader'
-import type { Language } from '@/types/cards'
+import { ALL_CARDS, SECTIONS, getCardsForSector } from '@/lib/cards/loader'
+import type { Language, Sector } from '@/types/cards'
 import { runProjections, type ProjectionResult } from '@/lib/projections/engine'
 
 interface AnswerMap {
@@ -19,6 +19,7 @@ interface StudyData {
   language: Language
   completion_percentage: number
   answers: AnswerMap
+  sector?: Sector
 }
 
 function esc(s: unknown): string {
@@ -53,10 +54,26 @@ function isSkipped(answers: AnswerMap, cardId: string): boolean {
   return !a || a.status === 'skipped' || !a.answer
 }
 
-function skippedMandatoryInSection(answers: AnswerMap, sectionId: string): string[] {
-  return ALL_CARDS
+function skippedMandatoryInSection(answers: AnswerMap, sectionId: string, sector: Sector = 'general'): string[] {
+  const cards = getCardsForSector(sector)
+  return cards
     .filter(c => c.section === sectionId && c.required && isSkipped(answers, c.id))
     .map(c => c.id)
+}
+
+/**
+ * Render any sector-specific cards in a section that aren't in the hardcoded list.
+ * This ensures new sector cards appear in the PDF without modifying the hardcoded layout.
+ */
+function renderSectorExtras(answers: AnswerMap, lang: Language, sectionId: string, sector: Sector, hardcodedIds: string[]): string {
+  if (sector === 'general') return ''
+  const cards = getCardsForSector(sector)
+  const extras = cards.filter(c => c.section === sectionId && !hardcodedIds.includes(c.id))
+  if (extras.length === 0) return ''
+  return extras.map(c => {
+    const content = c[lang]
+    return qa(content.category || content.prompt, answer(answers, c.id))
+  }).join('')
 }
 
 function disclaimer(lang: Language, cardIds: string[]): string {
@@ -486,7 +503,7 @@ function renderRiskTable(rows: Record<string, string>[], lang: Language): string
 }
 
 export function buildPdfHtml(data: StudyData): string {
-  const { language: lang, answers } = data
+  const { language: lang, answers, sector = 'general' } = data
   const dir      = lang === 'ar' ? 'rtl' : 'ltr'
   const bodyFont = lang === 'ar' ? `'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif` : `'IBM Plex Sans',sans-serif`
   const fontUrl  = lang === 'ar'
@@ -508,6 +525,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'لماذا تفشل الحلول' : 'Why current solutions fail', answer(answers, '1.5')),
     qa(lang === 'ar' ? 'حجم المشكلة' : 'Scale of the problem', answer(answers, '1.6')),
     qa(lang === 'ar' ? 'ما الذي دفعك' : 'What triggered this', answer(answers, '1.7')),
+    renderSectorExtras(answers, lang, 's1', sector, ['1.1','1.2','1.3','1.4','1.5','1.6','1.7']),
   ].join(''))
 
   const s2 = renderSection(data, 's2', 3, [
@@ -529,6 +547,7 @@ export function buildPdfHtml(data: StudyData): string {
       }
       return qa(lang === 'ar' ? 'صور ونماذج' : 'Visuals & mockups', lang === 'ar' ? 'ملف مرفق' : 'File attached')
     })(),
+    renderSectorExtras(answers, lang, 's2', sector, ['2.1','2.2','2.3','2.4','2.5','2.6','2.7','2.8']),
   ].join(''))
 
   const s3 = renderSection(data, 's3', 4, [
@@ -538,6 +557,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'خصائص العميل' : 'Customer characteristics', answer(answers, '3.4')),
     qa(lang === 'ar' ? 'الشخصية' : 'Persona', answer(answers, '3.5')),
     qa(lang === 'ar' ? 'التحقق' : 'Customer validation', answer(answers, '3.6')),
+    renderSectorExtras(answers, lang, 's3', sector, ['3.1','3.2','3.3','3.4','3.5','3.6']),
   ].join(''))
 
   // ── Projections page (between S4 and S5, only if 4.6 is filled) ──
@@ -564,6 +584,7 @@ export function buildPdfHtml(data: StudyData): string {
     costRows.length ? cd : '',
     qa(lang === 'ar' ? 'التكلفة المتغيرة لكل عميل' : 'Variable cost per customer', answer(answers, '4.8')),
     qa(lang === 'ar' ? 'المسار المالي' : 'Funding runway', answer(answers, '4.9')),
+    renderSectorExtras(answers, lang, 's4', sector, ['4.1','4.2','4.3','4.4','4.5','4.6','4.7','4.8','4.9']),
   ].join(''))
 
   const s5 = renderSection(data, 's5', pn(6), [
@@ -574,6 +595,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'تكاليف التحوّل (الخندق)' : 'Switching costs (moat)', answer(answers, '5.3')),
     qa(lang === 'ar' ? 'الميزة غير العادلة' : 'Unfair advantage', answer(answers, '5.4')),
     qa(lang === 'ar' ? 'لماذا الآن' : 'Why now', answer(answers, '5.5')),
+    renderSectorExtras(answers, lang, 's5', sector, ['5.1','5.2','5.3','5.4','5.5']),
   ].join(''))
 
   const s6 = renderSection(data, 's6', pn(7), [
@@ -583,6 +605,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'خطة السنة الأولى' : 'Year 1 acquisition plan', answer(answers, '6.4')),
     qa(lang === 'ar' ? 'قوة الدفع' : 'Early traction', answer(answers, '6.5')),
     qa(lang === 'ar' ? 'الشراكات' : 'Partnerships', answer(answers, '6.6')),
+    renderSectorExtras(answers, lang, 's6', sector, ['6.1','6.2','6.3','6.4','6.5','6.6']),
   ].join(''))
 
   const s7 = renderSection(data, 's7', pn(8), [
@@ -594,6 +617,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'المهارات المفقودة' : 'Skills we need', answer(answers, '7.4')),
     qa(lang === 'ar' ? 'المستشارون' : 'Advisors', answer(answers, '7.5')),
     qa(lang === 'ar' ? 'أول توظيف' : 'First hires', answer(answers, '7.6')),
+    renderSectorExtras(answers, lang, 's7', sector, ['7.1','7.2','7.3','7.4','7.5','7.6']),
   ].join(''))
 
   const s8 = renderSection(data, 's8', pn(9), [
@@ -606,6 +630,7 @@ export function buildPdfHtml(data: StudyData): string {
     qa(lang === 'ar' ? 'الرهان الأساسي' : 'The single most important assumption', answer(answers, '8.7')),
     qa(lang === 'ar' ? 'الخطة البديلة' : 'Plan B', answer(answers, '8.5')),
     qa(lang === 'ar' ? 'المخاطر التنظيمية' : 'Regulatory risks', answer(answers, '8.6')),
+    renderSectorExtras(answers, lang, 's8', sector, ['8.1','8.2','8.3','8.4','8.5','8.6','8.7']),
   ].join(''))
 
   return `<!DOCTYPE html>

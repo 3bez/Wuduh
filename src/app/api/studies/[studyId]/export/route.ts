@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
 import { buildPdfHtml, buildPdfFooter } from '@/lib/pdf/template'
-import type { Language } from '@/types/cards'
+import type { Language, Sector } from '@/types/cards'
 import { getMinioClient, BUCKET } from '@/lib/storage'
 import { apiError, langFromHeaders } from '@/lib/i18n/errors'
 
@@ -36,7 +36,7 @@ export async function POST(
 
     const study = await queryOne<{
       id: string; language: string; startupName: string | null;
-      logoUrl: string | null; completionPercentage: number; status: string
+      logoUrl: string | null; completionPercentage: number; status: string; sector: string
     }>(
       'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
       [studyId, user.id]
@@ -88,6 +88,7 @@ export async function POST(
       language: study.language as Language,
       completion_percentage: study.completionPercentage,
       answers,
+      sector: (study.sector ?? 'general') as Sector,
     })
 
     const apiKey = process.env.PDFSHIFT_API_KEY

@@ -9,13 +9,13 @@ export async function POST(request: NextRequest) {
   const user = await getVerifiedUser()
   if (!user) return NextResponse.json({ error: apiError('unauthorized', lang) }, { status: 401 })
 
-  const { language, startup_name } = await request.json()
+  const { language, startup_name, sector } = await request.json()
 
   const study = await queryOne<{ id: string }>(
-    `INSERT INTO studies ("userId", language, "startupName")
-     VALUES ($1, $2, $3)
+    `INSERT INTO studies ("userId", language, "startupName", sector)
+     VALUES ($1, $2, $3, $4)
      RETURNING id`,
-    [user.id, language ?? 'en', startup_name ?? null]
+    [user.id, language ?? 'en', startup_name ?? null, sector ?? 'general']
   )
 
   if (!study) return NextResponse.json({ error: apiError('failed_create_study', lang) }, { status: 500 })

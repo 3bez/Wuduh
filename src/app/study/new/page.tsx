@@ -36,6 +36,7 @@ export default function NewStudyPage() {
   const { locale: siteLocale } = useLocale()
   const [step, setStep]               = useState(0)
   const [lang, setLang]               = useState<'en' | 'ar' | null>(null)
+  const [sector, setSector]           = useState<string | null>(null)
   const [startupName, setStartupName] = useState('')
   const [logoFile, setLogoFile]       = useState<File | null>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
@@ -52,6 +53,17 @@ export default function NewStudyPage() {
   function handleLangSelect(l: 'en' | 'ar') {
     setLang(l); setTimeout(() => setStep(1), 180)
   }
+
+  function handleSectorSelect(s: string) {
+    setSector(s); setTimeout(() => setStep(2), 180)
+  }
+
+  const sectorOptions = [
+    { value: 'general', en: 'General', ar: 'عام', icon: '🏢', descEn: 'Universal 52-card study', descAr: 'دراسة شاملة من ٥٢ بطاقة' },
+    { value: 'fintech', en: 'Fintech', ar: 'التقنية المالية', icon: '🏦', descEn: '+6 cards on regulation, KYC, rails', descAr: '+٦ بطاقات عن التنظيم والتحقق والبنية' },
+    { value: 'ecommerce', en: 'E-commerce / Retail', ar: 'التجارة الإلكترونية', icon: '🛒', descEn: '+6 cards on fulfilment, unit economics', descAr: '+٦ بطاقات عن التوصيل واقتصاديات الوحدة' },
+    { value: 'saas', en: 'SaaS / Apps', ar: 'البرمجيات والتطبيقات', icon: '💻', descEn: '+5 cards on architecture, SaaS metrics', descAr: '+٥ بطاقات عن البنية التقنية ومقاييس SaaS' },
+  ]
 
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -85,7 +97,7 @@ export default function NewStudyPage() {
       const res = await fetch('/api/studies', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ language: lang, startup_name: startupName.trim() }),
+        body: JSON.stringify({ language: lang, startup_name: startupName.trim(), sector: sector ?? 'general' }),
       })
       const study = await res.json()
       if (!res.ok) throw new Error(study.error ?? (isRtl ? 'تعذّر إنشاء الدراسة.' : 'Failed to create study'))
@@ -135,7 +147,7 @@ export default function NewStudyPage() {
             <LogoMark />
             <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>Wuduh</span>
           </Link>
-          <StepDots current={step} total={3} />
+          <StepDots current={step} total={4} />
         </header>
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
@@ -143,7 +155,7 @@ export default function NewStudyPage() {
 
             {step === 0 && (
               <div className="ns-step" key="step-lang" dir={isRtl ? 'rtl' : 'ltr'}>
-                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ١ من ٣' : 'Step 1 of 3'}</p>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ١ من ٤' : 'Step 1 of 4'}</p>
                 <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.15, marginBottom: 8 }}>{isRtl ? 'اختر لغتك' : 'Choose your language'}</h1>
                 <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'سترافق هذه اللغة رحلتك بالكامل — كل سؤال وتلميح، ومستندك المُصدّر. ولا يمكن تغييرها لاحقًا.' : 'The entire journey — every question, hint, and your exported document — will follow your choice. You can’t change it later.'}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
@@ -164,25 +176,45 @@ export default function NewStudyPage() {
             )}
 
             {step === 1 && (
-              <div className="ns-step" key="step-name" dir={isRtl ? 'rtl' : 'ltr'}>
-                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٢ من ٣' : 'Step 2 of 3'}</p>
-                <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>{isRtl ? 'ما اسم مشروعك؟' : "What's your startup called?"}</h1>
-                <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'هذا سيظهر على صفحة الغلاف في دراسة الجدوى الخاصة بك. يمكنك تغييره لاحقاً.' : 'This will appear on the cover page of your feasibility study. You can change it later.'}</p>
-                <div style={{ marginBottom: 24 }}>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 8 }}>{isRtl ? 'اسم الشركة الناشئة' : 'Startup name'}</label>
-                  <input className="ns-input" type="text" autoFocus value={startupName} onChange={e => setStartupName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && startupName.trim()) setStep(2) }} placeholder={isRtl ? 'مثال: نقاء' : 'e.g. Clarity'} style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-sans), sans-serif', direction: isRtl ? 'rtl' : 'ltr' }} />
-                  <p style={{ fontSize: 12, color: 'var(--text-hint)', marginTop: 8 }}>{isRtl ? 'اضغط Enter للمتابعة' : 'Press Enter to continue'}</p>
+              <div className="ns-step" key="step-sector" dir={isRtl ? 'rtl' : 'ltr'}>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٢ من ٤' : 'Step 2 of 4'}</p>
+                <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>{isRtl ? 'ما نوع مشروعك؟' : 'What type of business?'}</h1>
+                <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'اختر القطاع الأقرب لمشروعك. الدراسات المتخصصة تضيف بطاقات مركّزة فوق الأساس المشترك.' : 'Pick the sector closest to your business. Sector-specific studies add targeted cards on top of the shared foundation.'}</p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  {sectorOptions.map(opt => (
+                    <button key={opt.value} className={`ns-lang-btn${sector === opt.value ? ' selected' : ''}`} onClick={() => handleSectorSelect(opt.value)} style={{ border: `2px solid ${sector === opt.value ? 'var(--text-primary)' : 'var(--border-default)'}`, borderRadius: 14, padding: '22px 18px', textAlign: isRtl ? 'right' : 'left' }}>
+                      <div style={{ fontSize: 24, marginBottom: 10, lineHeight: 1 }}>{opt.icon}</div>
+                      <div style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 16, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 3 }}>{isRtl ? opt.ar : opt.en}</div>
+                      <div style={{ fontSize: 11, color: 'var(--text-faint)', lineHeight: 1.4 }}>{isRtl ? opt.descAr : opt.descEn}</div>
+                    </button>
+                  ))}
                 </div>
-                <div style={{ display: 'flex', gap: 10, flexDirection: isRtl ? 'row-reverse' : 'row' }}>
-                  <button className="ns-primary" onClick={() => setStep(2)} disabled={!startupName.trim()} style={{ flex: 1, background: 'var(--text-primary)', color: 'var(--bg-page)', fontSize: 14, fontWeight: 500, border: 'none', borderRadius: 9, padding: '13px 0', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>{isRtl ? 'التالي ←' : 'Continue →'}</button>
+                <div style={{ display: 'flex', gap: 10, marginTop: 20, flexDirection: isRtl ? 'row-reverse' : 'row' }}>
                   <button onClick={() => setStep(0)} className="ns-back" style={{ background: 'transparent', border: 'none', fontSize: 13, color: 'var(--text-faint)', cursor: 'pointer', padding: '0 12px', transition: 'color 140ms' }}>{isRtl ? 'رجوع' : 'Back'}</button>
                 </div>
               </div>
             )}
 
             {step === 2 && (
+              <div className="ns-step" key="step-name" dir={isRtl ? 'rtl' : 'ltr'}>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٣ من ٤' : 'Step 3 of 4'}</p>
+                <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>{isRtl ? 'ما اسم مشروعك؟' : "What's your startup called?"}</h1>
+                <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'هذا سيظهر على صفحة الغلاف في دراسة الجدوى الخاصة بك. يمكنك تغييره لاحقاً.' : 'This will appear on the cover page of your feasibility study. You can change it later.'}</p>
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', marginBottom: 8 }}>{isRtl ? 'اسم الشركة الناشئة' : 'Startup name'}</label>
+                  <input className="ns-input" type="text" autoFocus value={startupName} onChange={e => setStartupName(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && startupName.trim()) setStep(3) }} placeholder={isRtl ? 'مثال: نقاء' : 'e.g. Clarity'} style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-sans), sans-serif', direction: isRtl ? 'rtl' : 'ltr' }} />
+                  <p style={{ fontSize: 12, color: 'var(--text-hint)', marginTop: 8 }}>{isRtl ? 'اضغط Enter للمتابعة' : 'Press Enter to continue'}</p>
+                </div>
+                <div style={{ display: 'flex', gap: 10, flexDirection: isRtl ? 'row-reverse' : 'row' }}>
+                  <button className="ns-primary" onClick={() => setStep(3)} disabled={!startupName.trim()} style={{ flex: 1, background: 'var(--text-primary)', color: 'var(--bg-page)', fontSize: 14, fontWeight: 500, border: 'none', borderRadius: 9, padding: '13px 0', cursor: 'pointer', fontFamily: 'var(--font-sans), sans-serif' }}>{isRtl ? 'التالي ←' : 'Continue →'}</button>
+                  <button onClick={() => setStep(1)} className="ns-back" style={{ background: 'transparent', border: 'none', fontSize: 13, color: 'var(--text-faint)', cursor: 'pointer', padding: '0 12px', transition: 'color 140ms' }}>{isRtl ? 'رجوع' : 'Back'}</button>
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
               <div className="ns-step" key="step-logo" dir={isRtl ? 'rtl' : 'ltr'}>
-                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٣ من ٣' : 'Step 3 of 3'}</p>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٤ من ٤' : 'Step 4 of 4'}</p>
                 <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>{isRtl ? 'أضف شعار مشروعك' : 'Add your logo'}</h1>
                 <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'سيظهر الشعار على صفحة الغلاف في ملف PDF. هذه الخطوة اختيارية.' : 'Your logo appears on the PDF cover page. This step is optional — skip it and add one later.'}</p>
 
@@ -220,7 +252,7 @@ export default function NewStudyPage() {
                   <button className="ns-primary" onClick={handleCreate} disabled={creating} style={{ flex: 1, background: 'var(--text-primary)', color: 'var(--bg-page)', fontSize: 14, fontWeight: 500, border: 'none', borderRadius: 9, padding: '13px 0', cursor: creating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'var(--font-sans), sans-serif' }}>
                     {creating ? (<><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation: 'ns-spin 0.8s linear infinite' }}><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>{isRtl ? 'جارٍ الإنشاء…' : 'Creating your study…'}</>) : (isRtl ? '← ابدأ الدراسة' : 'Start your study →')}
                   </button>
-                  <button onClick={() => setStep(1)} className="ns-back" disabled={creating} style={{ background: 'transparent', border: 'none', fontSize: 13, color: 'var(--text-faint)', cursor: 'pointer', padding: '0 12px', transition: 'color 140ms' }}>{isRtl ? 'رجوع' : 'Back'}</button>
+                  <button onClick={() => setStep(2)} className="ns-back" disabled={creating} style={{ background: 'transparent', border: 'none', fontSize: 13, color: 'var(--text-faint)', cursor: 'pointer', padding: '0 12px', transition: 'color 140ms' }}>{isRtl ? 'رجوع' : 'Back'}</button>
                 </div>
 
                 {!logoPreview && !creating && (
@@ -236,8 +268,9 @@ export default function NewStudyPage() {
         <div style={{ textAlign: 'center', padding: '16px 24px 32px', flexShrink: 0 }}>
           <p style={{ fontSize: 12, color: 'var(--text-hint)' }} dir={isRtl ? 'rtl' : 'ltr'}>
             {step === 0 && (isRtl ? 'اختيارك يحدّد لغة كل بطاقة ومستندك المُصدّر.' : 'Your choice sets the language for every card and your exported document.')}
-            {step === 1 && (isRtl ? 'لا توجد إجابات خاطئة — بل إجابات أوضح.' : 'There are no wrong answers — only clearer ones.')}
-            {step === 2 && (isRtl ? 'تُحفظ دراستك تلقائيًا أثناء العمل. عُد في أي وقت.' : 'Your study auto-saves as you go. Come back any time.')}
+            {step === 1 && (isRtl ? 'القطاع يحدّد البطاقات الإضافية في دراستك.' : 'Your sector determines which extra cards appear in your study.')}
+            {step === 2 && (isRtl ? 'لا توجد إجابات خاطئة — بل إجابات أوضح.' : 'There are no wrong answers — only clearer ones.')}
+            {step === 3 && (isRtl ? 'تُحفظ دراستك تلقائيًا أثناء العمل. عُد في أي وقت.' : 'Your study auto-saves as you go. Come back any time.')}
           </p>
         </div>
       </div>

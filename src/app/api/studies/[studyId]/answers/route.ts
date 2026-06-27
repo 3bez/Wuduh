@@ -5,7 +5,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
-import { MANDATORY_CARDS } from '@/lib/cards/loader'
+import { getMandatoryCards } from '@/lib/cards/loader'
+import type { Sector } from '@/types/cards'
 import { apiError, langFromHeaders } from '@/lib/i18n/errors'
 
 export async function POST(
@@ -17,8 +18,8 @@ export async function POST(
   const user = await getVerifiedUser()
   if (!user) return NextResponse.json({ error: apiError('unauthorized', lang) }, { status: 401 })
 
-  const study = await queryOne(
-    'SELECT id FROM studies WHERE id = $1 AND "userId" = $2',
+  const study = await queryOne<{ id: string; sector: string }>(
+    'SELECT id, sector FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
   if (!study) return NextResponse.json({ error: apiError('study_not_found', lang) }, { status: 404 })
@@ -48,8 +49,10 @@ export async function POST(
   )
 
   const answeredIds = new Set(allAnswers.filter(a => a.status === 'done').map(a => a.card_id))
-  const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
-  const completion = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
+  const sector = (study.sector ?? 'general') as Sector
+  const mandatoryCards = getMandatoryCards(sector)
+  const mandatoryDone = mandatoryCards.filter(c => answeredIds.has(c.id)).length
+  const completion = mandatoryCards.length > 0 ? Math.round((mandatoryDone / mandatoryCards.length) * 100) : 0
 
   await query(
     'UPDATE studies SET "completionPercentage" = $1, "updatedAt" = now() WHERE id = $2',
