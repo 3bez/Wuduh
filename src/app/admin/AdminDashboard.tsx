@@ -1,32 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import ThemeToggle from '@/components/ui/ThemeToggle'
-import { logoutAdmin } from './actions'
+import { Shell, useJson, n, fmt, pct, formatDate, formatDateTime, Pill, VerifiedPill, Loading, ErrorCard, thStyle, tdStyle } from './_shared'
 
-// ── helpers ────────────────────────────────────────────────────────
-function n(v: unknown): number {
-  const x = typeof v === 'string' ? parseInt(v, 10) : (v as number)
-  return Number.isFinite(x) ? x : 0
-}
-function fmt(v: number): string { return v.toLocaleString('en-US') }
-function pct(part: number, whole: number): number { return whole > 0 ? Math.round((part / whole) * 100) : 0 }
-function formatDateTime(d: string): string {
-  return new Date(d).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-}
-function formatDate(d: string): string {
-  return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+type Row = Record<string, unknown>
+interface Stats {
+  overview: Record<string, unknown>
+  byStatus: Row[]; studiesByLang: Row[]; exportsByLang: Row[]
+  daily: Row[]; skippedCards: Row[]; recentUsers: Row[]; recentExports: Row[]
 }
 
-function LogoMark({ size = 26 }: { size?: number }) {
+export default function AdminDashboard() {
+  const { data, error } = useJson<Stats>('/api/admin/stats')
   return (
-    <svg width={size} height={size} viewBox="0 0 96 96" fill="none" aria-hidden="true">
-      <path d="M40 79 L40 51 Q40 37 48 32 Q56 37 56 51 L56 79 Z" fill="#C9A84C" />
-      <path d="M27 81 L27 44 Q27 21 48 15 Q69 21 69 44 L69 81"
-        stroke="var(--text-primary)" strokeWidth="7.8" fill="none"
-        strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
+    <Shell active="overview" eyebrow="Back office" title="Everything at a glance"
+      subtitle={`Live across users, studies, and exports${data ? ` · as of ${formatDateTime(new Date().toISOString())}` : ''}`}>
+      {error ? <ErrorCard error={error} /> : !data ? <Loading /> : <Dashboard data={data} />}
+    </Shell>
   )
 }
 
@@ -97,119 +86,15 @@ function DistRows({ rows, total }: { rows: { label: string; value: number; color
   )
 }
 
-function Pill({ text, bg, fg }: { text: string; bg: string; fg: string }) {
-  return (
-    <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', padding: '3px 8px', borderRadius: 99, background: bg, color: fg, whiteSpace: 'nowrap' }}>{text}</span>
-  )
-}
-
-const thStyle: React.CSSProperties = { textAlign: 'left', padding: '0 12px 10px', fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', fontWeight: 500 }
-const tdStyle: React.CSSProperties = { padding: '12px', fontSize: 13, verticalAlign: 'top', color: 'var(--text-secondary)' }
-
-type Row = Record<string, unknown>
-interface Stats {
-  overview: Record<string, unknown>
-  byStatus: Row[]
-  studiesByLang: Row[]
-  exportsByLang: Row[]
-  daily: Row[]
-  skippedCards: Row[]
-  recentUsers: Row[]
-  recentExports: Row[]
-}
-
-export default function AdminDashboard() {
-  const [data, setData] = useState<Stats | null>(null)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let alive = true
-    fetch('/api/admin/stats', { cache: 'no-store' })
-      .then(async r => {
-        if (!r.ok) throw new Error(`Request failed (${r.status})`)
-        return r.json()
-      })
-      .then(d => { if (alive) setData(d as Stats) })
-      .catch(e => { if (alive) setError(String(e?.message || e)) })
-    return () => { alive = false }
-  }, [])
-
-  return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg-page)' }}>
-      <style>{`
-        .wb-card { background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: 14px; }
-        .wb-row:hover { background: var(--bg-subtle); }
-        .wb-link:hover { opacity: 0.85; }
-        @media (max-width: 900px) { .wb-3col { grid-template-columns: 1fr !important; } }
-        @media (max-width: 640px) {
-          .wb-header-inner { padding: 0 16px !important; height: 52px !important; }
-          .wb-kpi { grid-template-columns: repeat(2, 1fr) !important; }
-          .wb-tablewrap { overflow-x: auto; }
-        }
-      `}</style>
-
-      <header style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-default)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="wb-header-inner" style={{ maxWidth: 1180, margin: '0 auto', padding: '0 24px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <LogoMark />
-            <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>Wuduh</span>
-            <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--gold-700)', background: 'var(--gold-100)', padding: '3px 8px', borderRadius: 6 }}>Admin</span>
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <a href="/" className="wb-link" style={{ fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>View site ↗</a>
-            <ThemeToggle />
-            <div style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
-            <form action={logoutAdmin}>
-              <button type="submit" style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 13, color: 'var(--text-muted)', padding: 0, fontFamily: 'inherit' }}>Log out</button>
-            </form>
-          </div>
-        </div>
-      </header>
-
-      <main style={{ maxWidth: 1180, margin: '0 auto', padding: '40px 24px 80px' }}>
-        <div style={{ marginBottom: 32 }}>
-          <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>Back office</p>
-          <h1 style={{ fontFamily: 'var(--font-display), serif', fontSize: 30, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 6 }}>Everything at a glance</h1>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>Live across users, studies, and exports{data ? ` · as of ${formatDateTime(new Date().toISOString())}` : ''}</p>
-        </div>
-
-        {error && (
-          <div className="wb-card" style={{ padding: 22, color: 'var(--danger-500)', fontSize: 14 }}>
-            Couldn&apos;t load stats: {error}
-          </div>
-        )}
-
-        {!data && !error && (
-          <div className="wb-card" style={{ padding: 40, textAlign: 'center', color: 'var(--text-faint)', fontSize: 14 }}>
-            Loading your data…
-          </div>
-        )}
-
-        {data && <Dashboard data={data} />}
-      </main>
-    </div>
-  )
-}
-
 function Dashboard({ data }: { data: Stats }) {
   const o = data.overview ?? {}
-  const totalUsers = n(o.total_users)
-  const verifiedUsers = n(o.verified_users)
-  const users7d = n(o.users_7d)
-  const totalStudies = n(o.total_studies)
-  const completedStudies = n(o.completed_studies)
-  const avgCompletion = n(o.avg_completion)
-  const totalExports = n(o.total_exports)
-  const exports30d = n(o.exports_30d)
-  const activeSessions = n(o.active_sessions)
-  const usersWithStudy = n(o.users_with_study)
-  const usersWithExport = n(o.users_with_export)
+  const totalUsers = n(o.total_users), verifiedUsers = n(o.verified_users), users7d = n(o.users_7d)
+  const totalStudies = n(o.total_studies), completedStudies = n(o.completed_studies), avgCompletion = n(o.avg_completion)
+  const totalExports = n(o.total_exports), exports30d = n(o.exports_30d), activeSessions = n(o.active_sessions)
+  const usersWithStudy = n(o.users_with_study), usersWithExport = n(o.users_with_export)
 
   const statusMap = Object.fromEntries((data.byStatus || []).map(r => [String(r.status), n(r.n)]))
-  const draft = statusMap['draft'] ?? 0
-  const complete = statusMap['complete'] ?? 0
-  const exported = statusMap['exported'] ?? 0
-
+  const draft = statusMap['draft'] ?? 0, complete = statusMap['complete'] ?? 0, exported = statusMap['exported'] ?? 0
   const langMap = Object.fromEntries((data.studiesByLang || []).map(r => [String(r.language), n(r.n)]))
   const expLangMap = Object.fromEntries((data.exportsByLang || []).map(r => [String(r.language), n(r.n)]))
 
@@ -217,10 +102,8 @@ function Dashboard({ data }: { data: Stats }) {
   const sumSignups = daily.reduce((a, d) => a + n(d.signups), 0)
   const sumStudies = daily.reduce((a, d) => a + n(d.studies), 0)
   const sumExports = daily.reduce((a, d) => a + n(d.exports), 0)
-
   const skippedCards = data.skippedCards || []
   const maxSkip = Math.max(1, ...skippedCards.map(c => n(c.skipped)))
-
   const recentUsers = data.recentUsers || []
   const recentExports = data.recentExports || []
 
@@ -270,7 +153,6 @@ function Dashboard({ data }: { data: Stats }) {
             })}
           </div>
         </Panel>
-
         <Panel title="Last 14 days" subtitle="Daily signups, studies, and exports">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 18 }}>
             <MiniBars title="Signups" total={sumSignups} values={daily.map(d => n(d.signups))} labels={daily.map(d => String(d.label))} color="var(--gold-500)" />
@@ -302,7 +184,7 @@ function Dashboard({ data }: { data: Stats }) {
         </Panel>
       </div>
 
-      <Panel title="Most-skipped cards" subtitle="Where founders leave a card blank — candidates to simplify or reword" style={{ marginBottom: 32 }}>
+      <Panel title="Most-skipped cards" subtitle="Where founders leave a card blank" style={{ marginBottom: 32 }}>
         {skippedCards.length === 0 ? (
           <p style={{ fontSize: 13, color: 'var(--text-faint)', padding: '8px 0' }}>No skipped cards recorded yet.</p>
         ) : (
@@ -339,11 +221,7 @@ function Dashboard({ data }: { data: Stats }) {
                     <div style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{String(u.email ?? '')}</div>
                     {u.name ? <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{String(u.name)}</div> : null}
                   </td>
-                  <td style={tdStyle}>
-                    {u.emailVerified
-                      ? <Pill text="Verified" bg="var(--success-100)" fg="var(--success-500)" />
-                      : <Pill text="Unverified" bg="var(--warning-100)" fg="var(--warning-500)" />}
-                  </td>
+                  <td style={tdStyle}><VerifiedPill verified={!!u.emailVerified} /></td>
                   <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{fmt(n(u.studies))}</td>
                   <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{fmt(n(u.exports))}</td>
                   <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{formatDate(String(u.createdAt))}</td>
@@ -365,11 +243,7 @@ function Dashboard({ data }: { data: Stats }) {
                 <tr key={i} className="wb-row" style={{ borderTop: '1px solid var(--border-default)' }}>
                   <td style={tdStyle}>{e.startupName ? String(e.startupName) : <span style={{ color: 'var(--text-faint)' }}>Untitled</span>}</td>
                   <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{e.email ? String(e.email) : '—'}</td>
-                  <td style={tdStyle}>
-                    <Pill text={e.language === 'ar' ? 'عربي' : 'EN'}
-                      bg={e.language === 'ar' ? 'var(--teal-100)' : 'var(--bg-subtle)'}
-                      fg={e.language === 'ar' ? 'var(--teal-700)' : 'var(--text-faint)'} />
-                  </td>
+                  <td style={tdStyle}><Pill text={e.language === 'ar' ? 'عربي' : 'EN'} bg={e.language === 'ar' ? 'var(--teal-100)' : 'var(--bg-subtle)'} fg={e.language === 'ar' ? 'var(--teal-700)' : 'var(--text-faint)'} /></td>
                   <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{n(e.completionSnapshot)}%</td>
                   <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{formatDateTime(String(e.createdAt))}</td>
                 </tr>
