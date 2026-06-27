@@ -6,23 +6,25 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
 import { MANDATORY_CARDS } from '@/lib/cards/loader'
+import { apiError, langFromHeaders } from '@/lib/i18n/errors'
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ studyId: string }> }
 ) {
   const { studyId } = await params
+  const lang = langFromHeaders(request.headers)
   const user = await getVerifiedUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: apiError('unauthorized', lang) }, { status: 401 })
 
   const study = await queryOne(
     'SELECT id FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
-  if (!study) return NextResponse.json({ error: 'Study not found' }, { status: 404 })
+  if (!study) return NextResponse.json({ error: apiError('study_not_found', lang) }, { status: 404 })
 
   const { card_id, answer, status } = await request.json()
-  if (!card_id || !status) return NextResponse.json({ error: 'card_id and status are required' }, { status: 400 })
+  if (!card_id || !status) return NextResponse.json({ error: apiError('card_status_required', lang) }, { status: 400 })
 
   // Upsert answer — wrap non-object answers as JSON
   const jsonAnswer = answer === null || answer === undefined

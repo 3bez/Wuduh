@@ -7,6 +7,7 @@ import { query, queryOne } from '@/lib/db'
 import { buildPdfHtml, buildPdfFooter } from '@/lib/pdf/template'
 import type { Language } from '@/types/cards'
 import { getMinioClient, BUCKET } from '@/lib/storage'
+import { apiError, langFromHeaders } from '@/lib/i18n/errors'
 
 async function urlToBase64(url: string): Promise<string | null> {
   try {
@@ -27,10 +28,11 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ studyId: string }> }
 ) {
+  const lang = langFromHeaders(request.headers)
   try {
     const { studyId } = await params
     const user = await getVerifiedUser()
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!user) return NextResponse.json({ error: apiError('unauthorized', lang) }, { status: 401 })
 
     const study = await queryOne<{
       id: string; language: string; startupName: string | null;
@@ -39,7 +41,7 @@ export async function POST(
       'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
       [studyId, user.id]
     )
-    if (!study) return NextResponse.json({ error: 'Study not found' }, { status: 404 })
+    if (!study) return NextResponse.json({ error: apiError('study_not_found', lang) }, { status: 404 })
 
     const answersRaw = await query<{ card_id: string; answer: unknown; status: string }>(
       'SELECT "cardId" as card_id, answer, status FROM answers WHERE "studyId" = $1',
@@ -146,7 +148,7 @@ export async function POST(
   } catch (err) {
     console.error('[export]', err)
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'PDF generation failed' },
+      { error: err instanceof Error ? err.message : apiError('pdf_failed', lang) },
       { status: 500 }
     )
   }

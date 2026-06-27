@@ -34,7 +34,7 @@ const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
 
 export const metadata: Metadata = {
   title: 'Wuduh — وضوح',
-  description: 'Build your feasibility study, one card at a time.',
+  description: 'Build your feasibility study, one card at a time. | أنشئ دراسة الجدوى الخاصة بك، بطاقة واحدة في كل مرة.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://wuduh.site'),
 }
 

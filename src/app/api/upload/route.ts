@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getVerifiedUser } from '@/lib/auth/session'
+import { apiError, langFromHeaders } from '@/lib/i18n/errors'
 import * as Minio from 'minio'
 
 function getMinioClient() {
@@ -21,8 +22,9 @@ function getMinioClient() {
 const BUCKET = process.env.MINIO_BUCKET ?? 'wuduh-uploads'
 
 export async function POST(request: NextRequest) {
+  const lang = langFromHeaders(request.headers)
   const user = await getVerifiedUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!user) return NextResponse.json({ error: apiError('unauthorized', lang) }, { status: 401 })
 
   try {
     const formData = await request.formData()
@@ -30,8 +32,8 @@ export async function POST(request: NextRequest) {
     const studyId  = formData.get('studyId') as string | null
     const cardId   = formData.get('cardId') as string | null
 
-    if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
-    if (!studyId) return NextResponse.json({ error: 'studyId is required' }, { status: 400 })
+    if (!file) return NextResponse.json({ error: apiError('no_file', lang) }, { status: 400 })
+    if (!studyId) return NextResponse.json({ error: apiError('study_id_required', lang) }, { status: 400 })
 
     const ext      = file.name.split('.').pop() ?? 'png'
     const objectName = `${user.id}/${studyId}/${cardId ?? 'upload'}-${Date.now()}.${ext}`
@@ -54,6 +56,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, url, path: objectName })
   } catch (err) {
     console.error('[upload]', err)
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Upload failed' }, { status: 500 })
+    return NextResponse.json({ error: err instanceof Error ? err.message : apiError('upload_failed', lang) }, { status: 500 })
   }
 }

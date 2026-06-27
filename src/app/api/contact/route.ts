@@ -1,26 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiError, langFromHeaders } from '@/lib/i18n/errors'
 
 export async function POST(request: NextRequest) {
+  const lang = langFromHeaders(request.headers)
   try {
     const { name, email, message } = await request.json()
 
     // Basic validation
     if (!name?.trim() || !email?.trim() || !message?.trim()) {
-      return NextResponse.json({ error: 'All fields are required.' }, { status: 400 })
+      return NextResponse.json({ error: apiError('all_fields_required', lang) }, { status: 400 })
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 })
+      return NextResponse.json({ error: apiError('invalid_email', lang) }, { status: 400 })
     }
 
     if (message.trim().length < 10) {
-      return NextResponse.json({ error: 'Message is too short.' }, { status: 400 })
+      return NextResponse.json({ error: apiError('message_too_short', lang) }, { status: 400 })
     }
 
     const apiKey = process.env.RESEND_API_KEY
     if (!apiKey) {
       console.error('RESEND_API_KEY is not set')
-      return NextResponse.json({ error: 'Email service not configured.' }, { status: 500 })
+      return NextResponse.json({ error: apiError('email_not_configured', lang) }, { status: 500 })
     }
 
     // Lazy import so Resend never runs at build time
@@ -86,6 +88,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Contact form error:', err)
-    return NextResponse.json({ error: 'Failed to send message. Please try again.' }, { status: 500 })
+    return NextResponse.json({ error: apiError('send_failed', lang) }, { status: 500 })
   }
 }
