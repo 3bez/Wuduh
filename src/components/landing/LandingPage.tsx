@@ -1,7 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Fragment } from 'react'
 import Link from 'next/link'
+import { useLocale } from '@/components/ui/LocaleProvider'
+import LocaleToggle from '@/components/ui/LocaleToggle'
+import { landingCopy, type LandingDict, type PhoneCard } from '@/lib/i18n/landing'
+import { localizeDigits } from '@/lib/i18n/digits'
+import type { Language } from '@/types/cards'
 
 // ── Logo mark ──────────────────────────────────────────────────────────────
 function LogoMark({ size = 28, onDark = false }: { size?: number; onDark?: boolean }) {
@@ -66,45 +71,16 @@ function GeometricNet({
 }
 
 // ── Animated phone card carousel ───────────────────────────────────────────
-const DEMO_CARDS = [
-  {
-    cat: 'Problem',
-    n: '01',
-    pct: 2,
-    q: 'What problem are you solving?',
-    help: 'Be specific — a vague problem produces a vague study.',
-  },
-  {
-    cat: 'Market',
-    n: '04',
-    pct: 7,
-    q: 'Who is your first customer?',
-    help: "One clear segment beats three vague ones — we'll size it next.",
-  },
-  {
-    cat: 'Solution',
-    n: '08',
-    pct: 15,
-    q: 'What is your solution in one sentence?',
-    help: 'If you need more than one sentence, keep working on it.',
-  },
-  {
-    cat: 'Team',
-    n: '19',
-    pct: 36,
-    q: 'Why are you the right team to solve this?',
-    help: 'Investors back people first. Name your unfair advantage.',
-  },
-  {
-    cat: 'Risks',
-    n: '47',
-    pct: 90,
-    q: 'What could kill this business in year one?',
-    help: 'The question most founders avoid — answer it honestly.',
-  },
+// Structural metadata (card index + progress %) — identical across languages.
+const PHONE_META = [
+  { n: '01', pct: 2 },
+  { n: '04', pct: 7 },
+  { n: '08', pct: 15 },
+  { n: '19', pct: 36 },
+  { n: '47', pct: 90 },
 ]
 
-function PhoneCarousel() {
+function PhoneCarousel({ cards, skipLabel, nextLabel, locale }: { cards: PhoneCard[]; skipLabel: string; nextLabel: string; locale: Language }) {
   const [idx, setIdx] = useState(0)
   const [fading, setFading] = useState(false)
 
@@ -112,14 +88,15 @@ function PhoneCarousel() {
     const t = setInterval(() => {
       setFading(true)
       setTimeout(() => {
-        setIdx(i => (i + 1) % DEMO_CARDS.length)
+        setIdx(i => (i + 1) % PHONE_META.length)
         setFading(false)
       }, 300)
     }, 2800)
     return () => clearInterval(t)
   }, [])
 
-  const card = DEMO_CARDS[idx]
+  const meta = PHONE_META[idx]
+  const card = cards[idx]
 
   return (
     <div className="lp-phone-frame">
@@ -129,10 +106,10 @@ function PhoneCarousel() {
             <LogoMark size={18} onDark={false} />
             <span className="lp-phone-brand-name">Wuduh</span>
           </div>
-          <span className="lp-phone-count">{card.n} / 52</span>
+          <span className="lp-phone-count">{localizeDigits(meta.n, locale)} / {localizeDigits(52, locale)}</span>
         </div>
         <div className="lp-phone-progress">
-          <div className="lp-phone-progress-fill" style={{ width: `${card.pct}%` }} />
+          <div className="lp-phone-progress-fill" style={{ width: `${meta.pct}%` }} />
         </div>
         <div className="lp-phone-card-wrap">
           <div
@@ -147,8 +124,8 @@ function PhoneCarousel() {
             <h3 className="lp-phone-q">{card.q}</h3>
             <p className="lp-phone-help">{card.help}</p>
             <div className="lp-phone-swipe">
-              <span className="lp-phone-skip">← Skip for now</span>
-              <span className="lp-phone-next">Done →</span>
+              <span className="lp-phone-skip">{skipLabel}</span>
+              <span className="lp-phone-next">{nextLabel}</span>
             </div>
           </div>
         </div>
@@ -158,7 +135,7 @@ function PhoneCarousel() {
 }
 
 // ── Contact form ───────────────────────────────────────────────────────────
-function ContactForm() {
+function ContactForm({ c }: { c: LandingDict['contact'] }) {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -179,10 +156,10 @@ function ContactForm() {
         body: JSON.stringify(form),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Failed to send message.')
+      if (!res.ok) throw new Error(data.error ?? c.form.errorFailed)
       setSent(true)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : c.form.errorGeneric)
     } finally {
       setLoading(false)
     }
@@ -192,10 +169,8 @@ function ContactForm() {
     return (
       <div className="lp-contact-success">
         <div className="lp-contact-success-icon">✓</div>
-        <h3 className="lp-contact-success-title">Message received</h3>
-        <p className="lp-contact-success-body">
-          We read every message ourselves. You&apos;ll hear from us within one business day.
-        </p>
+        <h3 className="lp-contact-success-title">{c.success.title}</h3>
+        <p className="lp-contact-success-body">{c.success.body}</p>
       </div>
     )
   }
@@ -203,46 +178,47 @@ function ContactForm() {
   return (
     <form className="lp-contact-form" onSubmit={handleSubmit}>
       <div className="lp-contact-field">
-        <label className="lp-contact-label" htmlFor="cf-name">Your name</label>
+        <label className="lp-contact-label" htmlFor="cf-name">{c.form.nameLabel}</label>
         <input
           id="cf-name"
           name="name"
           type="text"
           required
           className="lp-contact-input"
-          placeholder="Layla Al-Rashid"
+          placeholder={c.form.namePlaceholder}
           value={form.name}
           onChange={handleChange}
         />
       </div>
       <div className="lp-contact-field">
-        <label className="lp-contact-label" htmlFor="cf-email">Email</label>
+        <label className="lp-contact-label" htmlFor="cf-email">{c.form.emailLabel}</label>
         <input
           id="cf-email"
           name="email"
           type="email"
           required
           className="lp-contact-input"
-          placeholder="you@example.com"
+          placeholder={c.form.emailPlaceholder}
           value={form.email}
           onChange={handleChange}
+          dir="ltr"
         />
       </div>
       <div className="lp-contact-field">
-        <label className="lp-contact-label" htmlFor="cf-message">Message</label>
+        <label className="lp-contact-label" htmlFor="cf-message">{c.form.messageLabel}</label>
         <textarea
           id="cf-message"
           name="message"
           required
           rows={5}
           className="lp-contact-input lp-contact-textarea"
-          placeholder="Tell us what you're building, what you need, or just say hello."
+          placeholder={c.form.messagePlaceholder}
           value={form.message}
           onChange={handleChange}
         />
       </div>
       <button type="submit" className="lp-btn-accent lp-contact-submit" disabled={loading}>
-        {loading ? 'Sending…' : 'Send message →'}
+        {loading ? c.form.sending : c.form.submit}
       </button>
       {error && (
         <p style={{ fontSize: 13, color: '#E07060', marginTop: 8 }}>{error}</p>
@@ -251,14 +227,32 @@ function ContactForm() {
   )
 }
 
+// ── Multi-line heading helper ──────────────────────────────────────────────
+function MultiLine({ lines }: { lines: string[] }) {
+  return (
+    <>
+      {lines.map((line, i) => (
+        <Fragment key={i}>
+          {line}
+          {i < lines.length - 1 && <br />}
+        </Fragment>
+      ))}
+    </>
+  )
+}
+
 // ── Main landing page ──────────────────────────────────────────────────────
 export default function LandingPage() {
+  const { locale, dir } = useLocale()
+  const t = landingCopy[locale]
   const contactRef = useRef<HTMLElement>(null)
 
   function scrollToContact(e: React.MouseEvent) {
     e.preventDefault()
     contactRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
+
+  const heroLines = t.hero.h1Pre.split('\n')
 
   return (
     <>
@@ -276,7 +270,7 @@ export default function LandingPage() {
           font-family: var(--font-display), 'IBM Plex Serif', serif;
           font-weight: 600; font-size: 18px; color: #fff; letter-spacing: -0.01em;
         }
-        .lp-nav-links { display: flex; gap: 24px; margin-left: auto; margin-right: 20px; }
+        .lp-nav-links { display: flex; gap: 24px; margin-inline-start: auto; margin-inline-end: 20px; align-items: center; }
         .lp-nav-link {
           font-size: 13px; color: #AEC6D9; text-decoration: none;
           letter-spacing: 0.01em; transition: color 140ms;
@@ -297,7 +291,7 @@ export default function LandingPage() {
           align-items: center; padding: 72px 64px;
           position: relative; overflow: hidden; gap: 40px;
         }
-        .lp-hero-left { position: relative; z-index: 2; padding-right: 40px; }
+        .lp-hero-left { position: relative; z-index: 2; padding-inline-end: 40px; }
         .lp-eyebrow {
           font-family: var(--font-mono), 'IBM Plex Mono', monospace;
           font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
@@ -393,12 +387,12 @@ export default function LandingPage() {
         .lp-step-num { font-family: var(--font-mono), monospace; font-size: 11px; letter-spacing: 0.1em; color: #C9A84C; margin-bottom: 12px; display: block; }
         .lp-step-title { font-family: var(--font-display), serif; font-size: 20px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; line-height: 1.2; }
         .lp-step-body { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
-        .lp-step-divider { position: absolute; top: 28px; right: -20px; width: 40px; height: 1px; background: var(--border-default); }
+        .lp-step-divider { position: absolute; top: 28px; inset-inline-end: -20px; width: 40px; height: 1px; background: var(--border-default); }
 
         /* ── EXPORT ── */
         .lp-export { background: var(--bg-subtle); padding: 88px 64px; border-top: 1px solid var(--border-default); border-bottom: 1px solid var(--border-default); }
         .lp-export-inner { max-width: 920px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
-        .lp-check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+        .lp-check-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 8px; padding: 0; }
         .lp-check-li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.5; }
         .lp-check-circle { width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: #F6EEDB; color: #8A6F26; }
         .lp-doc { background: #FAF7F0; border-radius: 8px; overflow: hidden; position: relative; box-shadow: 0 24px 56px rgba(13,27,42,0.14), 0 4px 12px rgba(13,27,42,0.06); }
@@ -422,7 +416,7 @@ export default function LandingPage() {
         .lp-for-label { font-family: var(--font-mono), monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
         .lp-for-title { font-family: var(--font-display), serif; font-size: 21px; font-weight: 500; color: var(--text-primary); margin-bottom: 12px; line-height: 1.2; }
         .lp-for-body { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin-bottom: 22px; }
-        .lp-for-list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+        .lp-for-list { list-style: none; display: flex; flex-direction: column; gap: 9px; padding: 0; }
         .lp-for-li { display: flex; align-items: flex-start; gap: 9px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.5; }
         .lp-for-check { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; }
 
@@ -484,12 +478,39 @@ export default function LandingPage() {
         .lp-footer-link:hover { color: #AEC6D9; }
         .lp-footer-copy { font-family: var(--font-mono), monospace; font-size: 11px; color: #244C6E; letter-spacing: 0.04em; }
 
+        /* ── RTL — Arabic typography (cursive script: no letter-spacing / uppercase) ── */
+        [dir='rtl'] .lp-h1,
+        [dir='rtl'] .lp-phone-q,
+        [dir='rtl'] .lp-section-h2,
+        [dir='rtl'] .lp-step-title,
+        [dir='rtl'] .lp-doc-title,
+        [dir='rtl'] .lp-for-title,
+        [dir='rtl'] .lp-stat-num,
+        [dir='rtl'] .lp-cta-h2,
+        [dir='rtl'] .lp-contact-h2,
+        [dir='rtl'] .lp-contact-success-title,
+        [dir='rtl'] .lp-eyebrow,
+        [dir='rtl'] .lp-phone-count,
+        [dir='rtl'] .lp-phone-cat,
+        [dir='rtl'] .lp-section-eyebrow,
+        [dir='rtl'] .lp-step-num,
+        [dir='rtl'] .lp-doc-label,
+        [dir='rtl'] .lp-doc-eyebrow,
+        [dir='rtl'] .lp-for-label,
+        [dir='rtl'] .lp-hero-proof,
+        [dir='rtl'] .lp-contact-detail-label,
+        [dir='rtl'] .lp-footer-copy {
+          font-family: var(--font-arabic), 'IBM Plex Sans Arabic', sans-serif;
+          letter-spacing: 0;
+          text-transform: none;
+        }
+
         /* ── RESPONSIVE ── */
         @media (max-width: 768px) {
           .lp-nav { padding: 0 20px; }
           .lp-nav-links { display: none; }
           .lp-hero { grid-template-columns: 1fr; padding: 48px 24px; min-height: auto; }
-          .lp-hero-left { padding-right: 0; }
+          .lp-hero-left { padding-inline-end: 0; }
           .lp-h1 { font-size: 32px; }
           .lp-hero-right { display: none; }
           .lp-how, .lp-export, .lp-for, .lp-stats, .lp-cta, .lp-contact { padding: 56px 24px; }
@@ -506,307 +527,252 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {/* ── NAV ── */}
-      <nav className="lp-nav">
-        <Link href="/" className="lp-nav-brand">
-          <LogoMark size={28} onDark />
-          <span className="lp-nav-name">Wuduh</span>
-        </Link>
-        <div className="lp-nav-links">
-          <a className="lp-nav-link" href="#how">How it works</a>
-          <a className="lp-nav-link" href="#for">For accelerators</a>
-          <a className="lp-nav-link" href="#contact" onClick={scrollToContact}>Contact</a>
-          <Link className="lp-nav-link" href="/login">Sign in</Link>
-        </div>
-        <Link href="/signup" className="lp-nav-cta">Start your study</Link>
-      </nav>
-
-      {/* ── HERO ── */}
-      <section className="lp-hero">
-        <GeometricNet id="hero-net" color="#C9A84C" opacity={0.2} size={64} />
-        <div className="lp-hero-left">
-          <p className="lp-eyebrow">Feasibility study builder · Saudi Arabia & GCC</p>
-          <h1 className="lp-h1">
-            Let&apos;s figure this<br />out, <em>together.</em>
-          </h1>
-          <p className="lp-hero-sub">
-            Answer one question at a time. When you&apos;re done, Wuduh assembles your answers into a
-            feasibility study you&apos;ll be proud to send to investors.
-          </p>
-          <div className="lp-hero-actions">
-            <Link href="/signup" className="lp-btn-accent">Start your study →</Link>
-            <a href="#how" className="lp-btn-ghost-light">See how it works</a>
-          </div>
-          <div className="lp-hero-proof">
-            <span>52 cards</span>
-            <span className="lp-proof-dot" />
-            <span>8 sections</span>
-            <span className="lp-proof-dot" />
-            <span>Arabic & English</span>
-            <span className="lp-proof-dot" />
-            <span>Investor-ready export</span>
-          </div>
-        </div>
-        <div className="lp-hero-right">
-          <PhoneCarousel />
-        </div>
-      </section>
-
-      {/* ── HOW IT WORKS ── */}
-      <section className="lp-how" id="how">
-        <div className="lp-section-inner">
-          <p className="lp-section-eyebrow">How it works</p>
-          <h2 className="lp-section-h2">Simple input.<br />Professional output.</h2>
-          <p className="lp-section-sub">
-            Every card asks one question. Your answer stays yours. Wuduh structures it into a
-            document that looks like it cost SAR 5,000 to produce.
-          </p>
-          <div className="lp-steps">
-            <div className="lp-step">
-              <span className="lp-step-num">01 ——</span>
-              <h3 className="lp-step-title">Choose your language</h3>
-              <p className="lp-step-body">
-                Arabic or English — the entire journey, every hint, and the export follows your
-                choice. Full RTL support, not a translation.
-              </p>
-              <div className="lp-step-divider" />
-            </div>
-            <div className="lp-step">
-              <span className="lp-step-num">02 ——</span>
-              <h3 className="lp-step-title">Answer card by card</h3>
-              <p className="lp-step-body">
-                Tap done when you&apos;re ready, skip to return later. A hint on every card explains
-                what investors want to see.
-              </p>
-              <div className="lp-step-divider" />
-            </div>
-            <div className="lp-step">
-              <span className="lp-step-num">03 ——</span>
-              <h3 className="lp-step-title">Export & share</h3>
-              <p className="lp-step-body">
-                One click produces a professional PDF built entirely from your own data — no
-                AI-generated filler, no generic templates.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── EXPORT PREVIEW ── */}
-      <section className="lp-export">
-        <div className="lp-export-inner">
-          <div>
-            <p className="lp-section-eyebrow">The output</p>
-            <h2 className="lp-section-h2">A study you&apos;ll be proud to send.</h2>
-            <p className="lp-section-sub" style={{ marginBottom: 24 }}>
-              The export looks institutional — because the structure is. Your data, our format,
-              their confidence.
-            </p>
-            <ul className="lp-check-list">
-              {[
-                'Professional cover page with your logo and name',
-                '8 structured sections matching investor expectations',
-                'Competitor and team tables rendered automatically',
-                'Arabic RTL or English LTR — matches your study language',
-                'Incomplete sections flagged with a clear disclaimer',
-              ].map(item => (
-                <li key={item} className="lp-check-li">
-                  <span className="lp-check-circle">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="lp-doc">
-            <GeometricNet id="doc-net" color="#0D1B2A" opacity={0.18} size={48} />
-            <div className="lp-doc-inner">
-              <div className="lp-doc-header">
-                <div className="lp-doc-brand">
-                  <LogoMark size={18} onDark={false} />
-                  <span className="lp-doc-brand-name">Wuduh</span>
-                </div>
-                <span className="lp-doc-label">Feasibility Study</span>
-              </div>
-              <div className="lp-doc-eyebrow">Layla Al-Rashid · June 2026</div>
-              <div className="lp-doc-title">Inventory clarity for independent cafés in Riyadh</div>
-              <div className="lp-doc-rule" />
-              {[
-                { title: '01   Problem & opportunity', lines: [100, 100, 68] },
-                { title: '02   Solution', lines: [100, 82] },
-                { title: '03   Market analysis', lines: [100, 100, 55] },
-                { title: '04   Business model', lines: [100, 74] },
-              ].map(s => (
-                <div key={s.title} className="lp-doc-section">
-                  <div className="lp-doc-section-head">{s.title}</div>
-                  {s.lines.map((w, i) => (
-                    <div key={i} className="lp-doc-line" style={{ width: `${w}%` }} />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHO IT'S FOR ── */}
-      <section className="lp-for" id="for">
-        <div className="lp-section-inner">
-          <p className="lp-section-eyebrow">Who it&apos;s for</p>
-          <h2 className="lp-section-h2">Built for founders.<br />Trusted by accelerators.</h2>
-          <div className="lp-for-cards">
-            <div className="lp-for-card">
-              <div className="lp-for-icon" style={{ background: '#F6EEDB' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A6F26" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                </svg>
-              </div>
-              <p className="lp-for-label" style={{ color: '#A6852F' }}>For founders</p>
-              <h3 className="lp-for-title">Your first study shouldn&apos;t look like your first study.</h3>
-              <p className="lp-for-body">
-                You have the idea, the drive, and the knowledge. Wuduh gives you the structure — so
-                what you send looks like it came from someone who has done this before.
-              </p>
-              <ul className="lp-for-list">
-                {['No blank page — guided from the first question', 'Your data, never AI-generated filler', 'Arabic and English, both first-class', 'Export when you\'re ready, refine anytime'].map(item => (
-                  <li key={item} className="lp-for-li">
-                    <span className="lp-for-check" style={{ background: '#F6EEDB', color: '#8A6F26' }}>✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="lp-for-card" style={{ borderColor: '#A9E0D9' }}>
-              <div className="lp-for-icon" style={{ background: '#D8F1EE' }}>
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A6E66" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                </svg>
-              </div>
-              <p className="lp-for-label" style={{ color: '#0B8077' }}>For accelerators</p>
-              <h3 className="lp-for-title">Give every cohort the same strong foundation.</h3>
-              <p className="lp-for-body">
-                Wuduh brings all your founders to the same baseline — structured thinking, credible
-                documentation — before they pitch. Your program looks stronger when your founders do.
-              </p>
-              <ul className="lp-for-list">
-                {['Cohort licensing — one agreement, every founder', 'Standardised output across your program', 'Reduces mentor time on basics', 'White-labeling available for your brand'].map(item => (
-                  <li key={item} className="lp-for-li">
-                    <span className="lp-for-check" style={{ background: '#D8F1EE', color: '#0A6E66' }}>✓</span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── STATS ── */}
-      <section className="lp-stats">
-        <GeometricNet id="stats-net" color="#C9A84C" opacity={0.25} size={64} />
-        <div className="lp-stats-inner">
-          {[
-            { num: '52', label: 'Focused cards — one question at a time, nothing overwhelming' },
-            { num: '8', label: 'Sections covering everything an investor needs to see' },
-            { num: '2', label: 'Languages — Arabic and English, both fully native' },
-          ].map(s => (
-            <div key={s.num} className="lp-stat">
-              <div className="lp-stat-num">{s.num}<span>.</span></div>
-              <div className="lp-stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── EARLY ACCESS CTA ── */}
-      <section className="lp-cta" id="cta">
-        <div className="lp-cta-inner">
-          <p className="lp-cta-arabic">وضوح في كل خطوة</p>
-          <h2 className="lp-cta-h2">Your threshold to investors starts here.</h2>
-          <p className="lp-cta-sub">
-            Join founders across Saudi Arabia and the GCC who are building their first
-            investor-ready study — one card at a time.
-          </p>
-          <Link href="/signup" className="lp-btn-accent">
-            Create your free account →
+      <div dir={dir} lang={locale} className="lp-root">
+        {/* ── NAV ── */}
+        <nav className="lp-nav">
+          <Link href="/" className="lp-nav-brand">
+            <LogoMark size={28} onDark />
+            <span className="lp-nav-name">Wuduh</span>
           </Link>
-          <p className="lp-cta-disclaimer">No credit card required. Available in Arabic and English.</p>
-        </div>
-      </section>
+          <div className="lp-nav-links">
+            <a className="lp-nav-link" href="#how">{t.nav.how}</a>
+            <a className="lp-nav-link" href="#for">{t.nav.forAccel}</a>
+            <a className="lp-nav-link" href="#contact" onClick={scrollToContact}>{t.nav.contact}</a>
+            <Link className="lp-nav-link" href="/login">{t.nav.signIn}</Link>
+            <LocaleToggle />
+          </div>
+          <Link href="/signup" className="lp-nav-cta">{t.nav.cta}</Link>
+        </nav>
 
-      {/* ── CONTACT ── */}
-      <section className="lp-contact" id="contact" ref={contactRef}>
-        <GeometricNet id="contact-net" color="#C9A84C" opacity={0.12} size={64} />
-        <div className="lp-contact-inner">
-          <div>
-            <p className="lp-section-eyebrow" style={{ color: '#C9A84C' }}>Contact us</p>
-            <h2 className="lp-contact-h2">We read every message ourselves.</h2>
-            <p className="lp-contact-body">
-              Whether you&apos;re a founder with a question, an accelerator exploring cohort
-              licensing, or someone who just wants to say hello — write to us. You&apos;ll hear
-              back within one business day.
-            </p>
-            <div className="lp-contact-details">
-              {[
-                {
-                  icon: (
+        {/* ── HERO ── */}
+        <section className="lp-hero">
+          <GeometricNet id="hero-net" color="#C9A84C" opacity={0.2} size={64} />
+          <div className="lp-hero-left">
+            <p className="lp-eyebrow">{t.hero.eyebrow}</p>
+            <h1 className="lp-h1">
+              <MultiLine lines={heroLines} />
+              <em>{t.hero.h1Em}</em>
+            </h1>
+            <p className="lp-hero-sub">{t.hero.sub}</p>
+            <div className="lp-hero-actions">
+              <Link href="/signup" className="lp-btn-accent">{t.hero.ctaPrimary}</Link>
+              <a href="#how" className="lp-btn-ghost-light">{t.hero.ctaGhost}</a>
+            </div>
+            <div className="lp-hero-proof">
+              {t.hero.proof.map((p, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <span className="lp-proof-dot" />}
+                  <span>{p}</span>
+                </Fragment>
+              ))}
+            </div>
+          </div>
+          <div className="lp-hero-right">
+            <PhoneCarousel cards={t.phone.cards} skipLabel={t.phone.skip} nextLabel={t.phone.next} locale={locale} />
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ── */}
+        <section className="lp-how" id="how">
+          <div className="lp-section-inner">
+            <p className="lp-section-eyebrow">{t.how.eyebrow}</p>
+            <h2 className="lp-section-h2"><MultiLine lines={t.how.h2} /></h2>
+            <p className="lp-section-sub">{t.how.sub}</p>
+            <div className="lp-steps">
+              {t.how.steps.map((step, i) => (
+                <div className="lp-step" key={i}>
+                  <span className="lp-step-num">{step.num}</span>
+                  <h3 className="lp-step-title">{step.title}</h3>
+                  <p className="lp-step-body">{step.body}</p>
+                  {i < t.how.steps.length - 1 && <div className="lp-step-divider" />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── EXPORT PREVIEW ── */}
+        <section className="lp-export">
+          <div className="lp-export-inner">
+            <div>
+              <p className="lp-section-eyebrow">{t.exportSec.eyebrow}</p>
+              <h2 className="lp-section-h2">{t.exportSec.h2}</h2>
+              <p className="lp-section-sub" style={{ marginBottom: 24 }}>{t.exportSec.sub}</p>
+              <ul className="lp-check-list">
+                {t.exportSec.checks.map(item => (
+                  <li key={item} className="lp-check-li">
+                    <span className="lp-check-circle">✓</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="lp-doc">
+              <GeometricNet id="doc-net" color="#0D1B2A" opacity={0.18} size={48} />
+              <div className="lp-doc-inner">
+                <div className="lp-doc-header">
+                  <div className="lp-doc-brand">
+                    <LogoMark size={18} onDark={false} />
+                    <span className="lp-doc-brand-name">Wuduh</span>
+                  </div>
+                  <span className="lp-doc-label">{t.exportSec.docLabel}</span>
+                </div>
+                <div className="lp-doc-eyebrow">{t.exportSec.docByline}</div>
+                <div className="lp-doc-title">{t.exportSec.docTitle}</div>
+                <div className="lp-doc-rule" />
+                {t.exportSec.docSections.map((title, i) => {
+                  const lineSets = [[100, 100, 68], [100, 82], [100, 100, 55], [100, 74]]
+                  return (
+                    <div key={title} className="lp-doc-section">
+                      <div className="lp-doc-section-head">{title}</div>
+                      {lineSets[i].map((w, j) => (
+                        <div key={j} className="lp-doc-line" style={{ width: `${w}%` }} />
+                      ))}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── WHO IT'S FOR ── */}
+        <section className="lp-for" id="for">
+          <div className="lp-section-inner">
+            <p className="lp-section-eyebrow">{t.who.eyebrow}</p>
+            <h2 className="lp-section-h2"><MultiLine lines={t.who.h2} /></h2>
+            <div className="lp-for-cards">
+              <div className="lp-for-card">
+                <div className="lp-for-icon" style={{ background: '#F6EEDB' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A6F26" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                  </svg>
+                </div>
+                <p className="lp-for-label" style={{ color: '#A6852F' }}>{t.who.founders.label}</p>
+                <h3 className="lp-for-title">{t.who.founders.title}</h3>
+                <p className="lp-for-body">{t.who.founders.body}</p>
+                <ul className="lp-for-list">
+                  {t.who.founders.list.map(item => (
+                    <li key={item} className="lp-for-li">
+                      <span className="lp-for-check" style={{ background: '#F6EEDB', color: '#8A6F26' }}>✓</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="lp-for-card" style={{ borderColor: '#A9E0D9' }}>
+                <div className="lp-for-icon" style={{ background: '#D8F1EE' }}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0A6E66" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                  </svg>
+                </div>
+                <p className="lp-for-label" style={{ color: '#0B8077' }}>{t.who.accelerators.label}</p>
+                <h3 className="lp-for-title">{t.who.accelerators.title}</h3>
+                <p className="lp-for-body">{t.who.accelerators.body}</p>
+                <ul className="lp-for-list">
+                  {t.who.accelerators.list.map(item => (
+                    <li key={item} className="lp-for-li">
+                      <span className="lp-for-check" style={{ background: '#D8F1EE', color: '#0A6E66' }}>✓</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── STATS ── */}
+        <section className="lp-stats">
+          <GeometricNet id="stats-net" color="#C9A84C" opacity={0.25} size={64} />
+          <div className="lp-stats-inner">
+            {t.stats.items.map(s => (
+              <div key={s.label} className="lp-stat">
+                <div className="lp-stat-num">{localizeDigits(s.num, locale)}<span>.</span></div>
+                <div className="lp-stat-label">{s.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── EARLY ACCESS CTA ── */}
+        <section className="lp-cta" id="cta">
+          <div className="lp-cta-inner">
+            <p className="lp-cta-arabic">{t.cta.flourish}</p>
+            <h2 className="lp-cta-h2">{t.cta.h2}</h2>
+            <p className="lp-cta-sub">{t.cta.sub}</p>
+            <Link href="/signup" className="lp-btn-accent">{t.cta.button}</Link>
+            <p className="lp-cta-disclaimer">{t.cta.disclaimer}</p>
+          </div>
+        </section>
+
+        {/* ── CONTACT ── */}
+        <section className="lp-contact" id="contact" ref={contactRef}>
+          <GeometricNet id="contact-net" color="#C9A84C" opacity={0.12} size={64} />
+          <div className="lp-contact-inner">
+            <div>
+              <p className="lp-section-eyebrow" style={{ color: '#C9A84C' }}>{t.contact.eyebrow}</p>
+              <h2 className="lp-contact-h2">{t.contact.h2}</h2>
+              <p className="lp-contact-body">{t.contact.body}</p>
+              <div className="lp-contact-details">
+                <div className="lp-contact-detail">
+                  <div className="lp-contact-detail-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#AEC6D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                       <polyline points="22,6 12,13 2,6" />
                     </svg>
-                  ),
-                  label: 'Email',
-                  value: <a href="mailto:hello@wuduh.site">hello@wuduh.site</a>,
-                },
-                {
-                  icon: (
+                  </div>
+                  <div className="lp-contact-detail-text">
+                    <span className="lp-contact-detail-label">{t.contact.emailLabel}</span>
+                    <span className="lp-contact-detail-value"><a href="mailto:hello@wuduh.site" dir="ltr">hello@wuduh.site</a></span>
+                  </div>
+                </div>
+                <div className="lp-contact-detail">
+                  <div className="lp-contact-detail-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#AEC6D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
                     </svg>
-                  ),
-                  label: 'Based in',
-                  value: 'Riyadh, Saudi Arabia',
-                },
-                {
-                  icon: (
+                  </div>
+                  <div className="lp-contact-detail-text">
+                    <span className="lp-contact-detail-label">{t.contact.basedLabel}</span>
+                    <span className="lp-contact-detail-value">{t.contact.basedValue}</span>
+                  </div>
+                </div>
+                <div className="lp-contact-detail">
+                  <div className="lp-contact-detail-icon">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#AEC6D9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                     </svg>
-                  ),
-                  label: 'Response time',
-                  value: 'Within one business day',
-                },
-              ].map(d => (
-                <div key={d.label} className="lp-contact-detail">
-                  <div className="lp-contact-detail-icon">{d.icon}</div>
+                  </div>
                   <div className="lp-contact-detail-text">
-                    <span className="lp-contact-detail-label">{d.label}</span>
-                    <span className="lp-contact-detail-value">{d.value}</span>
+                    <span className="lp-contact-detail-label">{t.contact.responseLabel}</span>
+                    <span className="lp-contact-detail-value">{t.contact.responseValue}</span>
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
+            <ContactForm c={t.contact} />
           </div>
-          <ContactForm />
-        </div>
-      </section>
+        </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="lp-footer">
-        <div className="lp-footer-inner">
-          <div className="lp-footer-brand">
-            <LogoMark size={24} onDark />
-            <span className="lp-footer-brand-name">Wuduh</span>
-            <span className="lp-footer-arabic">وضوح</span>
+        {/* ── FOOTER ── */}
+        <footer className="lp-footer">
+          <div className="lp-footer-inner">
+            <div className="lp-footer-brand">
+              <LogoMark size={24} onDark />
+              <span className="lp-footer-brand-name">Wuduh</span>
+              <span className="lp-footer-arabic">وضوح</span>
+            </div>
+            <div className="lp-footer-links">
+              <a className="lp-footer-link" href="#">{t.footer.privacy}</a>
+              <a className="lp-footer-link" href="#">{t.footer.terms}</a>
+              <a className="lp-footer-link" href="#contact" onClick={scrollToContact}>{t.footer.contact}</a>
+              <Link className="lp-footer-link" href="/login">{t.footer.signIn}</Link>
+            </div>
+            <span className="lp-footer-copy">{t.footer.copy}</span>
           </div>
-          <div className="lp-footer-links">
-            <a className="lp-footer-link" href="#">Privacy</a>
-            <a className="lp-footer-link" href="#">Terms</a>
-            <a className="lp-footer-link" href="#contact" onClick={scrollToContact}>Contact</a>
-            <Link className="lp-footer-link" href="/login">Sign in</Link>
-          </div>
-          <span className="lp-footer-copy">© 2026 Wuduh · Saudi Arabia</span>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </>
   )
 }

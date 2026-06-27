@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { IBM_Plex_Sans, IBM_Plex_Serif, IBM_Plex_Mono, IBM_Plex_Sans_Arabic } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from '@/components/ui/ThemeProvider'
+import { LocaleProvider } from '@/components/ui/LocaleProvider'
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin'],
@@ -68,7 +69,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body style={{ fontFamily: 'var(--font-sans, sans-serif)', margin: 0 }}>
         <ThemeProvider>
-          {children}
+          <LocaleProvider>
+            {children}
+          </LocaleProvider>
         </ThemeProvider>
       </body>
     </html>

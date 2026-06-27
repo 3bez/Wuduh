@@ -3,12 +3,18 @@ import { getVerifiedUser } from '@/lib/auth/session'
 import * as Minio from 'minio'
 
 function getMinioClient() {
+  const endPoint  = process.env.MINIO_ENDPOINT
+  const accessKey = process.env.MINIO_ACCESS_KEY
+  const secretKey = process.env.MINIO_SECRET_KEY
+  if (!endPoint || !accessKey || !secretKey) {
+    throw new Error('MinIO is not configured: set MINIO_ENDPOINT, MINIO_ACCESS_KEY and MINIO_SECRET_KEY')
+  }
   return new Minio.Client({
-    endPoint:  process.env.MINIO_ENDPOINT ?? '65.21.151.1',
+    endPoint,
     port:      parseInt(process.env.MINIO_PORT ?? '9000'),
     useSSL:    false,
-    accessKey: process.env.MINIO_ACCESS_KEY ?? 'wuduh',
-    secretKey: process.env.MINIO_SECRET_KEY ?? '',
+    accessKey,
+    secretKey,
   })
 }
 

@@ -57,7 +57,7 @@ export default function StudiesClient() {
                 ) : studies.map(s => (
                   <tr key={s.id} className="wb-row" style={{ borderTop: '1px solid var(--border-default)', opacity: busy === s.id ? 0.5 : 1 }}>
                     <td style={tdStyle}>
-                      {s.startupName || <span style={{ color: 'var(--text-faint)' }}>Untitled</span>}
+                      <Link href={`/admin/studies/${s.id}`} style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: 500 }}>{s.startupName || 'Untitled'}</Link>
                       <span style={{ fontSize: 10, color: 'var(--text-hint)', fontFamily: 'var(--font-mono), monospace', marginLeft: 6 }}>{s.language.toUpperCase()}</span>
                     </td>
                     <td style={tdStyle}>
@@ -70,6 +70,7 @@ export default function StudiesClient() {
                     <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{fmt(n(s.exports))}</td>
                     <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{formatDate(s.updatedAt)}</td>
                     <td style={{ ...tdStyle, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <Link href={`/admin/studies/${s.id}`} style={{ ...btnGhost, textDecoration: 'none', marginRight: 6 }}>Open</Link>
                       <select defaultValue={s.status} disabled={busy === s.id} onChange={e => run(s.id, 'PATCH', { status: e.target.value })}
                         className="wb-input" style={{ width: 'auto', display: 'inline-block', padding: '5px 8px', fontSize: 12, marginRight: 6 }}>
                         <option value="draft">Draft</option>

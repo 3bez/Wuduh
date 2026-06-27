@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { signOut } from '@/lib/auth/client'
 
-export default function LogoutButton() {
+export default function LogoutButton({ label = 'Sign out' }: { label?: string }) {
   const router = useRouter()
 
   async function handleLogout() {
@@ -23,7 +23,7 @@ export default function LogoutButton() {
       onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-primary)')}
       onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-faint)')}
     >
-      Sign out
+      {label}
     </button>
   )
 }

@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation'
 interface Props {
   studyId: string
   currentName: string | null
+  untitledLabel?: string
+  tooltip?: string
 }
 
-export default function RenameStudy({ studyId, currentName }: Props) {
+export default function RenameStudy({ studyId, currentName, untitledLabel = 'Untitled study', tooltip = 'Click to rename' }: Props) {
   const [editing, setEditing] = useState(false)
   const [value, setValue]     = useState(currentName ?? '')
   const [saving, setSaving]   = useState(false)
@@ -47,10 +49,10 @@ export default function RenameStudy({ studyId, currentName }: Props) {
   }
 
   return (
-    <div className="rename-trigger" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, cursor: 'pointer' }} onClick={() => setEditing(true)} title="Click to rename">
+    <div className="rename-trigger" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, cursor: 'pointer' }} onClick={() => setEditing(true)} title={tooltip}>
       <style>{`.rename-trigger .rename-pencil { opacity: 0; transition: opacity 140ms; } .rename-trigger:hover .rename-pencil { opacity: 1; } .rename-trigger:hover h3 { color: var(--gold-700) !important; }`}</style>
       <h3 style={{ fontFamily: 'var(--font-display), serif', fontSize: 17, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.01em', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', transition: 'color 140ms', margin: 0 }}>
-        {currentName ?? 'Untitled study'}
+        {currentName ?? untitledLabel}
       </h3>
       <svg className="rename-pencil" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />

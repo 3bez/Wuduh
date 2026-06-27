@@ -1,15 +1,15 @@
 {
   "_meta": {
     "product": "Wuduh",
-    "version": "1.0.0",
-    "description": "Complete card configuration for the Wuduh feasibility study builder. 54 cards across 8 sections plus a cover page. This file is the single source of truth for all card content. Any change to a prompt, hint, or example is made here and takes effect immediately without a code change.",
+    "version": "2.0.0",
+    "description": "Complete card configuration for the Wuduh feasibility study builder. 58 cards across 8 sections plus a cover page. This file is the single source of truth for all card content. Any change to a prompt, hint, or example is made here and takes effect immediately without a code change.",
     "total_cards": 58,
     "mandatory_cards": 41,
-    "optional_cards": 15,
+    "optional_cards": 17,
     "sections": 9,
     "languages": ["en", "ar"],
-    "card_types": ["lang", "upload", "text", "table", "projections"],
-    "last_updated": "2026-06-16"
+    "card_types": ["lang", "upload", "text", "table"],
+    "last_updated": "2026-06-25"
   },
 
   "sections": [

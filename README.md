@@ -4,7 +4,7 @@ Card-based feasibility study builder for first-time founders in Saudi Arabia and
 
 ## What it does
 
-Founders answer 52 focused cards across 8 sections. When done, Wuduh assembles their answers into an investor-ready feasibility study PDF in Arabic or English.
+Founders answer 58 focused cards across 8 sections. When done, Wuduh assembles their answers into an investor-ready feasibility study PDF in Arabic or English.
 
 ## Tech stack
 
@@ -32,7 +32,7 @@ cp .env.example .env.local
 # Open .env.local and fill in your values
 
 # 3. Set up the database
-# Run supabase/migrations/003_self_hosted_schema.sql in your PostgreSQL instance
+# Run db/migrations/003_self_hosted_schema.sql in your PostgreSQL instance
 
 # 4. Start the dev server
 npm run dev
@@ -130,7 +130,7 @@ Dark mode is implemented via CSS variables on the `.dark` class (toggled by Them
 
 ## Card system
 
-52 cards across 8 sections, defined in `wuduh-cards.json` and loaded via `src/lib/cards/loader.ts`.
+58 cards across 8 sections (plus a cover page), defined in `wuduh-cards.json` and loaded via `src/lib/cards/loader.ts`.
 
 Card types:
 - `text` — free-text textarea with auto-save
