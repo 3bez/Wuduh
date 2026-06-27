@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
-import { ALL_CARDS, getCard, MANDATORY_CARDS, sectionLabel } from '@/lib/cards/loader'
+import { ALL_CARDS, getCard, sectionLabel } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
 import CardShell from '@/components/cards/CardShell'
 import ProjectionsChart from '@/components/cards/ProjectionsChart'
@@ -33,7 +33,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   const user = await requireVerifiedUser()
 
   const study = await queryOne<{
-    id: string; language: string; startupName: string | null; logoUrl: string | null
+    id: string; language: string; startupName: string | null; logoUrl: string | null; completionPercentage: number
   }>(
     'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
@@ -64,11 +64,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   const card = getCard(activeCardId)
   if (!card) redirect(`/study/${studyId}?card=C0`)
 
-  const answeredIds = new Set(
-    Object.entries(answers).filter(([, v]) => v.status === 'done').map(([k]) => k)
-  )
-  const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
-  const completionPct = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
+  const completionPct = study.completionPercentage ?? 0
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
   const otherLang: Language = lang === 'ar' ? 'en' : 'ar'
   const currentSectionLabel = sectionLabel(card.section, lang)

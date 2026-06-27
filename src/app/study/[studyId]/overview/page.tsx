@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { requireVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
-import { SECTIONS, getCardsForSection, MANDATORY_CARDS } from '@/lib/cards/loader'
+import { SECTIONS, getCardsForSection } from '@/lib/cards/loader'
 import type { Language } from '@/types/cards'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
@@ -26,7 +26,7 @@ export default async function OverviewPage({ params, searchParams }: PageProps) 
   const { lang: langOverride } = await searchParams
   const user        = await requireVerifiedUser()
 
-  const study = await queryOne<{ id: string; language: string; startupName: string | null }>(
+  const study = await queryOne<{ id: string; language: string; startupName: string | null; completionPercentage: number }>(
     'SELECT * FROM studies WHERE id = $1 AND "userId" = $2',
     [studyId, user.id]
   )
@@ -47,9 +47,7 @@ export default async function OverviewPage({ params, searchParams }: PageProps) 
     await query('UPDATE studies SET language = $1 WHERE id = $2', [lang, studyId])
   }
 
-  const answeredIds   = new Set(Object.entries(answers).filter(([, s]) => s === 'done').map(([k]) => k))
-  const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
-  const completionPct = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
+  const completionPct = study.completionPercentage ?? 0
 
   const contentSections = SECTIONS.filter(s => s.id !== 'cover')
   const sectionStats = contentSections.map(section => {

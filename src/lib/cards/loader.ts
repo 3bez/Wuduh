@@ -29,16 +29,18 @@ export function getCardsForSection(sectionId: string): CardConfig[] {
   return ALL_CARDS.filter(c => c.section === sectionId)
 }
 
-/** Next card in sequence after a given card id */
-export function getNextCard(currentId: string): CardConfig | null {
-  const idx = ALL_CARDS.findIndex(c => c.id === currentId)
-  return idx >= 0 && idx < ALL_CARDS.length - 1 ? ALL_CARDS[idx + 1] : null
+/** Next card in sequence after a given card id.
+ *  Accepts an optional card list for sector-filtered navigation. */
+export function getNextCard(currentId: string, cards: CardConfig[] = ALL_CARDS): CardConfig | null {
+  const idx = cards.findIndex(c => c.id === currentId)
+  return idx >= 0 && idx < cards.length - 1 ? cards[idx + 1] : null
 }
 
-/** Previous card in sequence before a given card id */
-export function getPrevCard(currentId: string): CardConfig | null {
-  const idx = ALL_CARDS.findIndex(c => c.id === currentId)
-  return idx > 0 ? ALL_CARDS[idx - 1] : null
+/** Previous card in sequence before a given card id.
+ *  Accepts an optional card list for sector-filtered navigation. */
+export function getPrevCard(currentId: string, cards: CardConfig[] = ALL_CARDS): CardConfig | null {
+  const idx = cards.findIndex(c => c.id === currentId)
+  return idx > 0 ? cards[idx - 1] : null
 }
 
 /** Get the localised content for a card */

@@ -18,14 +18,17 @@ interface Props {
   existingAnswer?: unknown
   studyAnswers?: Record<string, unknown>
   completionPct: number
+  /** Optional filtered card list for sector-aware navigation. Defaults to ALL_CARDS. */
+  visibleCards?: CardConfig[]
 }
 
-export default function CardShell({ card, lang, studyId, userId, existingAnswer, studyAnswers, completionPct }: Props) {
+export default function CardShell({ card, lang, studyId, userId, existingAnswer, studyAnswers, completionPct, visibleCards }: Props) {
   const router  = useRouter()
   const content = localise(card, lang)
   const dir     = lang === 'ar' ? 'rtl' : 'ltr'
-  const next    = getNextCard(card.id)
-  const prev    = getPrevCard(card.id)
+  const cards   = visibleCards ?? ALL_CARDS
+  const next    = getNextCard(card.id, cards)
+  const prev    = getPrevCard(card.id, cards)
 
   const [visible, setVisible] = useState(false)
   useEffect(() => {
@@ -33,8 +36,8 @@ export default function CardShell({ card, lang, studyId, userId, existingAnswer,
     return () => clearTimeout(t)
   }, [card.id])
 
-  const cardIndex  = ALL_CARDS.findIndex(c => c.id === card.id)
-  const totalCards = ALL_CARDS.length
+  const cardIndex  = cards.findIndex(c => c.id === card.id)
+  const totalCards = cards.length
   const cardNum    = cardIndex + 1
   const isCover    = card.section === 'cover'
   const sectionName = isCover
