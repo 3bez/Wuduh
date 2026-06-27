@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authClient } from '@/lib/auth/client'
+import { useLocale } from '@/components/ui/LocaleProvider'
 
 function LogoMark({ size = 26 }: { size?: number }) {
   return (
@@ -32,6 +33,7 @@ function StepDots({ current, total }: { current: number; total: number }) {
 
 export default function NewStudyPage() {
   const router = useRouter()
+  const { locale: siteLocale } = useLocale()
   const [step, setStep]               = useState(0)
   const [lang, setLang]               = useState<'en' | 'ar' | null>(null)
   const [startupName, setStartupName] = useState('')
@@ -41,6 +43,12 @@ export default function NewStudyPage() {
   const [error, setError]             = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  // The wizard chrome follows the site UI language until the user picks a
+  // study language; after the pick it follows the chosen study language.
+  // (The study language itself stays an explicit choice — it's permanent.)
+  const uiLang = lang ?? siteLocale
+  const isRtl = uiLang === 'ar'
+
   function handleLangSelect(l: 'en' | 'ar') {
     setLang(l); setTimeout(() => setStep(1), 180)
   }
@@ -48,17 +56,19 @@ export default function NewStudyPage() {
   function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 4 * 1024 * 1024) { setError('Logo must be under 4 MB.'); return }
+    if (file.size > 4 * 1024 * 1024) { setError(isRtl ? 'يجب أن يكون حجم الشعار أقل من ٤ ميغابايت.' : 'Logo must be under 4 MB.'); return }
     setError(null); setLogoFile(file)
     const reader = new FileReader()
-    reader.onload = ev => setLogoPreview(ev.target?.result as string)
+    reader.onload = ev => { if (typeof ev.target?.result === 'string') setLogoPreview(ev.target.result) }
+    reader.onerror = () => setError(isRtl ? 'تعذّر قراءة الملف.' : 'Could not read the file.')
     reader.readAsDataURL(file)
   }
 
   function handleLogoDrop(e: React.DragEvent) {
     e.preventDefault()
     const file = e.dataTransfer.files?.[0]
-    if (!file || !file.type.startsWith('image/')) return
+    const allowed = ['image/png', 'image/jpeg', 'image/svg+xml', 'image/webp']
+    if (!file || !allowed.includes(file.type)) return
     handleLogoChange({ target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>)
   }
 
@@ -69,7 +79,7 @@ export default function NewStudyPage() {
     try {
       const session = await authClient.getSession()
       const userId  = session.data?.user?.id
-      if (!userId) throw new Error('Not authenticated')
+      if (!userId) throw new Error(isRtl ? 'لم يتم تسجيل الدخول.' : 'Not authenticated')
 
       // Create study via API
       const res = await fetch('/api/studies', {
@@ -78,24 +88,25 @@ export default function NewStudyPage() {
         body: JSON.stringify({ language: lang, startup_name: startupName.trim() }),
       })
       const study = await res.json()
-      if (!res.ok) throw new Error(study.error ?? 'Failed to create study')
+      if (!res.ok) throw new Error(study.error ?? (isRtl ? 'تعذّر إنشاء الدراسة.' : 'Failed to create study'))
 
       // Upload logo if provided
       if (logoFile) {
         const formData = new FormData()
         formData.append('file', logoFile)
         formData.append('studyId', study.id)
-        await fetch('/api/upload', { method: 'POST', body: formData })
+        const uploadRes = await fetch('/api/upload', { method: 'POST', body: formData })
+        if (!uploadRes.ok) {
+          console.error('Logo upload failed:', await uploadRes.text().catch(() => 'unknown error'))
+        }
       }
 
       router.push(`/study/${study.id}?card=C0`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
+      setError(err instanceof Error ? err.message : (isRtl ? 'حدث خطأ ما. الرجاء المحاولة مرة أخرى.' : 'Something went wrong. Please try again.'))
       setCreating(false)
     }
   }
-
-  const isRtl = lang === 'ar'
 
   return (
     <>
@@ -131,10 +142,10 @@ export default function NewStudyPage() {
           <div style={{ width: '100%', maxWidth: 480 }}>
 
             {step === 0 && (
-              <div className="ns-step" key="step-lang">
-                <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>Step 1 of 3</p>
-                <h1 style={{ fontFamily: 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 8 }}>Choose your language</h1>
-                <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>The entire journey — every question, hint, and your exported document — will follow your choice. You can&apos;t change it later.</p>
+              <div className="ns-step" key="step-lang" dir={isRtl ? 'rtl' : 'ltr'}>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ١ من ٣' : 'Step 1 of 3'}</p>
+                <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.15, marginBottom: 8 }}>{isRtl ? 'اختر لغتك' : 'Choose your language'}</h1>
+                <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'سترافق هذه اللغة رحلتك بالكامل — كل سؤال وتلميح، ومستندك المُصدّر. ولا يمكن تغييرها لاحقًا.' : 'The entire journey — every question, hint, and your exported document — will follow your choice. You can’t change it later.'}</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
                   <button className={`ns-lang-btn${lang === 'en' ? ' selected' : ''}`} onClick={() => handleLangSelect('en')} style={{ border: `2px solid ${lang === 'en' ? 'var(--text-primary)' : 'var(--border-default)'}`, borderRadius: 14, padding: '28px 20px', textAlign: 'left' }}>
                     <div style={{ fontSize: 28, marginBottom: 12, lineHeight: 1 }}>🇬🇧</div>
@@ -154,7 +165,7 @@ export default function NewStudyPage() {
 
             {step === 1 && (
               <div className="ns-step" key="step-name" dir={isRtl ? 'rtl' : 'ltr'}>
-                <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٢ من ٣' : 'Step 2 of 3'}</p>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٢ من ٣' : 'Step 2 of 3'}</p>
                 <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>{isRtl ? 'ما اسم مشروعك؟' : "What's your startup called?"}</h1>
                 <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'هذا سيظهر على صفحة الغلاف في دراسة الجدوى الخاصة بك. يمكنك تغييره لاحقاً.' : 'This will appear on the cover page of your feasibility study. You can change it later.'}</p>
                 <div style={{ marginBottom: 24 }}>
@@ -171,7 +182,7 @@ export default function NewStudyPage() {
 
             {step === 2 && (
               <div className="ns-step" key="step-logo" dir={isRtl ? 'rtl' : 'ltr'}>
-                <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٣ من ٣' : 'Step 3 of 3'}</p>
+                <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 11, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 12 }}>{isRtl ? 'الخطوة ٣ من ٣' : 'Step 3 of 3'}</p>
                 <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 28, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.2, marginBottom: 8 }}>{isRtl ? 'أضف شعار مشروعك' : 'Add your logo'}</h1>
                 <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 32 }}>{isRtl ? 'سيظهر الشعار على صفحة الغلاف في ملف PDF. هذه الخطوة اختيارية.' : 'Your logo appears on the PDF cover page. This step is optional — skip it and add one later.'}</p>
 
@@ -223,10 +234,10 @@ export default function NewStudyPage() {
         </div>
 
         <div style={{ textAlign: 'center', padding: '16px 24px 32px', flexShrink: 0 }}>
-          <p style={{ fontSize: 12, color: 'var(--text-hint)' }}>
-            {step === 0 && 'Your choice sets the language for every card and your exported document.'}
-            {step === 1 && 'There are no wrong answers — only clearer ones.'}
-            {step === 2 && 'Your study auto-saves as you go. Come back any time.'}
+          <p style={{ fontSize: 12, color: 'var(--text-hint)' }} dir={isRtl ? 'rtl' : 'ltr'}>
+            {step === 0 && (isRtl ? 'اختيارك يحدّد لغة كل بطاقة ومستندك المُصدّر.' : 'Your choice sets the language for every card and your exported document.')}
+            {step === 1 && (isRtl ? 'لا توجد إجابات خاطئة — بل إجابات أوضح.' : 'There are no wrong answers — only clearer ones.')}
+            {step === 2 && (isRtl ? 'تُحفظ دراستك تلقائيًا أثناء العمل. عُد في أي وقت.' : 'Your study auto-saves as you go. Come back any time.')}
           </p>
         </div>
       </div>

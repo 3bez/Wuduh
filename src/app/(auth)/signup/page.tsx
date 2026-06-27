@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { signUp } from '@/lib/auth/client'
+import { useLocale } from '@/components/ui/LocaleProvider'
+import { authCopy } from '@/lib/i18n/auth'
 
 function LogoMark({ size = 36 }: { size?: number }) {
   return (
@@ -15,13 +17,14 @@ function LogoMark({ size = 36 }: { size?: number }) {
   )
 }
 
-function PasswordStrength({ password }: { password: string }) {
+function PasswordStrength({ password, locale }: { password: string; locale: 'en' | 'ar' }) {
   if (!password) return null
+  const t = authCopy[locale].signup
   const len    = password.length >= 8
   const upper  = /[A-Z]/.test(password)
   const number = /[0-9]/.test(password)
   const score  = [len, upper, number].filter(Boolean).length
-  const label  = score === 3 ? 'Strong' : score === 2 ? 'Good' : 'Weak'
+  const label  = score === 3 ? t.strengthStrong : score === 2 ? t.strengthGood : t.strengthWeak
   const color  = score === 3 ? 'var(--teal-500)' : score === 2 ? 'var(--gold-500)' : 'var(--danger-500)'
   return (
     <div style={{ marginTop: 8 }}>
@@ -34,6 +37,8 @@ function PasswordStrength({ password }: { password: string }) {
 }
 
 export default function SignupPage() {
+  const { locale, isRtl } = useLocale()
+  const t = authCopy[locale].signup
   const [fullName, setFullName] = useState('')
   const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
@@ -48,7 +53,7 @@ export default function SignupPage() {
     setLoading(true)
 
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.')
+      setError(t.errorMinLength)
       setLoading(false)
       return
     }
@@ -60,7 +65,7 @@ export default function SignupPage() {
     })
 
     if (error) {
-      setError(error.message ?? 'Something went wrong. Please try again.')
+      setError(error.message ?? t.errorGeneric)
       setLoading(false)
       return
     }
@@ -71,7 +76,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
+      <div dir={isRtl ? 'rtl' : 'ltr'} style={{ minHeight: '100vh', background: 'var(--bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 24px' }}>
         <div style={{ width: '100%', maxWidth: 400, textAlign: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 40 }}>
             <LogoMark size={28} />
@@ -81,24 +86,22 @@ export default function SignupPage() {
             <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--teal-100)', margin: '0 auto 20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal-500)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
             </div>
-            <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 22, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.015em', marginBottom: 10 }}>Check your email</h2>
-            <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 24 }}>
-              We sent a confirmation link to <strong style={{ color: 'var(--text-primary)', fontWeight: 500 }}>{email}</strong>. Click it to activate your account.
-            </p>
-            <div style={{ background: 'var(--bg-subtle)', borderRadius: 10, padding: '14px 16px', textAlign: 'left' }}>
-              <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 10 }}>What happens next</p>
-              {['Click the link in your email', 'Choose Arabic or English', 'Answer your first card'].map((step, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: i < 2 ? 8 : 0 }}>
+            <h2 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 22, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.015em', marginBottom: 10 }}>{t.successHeading}</h2>
+            <p style={{ fontSize: 14, color: 'var(--text-muted)', lineHeight: 1.65, marginBottom: 24, fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }} dangerouslySetInnerHTML={{ __html: t.successBody(email) }} />
+            <div style={{ background: 'var(--bg-subtle)', borderRadius: 10, padding: '14px 16px', textAlign: isRtl ? 'right' : 'left' }}>
+              <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: isRtl ? 11 : 9, letterSpacing: isRtl ? 0 : '0.1em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--text-faint)', marginBottom: 10 }}>{t.successNextLabel}</p>
+              {t.successSteps.map((step, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: i < 2 ? 8 : 0, flexDirection: isRtl ? 'row-reverse' : 'row' }}>
                   <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--border-default)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 9, color: 'var(--text-faint)' }}>{i + 1}</span>
                   </div>
-                  <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{step}</span>
+                  <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>{step}</span>
                 </div>
               ))}
             </div>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--text-faint)', marginTop: 24 }}>
-            Already confirmed? <Link href="/login" style={{ color: 'var(--gold-500)', textDecoration: 'none', fontWeight: 500 }}>Sign in</Link>
+          <p style={{ fontSize: 13, color: 'var(--text-faint)', marginTop: 24, fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>
+            {t.successAlreadyConfirmed} <Link href="/login" style={{ color: 'var(--gold-500)', textDecoration: 'none', fontWeight: 500 }}>{t.successSignIn}</Link>
           </p>
         </div>
       </div>
@@ -144,32 +147,32 @@ export default function SignupPage() {
             <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 22, color: '#fff' }}>Wuduh</span>
             <span style={{ fontFamily: 'var(--font-arabic), sans-serif', fontSize: 15, color: '#C9A84C', direction: 'rtl' }}>وضوح</span>
           </div>
-          <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#C9A84C', marginBottom: 16 }}>Free to start</p>
-          <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 32, fontWeight: 500, color: '#fff', letterSpacing: '-0.025em', lineHeight: 1.12, marginBottom: 20 }}>
-            Your study,<br />your words.
+          <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: isRtl ? 12 : 10, letterSpacing: isRtl ? 0 : '0.14em', textTransform: isRtl ? 'none' : 'uppercase', color: '#C9A84C', marginBottom: 16, direction: isRtl ? 'rtl' : 'ltr' }}>{t.panelEyebrow}</p>
+          <h2 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: isRtl ? 30 : 32, fontWeight: 500, color: '#fff', letterSpacing: isRtl ? 0 : '-0.025em', lineHeight: 1.12, marginBottom: 20, direction: isRtl ? 'rtl' : 'ltr' }}>
+            {t.panelHeading.split('\n').map((line, i) => <span key={i}>{line}{i === 0 && <br />}</span>)}
           </h2>
-          <p style={{ fontSize: 15, color: '#7BA0BF', lineHeight: 1.7, marginBottom: 40 }}>
-            No templates. No AI filler. Just your answers to 52 focused questions, assembled into a study you&apos;ll be proud to send.
+          <p style={{ fontSize: 15, color: '#7BA0BF', lineHeight: 1.7, marginBottom: 40, direction: isRtl ? 'rtl' : 'ltr', fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>
+            {t.panelSub}
           </p>
-          <div style={{ borderLeft: '2px solid rgba(201,168,76,0.4)', paddingLeft: 16 }}>
-            <p style={{ fontSize: 14, color: '#AEC6D9', lineHeight: 1.65, fontStyle: 'italic', marginBottom: 10 }}>
-              &ldquo;It made me think through things I would have avoided until the investor meeting.&rdquo;
+          <div style={{ borderLeft: isRtl ? 'none' : '2px solid rgba(201,168,76,0.4)', borderRight: isRtl ? '2px solid rgba(201,168,76,0.4)' : 'none', paddingLeft: isRtl ? 0 : 16, paddingRight: isRtl ? 16 : 0, direction: isRtl ? 'rtl' : 'ltr' }}>
+            <p style={{ fontSize: 14, color: '#AEC6D9', lineHeight: 1.65, fontStyle: 'italic', marginBottom: 10, fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>
+              {t.panelQuote}
             </p>
-            <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4D7CA3' }}>Early user · Riyadh</p>
+            <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: 10, letterSpacing: isRtl ? 0 : '0.08em', textTransform: isRtl ? 'none' : 'uppercase', color: '#4D7CA3' }}>{t.panelQuoteAttr}</p>
           </div>
         </div>
       </div>
 
-      <div style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', background: 'var(--bg-page)' }}>
+      <div dir={isRtl ? 'rtl' : 'ltr'} style={{ width: '100%', maxWidth: 480, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '48px 40px', background: 'var(--bg-page)' }}>
         <div className="su-mobile-logo" style={{ display: 'none', alignItems: 'center', gap: 10, marginBottom: 40 }}>
           <LogoMark size={28} />
           <span style={{ fontFamily: 'var(--font-display), serif', fontWeight: 600, fontSize: 18, color: 'var(--text-primary)' }}>Wuduh</span>
         </div>
 
         <div style={{ marginBottom: 28 }}>
-          <p style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>Create account</p>
-          <h1 style={{ fontFamily: 'var(--font-display), serif', fontSize: 26, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 6 }}>Start your study</h1>
-          <p style={{ fontSize: 14, color: 'var(--text-muted)' }}>Free to start. No credit card required.</p>
+          <p style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-mono), monospace', fontSize: isRtl ? 12 : 10, letterSpacing: isRtl ? 0 : '0.12em', textTransform: isRtl ? 'none' : 'uppercase', color: 'var(--gold-500)', marginBottom: 10 }}>{t.eyebrow}</p>
+          <h1 style={{ fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-display), serif', fontSize: 26, fontWeight: 500, color: 'var(--text-primary)', letterSpacing: isRtl ? 0 : '-0.02em', lineHeight: 1.15, marginBottom: 6 }}>{t.heading}</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>{t.sub}</p>
         </div>
 
         {error && (
@@ -180,21 +183,21 @@ export default function SignupPage() {
 
         <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label htmlFor="fullName" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Full name</label>
+            <label htmlFor="fullName" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>{t.fullNameLabel}</label>
             <input id="fullName" type="text" autoComplete="name" required className="auth-input"
-              value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Layla Al-Rashid" />
+              value={fullName} onChange={e => setFullName(e.target.value)} placeholder={t.fullNamePlaceholder} dir={isRtl ? 'rtl' : 'ltr'} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label htmlFor="email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Email</label>
+            <label htmlFor="email" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>{t.emailLabel}</label>
             <input id="email" type="email" autoComplete="email" required className="auth-input"
-              value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+              value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" dir="ltr" />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <label htmlFor="password" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)' }}>Password</label>
+            <label htmlFor="password" style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>{t.passwordLabel}</label>
             <div style={{ position: 'relative' }}>
               <input id="password" type={showPass ? 'text' : 'password'} autoComplete="new-password" required minLength={8}
                 className="auth-input" value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="At least 8 characters" style={{ paddingRight: 44 }} />
+                placeholder={t.passwordPlaceholder} dir="ltr" style={{ paddingRight: 44 }} />
               <button type="button" className="auth-pass-toggle" onClick={() => setShowPass(v => !v)}
                 aria-label={showPass ? 'Hide password' : 'Show password'}
                 style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)' }}>
@@ -205,36 +208,36 @@ export default function SignupPage() {
                 )}
               </button>
             </div>
-            <PasswordStrength password={password} />
+            <PasswordStrength password={password} locale={locale} />
           </div>
 
           <button type="submit" disabled={loading} className="auth-submit" style={{
             width: '100%', background: 'var(--text-primary)', color: 'var(--bg-page)',
             border: 'none', borderRadius: 10, padding: '13px 0',
             fontSize: 15, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer',
-            marginTop: 4, fontFamily: 'var(--font-sans), sans-serif',
+            marginTop: 4, fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : 'var(--font-sans), sans-serif',
           }}>
-            {loading ? 'Creating account…' : 'Create account →'}
+            {loading ? t.submitting : t.submit}
           </button>
 
-          <p style={{ fontSize: 11, color: 'var(--text-hint)', textAlign: 'center', lineHeight: 1.5 }}>
-            By creating an account you agree to our{' '}
-            <Link href="/terms" style={{ color: 'var(--text-faint)', textDecoration: 'underline' }}>Terms</Link>
-            {' '}and{' '}
-            <Link href="/privacy" style={{ color: 'var(--text-faint)', textDecoration: 'underline' }}>Privacy Policy</Link>
+          <p style={{ fontSize: 11, color: 'var(--text-hint)', textAlign: 'center', lineHeight: 1.5, fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>
+            {t.termsPrefix}{' '}
+            <Link href="/terms" style={{ color: 'var(--text-faint)', textDecoration: 'underline' }}>{t.termsLink}</Link>
+            {' '}{t.termsAnd}{' '}
+            <Link href="/privacy" style={{ color: 'var(--text-faint)', textDecoration: 'underline' }}>{t.privacyLink}</Link>
           </p>
         </form>
 
-        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-faint)', marginTop: 24 }}>
-          Already have an account?{' '}
-          <Link href="/login" className="auth-link" style={{ fontWeight: 500 }}>Sign in</Link>
+        <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--text-faint)', marginTop: 24, fontFamily: isRtl ? 'var(--font-arabic), sans-serif' : undefined }}>
+          {t.alreadyHaveAccount}{' '}
+          <Link href="/login" className="auth-link" style={{ fontWeight: 500 }}>{t.signIn}</Link>
         </p>
 
         <div style={{ textAlign: 'center', marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border-subtle)' }}>
           <Link href="/" style={{ fontSize: 12, color: 'var(--text-hint)', textDecoration: 'none', transition: 'color 140ms' }}
             onMouseEnter={e => (e.currentTarget.style.color = 'var(--text-faint)')}
             onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-hint)')}>
-            ← Back to wuduh.site
+            {authCopy[locale].backToSite}
           </Link>
         </div>
       </div>
