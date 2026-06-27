@@ -1,5 +1,6 @@
 import { headers } from 'next/headers'
 import { query } from '@/lib/db'
+import { getAdminName } from '@/lib/auth/admin'
 
 /**
  * Log an admin action for audit purposes.
@@ -14,9 +15,11 @@ export async function auditLog(
   try {
     const hdrs = await headers()
     const ip = hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() || hdrs.get('x-real-ip') || null
+    const adminName = await getAdminName()
+    const fullDetail = { ...detail, ...(adminName ? { admin: adminName } : {}) }
     await query(
       `INSERT INTO admin_audit_log (action, target_type, target_id, detail, ip) VALUES ($1, $2, $3, $4, $5)`,
-      [action, targetType, targetId, detail ? JSON.stringify(detail) : null, ip],
+      [action, targetType, targetId, JSON.stringify(fullDetail), ip],
     )
   } catch {
     // Audit logging should never break the admin action itself

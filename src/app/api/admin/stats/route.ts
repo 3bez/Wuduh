@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { isAdmin } from '@/lib/auth/admin'
+import { isAdmin, getAdminName } from '@/lib/auth/admin'
 import { query, queryOne } from '@/lib/db'
 import { ALL_CARDS } from '@/lib/cards/loader'
 
@@ -23,6 +23,9 @@ export async function GET() {
     skipped,
     recentUsers,
     recentExports,
+    cohorts,
+    duration,
+    consistency,
   ] = await Promise.all([
     queryOne<Record<string, unknown>>(`
       SELECT
@@ -86,11 +89,69 @@ export async function GET() {
       ORDER BY e."createdAt" DESC
       LIMIT 12
     `),
+    // ── Cohort analysis: weekly signup cohorts (last 8 weeks) ──
+    query(`
+      WITH weeks AS (
+        SELECT generate_series(
+          date_trunc('week', now()) - interval '7 weeks',
+          date_trunc('week', now()),
+          interval '1 week'
+        ) AS week
+      )
+      SELECT
+        to_char(w.week, 'DD Mon') AS label,
+        (SELECT count(*) FROM users u
+          WHERE u."createdAt" >= w.week AND u."createdAt" < w.week + interval '1 week')::int AS signups,
+        (SELECT count(DISTINCT s."userId") FROM studies s
+          JOIN users u ON u.id = s."userId"
+          WHERE u."createdAt" >= w.week AND u."createdAt" < w.week + interval '1 week')::int AS started,
+        (SELECT count(DISTINCT s."userId") FROM studies s
+          JOIN users u ON u.id = s."userId"
+          WHERE u."createdAt" >= w.week AND u."createdAt" < w.week + interval '1 week'
+          AND s."completionPercentage" = 100)::int AS completed,
+        (SELECT count(DISTINCT e."userId") FROM exports e
+          JOIN users u ON u.id = e."userId"
+          WHERE u."createdAt" >= w.week AND u."createdAt" < w.week + interval '1 week')::int AS exported
+      FROM weeks w
+      ORDER BY w.week
+    `),
+    // ── Study duration metrics ──
+    queryOne<Record<string, unknown>>(`
+      SELECT
+        coalesce(round(avg(dur_complete)), 0) AS avg_days_to_complete,
+        coalesce(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_complete), 0) AS median_days_to_complete,
+        coalesce(round(avg(dur_export)), 0) AS avg_days_to_export,
+        coalesce(percentile_cont(0.5) WITHIN GROUP (ORDER BY dur_export), 0) AS median_days_to_export,
+        count(*) FILTER (WHERE dur_complete IS NOT NULL)::int AS studies_completed,
+        count(*) FILTER (WHERE dur_export IS NOT NULL)::int AS studies_exported
+      FROM (
+        SELECT
+          s.id,
+          CASE WHEN s."completionPercentage" = 100
+            THEN extract(epoch FROM (s."updatedAt" - s."createdAt")) / 86400.0
+          END AS dur_complete,
+          (SELECT extract(epoch FROM (min(e."createdAt") - s."createdAt")) / 86400.0
+            FROM exports e WHERE e."studyId" = s.id) AS dur_export
+        FROM studies s
+      ) sub
+    `),
+    // ── Data consistency checks ──
+    queryOne<Record<string, unknown>>(`
+      SELECT
+        (SELECT count(*) FROM studies s WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = s."userId"))::int AS orphaned_studies,
+        (SELECT count(*) FROM answers a WHERE NOT EXISTS (SELECT 1 FROM studies s WHERE s.id = a."studyId"))::int AS orphaned_answers,
+        (SELECT count(*) FROM exports e WHERE NOT EXISTS (SELECT 1 FROM studies s WHERE s.id = e."studyId"))::int AS orphaned_exports,
+        (SELECT count(*) FROM exports e WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = e."userId"))::int AS orphaned_export_users,
+        (SELECT count(*) FROM sessions s WHERE NOT EXISTS (SELECT 1 FROM users u WHERE u.id = s."userId"))::int AS orphaned_sessions
+    `),
   ])
 
   const skippedCards = skipped.map(c => ({ ...c, label: CARD_LABEL.get(c.cardId) ?? c.cardId }))
 
+  const adminName = await getAdminName()
+
   return NextResponse.json({
     overview, byStatus, studiesByLang, exportsByLang, daily, skippedCards, recentUsers, recentExports,
+    cohorts, duration, consistency, adminName,
   })
 }

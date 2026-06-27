@@ -11,11 +11,12 @@ import {
 
 export async function loginAdmin(formData: FormData) {
   const password = String(formData.get('password') ?? '')
-  if (!checkAdminPassword(password)) {
+  const adminName = checkAdminPassword(password)
+  if (!adminName) {
     redirect('/admin/login?error=1')
   }
   const c = await cookies()
-  c.set(ADMIN_COOKIE, createAdminToken(), {
+  c.set(ADMIN_COOKIE, createAdminToken(adminName), {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',

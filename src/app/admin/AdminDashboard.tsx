@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Shell, useJson, n, fmt, pct, formatDate, formatDateTime, Pill, VerifiedPill, Loading, ErrorCard, thStyle, tdStyle, Pagination } from './_shared'
 
 type Row = Record<string, unknown>
@@ -8,6 +9,8 @@ interface Stats {
   overview: Record<string, unknown>
   byStatus: Row[]; studiesByLang: Row[]; exportsByLang: Row[]
   daily: Row[]; skippedCards: Row[]; recentUsers: Row[]; recentExports: Row[]
+  cohorts: Row[]; duration: Record<string, unknown>; consistency: Record<string, unknown>
+  adminName: string | null
 }
 
 type AuditRow = { id: string; action: string; target_type: string; target_id: string; detail: Record<string, unknown> | null; ip: string | null; createdAt: string }
@@ -17,7 +20,7 @@ export default function AdminDashboard() {
   const { data, error } = useJson<Stats>('/api/admin/stats')
   return (
     <Shell active="overview" eyebrow="Back office" title="Everything at a glance"
-      subtitle={`Live across users, studies, and exports${data ? ` · as of ${formatDateTime(new Date().toISOString())}` : ''}`}>
+      subtitle={`Live across users, studies, and exports${data ? ` · as of ${formatDateTime(new Date().toISOString())}` : ''}${data?.adminName ? ` · signed in as ${data.adminName}` : ''}`}>
       {error ? <ErrorCard error={error} /> : !data ? <Loading /> : <Dashboard data={data} />}
     </Shell>
   )
@@ -168,10 +171,10 @@ function Dashboard({ data }: { data: Stats }) {
 
       <div className="wb-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
         <Panel title="Studies by status">
-          <DistRows rows={[
-            { label: 'Draft', value: draft, color: 'var(--text-faint)' },
-            { label: 'Complete', value: complete, color: 'var(--gold-500)' },
-            { label: 'Exported', value: exported, color: 'var(--teal-500)' },
+          <DistRowsLinked rows={[
+            { label: 'Draft', value: draft, color: 'var(--text-faint)', href: '/admin/studies?status=draft' },
+            { label: 'Complete', value: complete, color: 'var(--gold-500)', href: '/admin/studies?status=complete' },
+            { label: 'Exported', value: exported, color: 'var(--teal-500)', href: '/admin/studies?status=exported' },
           ]} total={totalStudies} />
         </Panel>
         <Panel title="Studies by language">
@@ -187,6 +190,10 @@ function Dashboard({ data }: { data: Stats }) {
           ]} total={totalExports} />
         </Panel>
       </div>
+
+      <CohortPanel cohorts={data.cohorts || []} />
+      <DurationPanel duration={data.duration ?? {}} />
+      <ConsistencyPanel consistency={data.consistency ?? {}} />
 
       <Panel title="Most-skipped cards" subtitle="Where founders leave a card blank" style={{ marginBottom: 32 }}>
         {skippedCards.length === 0 ? (
@@ -259,6 +266,140 @@ function Dashboard({ data }: { data: Stats }) {
 
       <AuditLogPanel />
     </>
+  )
+}
+
+function DistRowsLinked({ rows, total }: { rows: { label: string; value: number; color: string; href: string }[]; total: number }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {rows.map(r => (
+        <Link key={r.label} href={r.href} style={{ textDecoration: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{r.label} <span style={{ fontSize: 10, color: 'var(--text-hint)' }}>→</span></span>
+            <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 12, color: 'var(--text-muted)' }}>
+              {fmt(r.value)} <span style={{ color: 'var(--text-hint)' }}>· {pct(r.value, total)}%</span>
+            </span>
+          </div>
+          <div style={{ height: 8, background: 'var(--bg-subtle)', borderRadius: 99, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${Math.max(r.value > 0 ? 2 : 0, pct(r.value, total))}%`, background: r.color, borderRadius: 99 }} />
+          </div>
+        </Link>
+      ))}
+    </div>
+  )
+}
+
+function CohortPanel({ cohorts }: { cohorts: Row[] }) {
+  if (!cohorts.length) return null
+  return (
+    <Panel title="Weekly cohorts" subtitle="Signup week → what % started, completed, exported" style={{ marginBottom: 32 }}>
+      <div className="wb-tablewrap">
+        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 480 }}>
+          <thead><tr>{['Week', 'Signups', 'Started study', 'Completed', 'Exported'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+          <tbody>
+            {cohorts.map((c, i) => {
+              const signups = n(c.signups)
+              const started = n(c.started)
+              const completed = n(c.completed)
+              const exported = n(c.exported)
+              return (
+                <tr key={i} className="wb-row" style={{ borderTop: '1px solid var(--border-default)' }}>
+                  <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace', fontSize: 12 }}>{String(c.label)}</td>
+                  <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{fmt(signups)}</td>
+                  <td style={tdStyle}>
+                    <span style={{ fontFamily: 'var(--font-mono), monospace' }}>{fmt(started)}</span>
+                    {signups > 0 && <span style={{ fontSize: 10, color: 'var(--text-faint)', marginLeft: 6 }}>{pct(started, signups)}%</span>}
+                  </td>
+                  <td style={tdStyle}>
+                    <span style={{ fontFamily: 'var(--font-mono), monospace' }}>{fmt(completed)}</span>
+                    {signups > 0 && <span style={{ fontSize: 10, color: 'var(--text-faint)', marginLeft: 6 }}>{pct(completed, signups)}%</span>}
+                  </td>
+                  <td style={tdStyle}>
+                    <span style={{ fontFamily: 'var(--font-mono), monospace' }}>{fmt(exported)}</span>
+                    {signups > 0 && <span style={{ fontSize: 10, color: 'var(--text-faint)', marginLeft: 6 }}>{pct(exported, signups)}%</span>}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </Panel>
+  )
+}
+
+function DurationPanel({ duration }: { duration: Record<string, unknown> }) {
+  const avgComplete = Number(n(duration.avg_days_to_complete)).toFixed(1)
+  const medComplete = Number(n(duration.median_days_to_complete)).toFixed(1)
+  const avgExport = Number(n(duration.avg_days_to_export)).toFixed(1)
+  const medExport = Number(n(duration.median_days_to_export)).toFixed(1)
+  const studiesCompleted = n(duration.studies_completed)
+  const studiesExported = n(duration.studies_exported)
+
+  if (studiesCompleted === 0 && studiesExported === 0) return null
+
+  return (
+    <Panel title="Study duration" subtitle="How long from creation to milestone" style={{ marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
+        {studiesCompleted > 0 && (
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 8 }}>Creation → 100% complete</div>
+            <div style={{ display: 'flex', gap: 20 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 24, fontWeight: 600, color: 'var(--gold-700)' }}>{avgComplete}<span style={{ fontSize: 14, color: 'var(--text-faint)' }}>d</span></div>
+                <div style={{ fontSize: 10, color: 'var(--text-hint)' }}>avg</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 24, fontWeight: 600, color: 'var(--text-primary)' }}>{medComplete}<span style={{ fontSize: 14, color: 'var(--text-faint)' }}>d</span></div>
+                <div style={{ fontSize: 10, color: 'var(--text-hint)' }}>median</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 6 }}>{fmt(studiesCompleted)} studies reached 100%</div>
+          </div>
+        )}
+        {studiesExported > 0 && (
+          <div>
+            <div style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-faint)', marginBottom: 8 }}>Creation → first export</div>
+            <div style={{ display: 'flex', gap: 20 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 24, fontWeight: 600, color: 'var(--teal-500)' }}>{avgExport}<span style={{ fontSize: 14, color: 'var(--text-faint)' }}>d</span></div>
+                <div style={{ fontSize: 10, color: 'var(--text-hint)' }}>avg</div>
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-display), serif', fontSize: 24, fontWeight: 600, color: 'var(--text-primary)' }}>{medExport}<span style={{ fontSize: 14, color: 'var(--text-faint)' }}>d</span></div>
+                <div style={{ fontSize: 10, color: 'var(--text-hint)' }}>median</div>
+              </div>
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 6 }}>{fmt(studiesExported)} studies exported</div>
+          </div>
+        )}
+      </div>
+    </Panel>
+  )
+}
+
+function ConsistencyPanel({ consistency }: { consistency: Record<string, unknown> }) {
+  const checks = [
+    { label: 'Orphaned studies (user deleted)', count: n(consistency.orphaned_studies) },
+    { label: 'Orphaned answers (study deleted)', count: n(consistency.orphaned_answers) },
+    { label: 'Orphaned exports (study deleted)', count: n(consistency.orphaned_exports) },
+    { label: 'Orphaned exports (user deleted)', count: n(consistency.orphaned_export_users) },
+    { label: 'Orphaned sessions (user deleted)', count: n(consistency.orphaned_sessions) },
+  ]
+  const issues = checks.filter(c => c.count > 0)
+  if (issues.length === 0) return null
+
+  return (
+    <Panel title="Data consistency" subtitle="Orphaned records detected — may need cleanup" style={{ marginBottom: 32 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {issues.map(c => (
+          <div key={c.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--danger-100)', borderRadius: 8 }}>
+            <span style={{ fontSize: 13, color: 'var(--danger-500)' }}>{c.label}</span>
+            <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 13, fontWeight: 600, color: 'var(--danger-500)' }}>{fmt(c.count)}</span>
+          </div>
+        ))}
+      </div>
+    </Panel>
   )
 }
 
