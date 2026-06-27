@@ -8,6 +8,7 @@ import ProjectionsChart from '@/components/cards/ProjectionsChart'
 import Link from 'next/link'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import StudyLangToggle from '@/components/cards/StudyLangToggle'
 
 interface PageProps {
   params: Promise<{ studyId: string }>
@@ -69,6 +70,7 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
   const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
   const completionPct = Math.round((mandatoryDone / MANDATORY_CARDS.length) * 100)
   const dir = lang === 'ar' ? 'rtl' : 'ltr'
+  const otherLang: Language = lang === 'ar' ? 'en' : 'ar'
   const currentSectionLabel = sectionLabel(card.section, lang)
 
   return (
@@ -111,8 +113,9 @@ export default async function StudyPage({ params, searchParams }: PageProps) {
             {lang === 'ar' ? 'نظرة عامة' : 'Overview'}
           </Link>
           <ThemeToggle />
+          <StudyLangToggle targetLang={otherLang} href={`/study/${studyId}?card=${activeCardId}&lang=${otherLang}`} />
           <div className="sj-divider" style={{ width: 1, height: 16, background: 'var(--border-default)', flexShrink: 0 }} />
-          <LogoutButton />
+          <LogoutButton label={lang === 'ar' ? 'تسجيل الخروج' : 'Sign out'} />
         </div>
       </header>
 

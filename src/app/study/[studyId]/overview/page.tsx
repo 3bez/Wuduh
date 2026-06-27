@@ -6,8 +6,9 @@ import { SECTIONS, getCardsForSection, MANDATORY_CARDS } from '@/lib/cards/loade
 import type { Language } from '@/types/cards'
 import LogoutButton from '@/components/ui/LogoutButton'
 import ThemeToggle from '@/components/ui/ThemeToggle'
+import StudyLangToggle from '@/components/cards/StudyLangToggle'
 
-interface PageProps { params: Promise<{ studyId: string }> }
+interface PageProps { params: Promise<{ studyId: string }>; searchParams: Promise<{ lang?: string }> }
 
 function LogoMark() {
   return (
@@ -20,8 +21,9 @@ function LogoMark() {
   )
 }
 
-export default async function OverviewPage({ params }: PageProps) {
+export default async function OverviewPage({ params, searchParams }: PageProps) {
   const { studyId } = await params
+  const { lang: langOverride } = await searchParams
   const user        = await requireVerifiedUser()
 
   const study = await queryOne<{ id: string; language: string; startupName: string | null }>(
@@ -36,8 +38,14 @@ export default async function OverviewPage({ params }: PageProps) {
   )
 
   const answers = Object.fromEntries(answersRaw.map(a => [a.card_id, a.status as string]))
-  const lang: Language = (study.language as Language) ?? 'en'
+  const lang: Language = (langOverride as Language) ?? (study.language as Language) ?? 'en'
   const dir  = lang === 'ar' ? 'rtl' : 'ltr'
+  const otherLang: Language = lang === 'ar' ? 'en' : 'ar'
+
+  // Persist an in-study language switch (mirrors the editor's behavior).
+  if (langOverride && langOverride !== study.language) {
+    await query('UPDATE studies SET language = $1 WHERE id = $2', [lang, studyId])
+  }
 
   const answeredIds   = new Set(Object.entries(answers).filter(([, s]) => s === 'done').map(([k]) => k))
   const mandatoryDone = MANDATORY_CARDS.filter(c => answeredIds.has(c.id)).length
@@ -84,8 +92,9 @@ export default async function OverviewPage({ params }: PageProps) {
           <div style={{ flex: 1 }} />
           <span className="ov-header-label" style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.06em' }}>{lang === 'ar' ? 'نظرة عامة' : 'Overview'}</span>
           <ThemeToggle />
+          <StudyLangToggle targetLang={otherLang} href={`/study/${studyId}/overview?lang=${otherLang}`} />
           <div className="ov-header-divider" style={{ width: 1, height: 16, background: 'var(--border-default)' }} />
-          <LogoutButton />
+          <LogoutButton label={lang === 'ar' ? 'تسجيل الخروج' : 'Sign out'} />
         </div>
       </header>
 

@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getVerifiedUser } from '@/lib/auth/session'
 import { queryOne, query } from '@/lib/db'
 import { buildPdfHtml } from '@/lib/pdf/template'
+import type { Language } from '@/types/cards'
 
 async function urlToBase64(url: string): Promise<string | null> {
   try {
@@ -45,7 +46,7 @@ export async function GET(
     )
 
     const answers = Object.fromEntries(
-      answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status }])
+      answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status as 'done' | 'skipped' }])
     )
 
     const startupName = (answers['C2']?.answer as string) ?? study.startupName ?? null
@@ -78,7 +79,7 @@ export async function GET(
       startup_name: startupName,
       founder_name: founderName,
       logo_url: logoDataUri,
-      language: study.language,
+      language: study.language as Language,
       completion_percentage: study.completionPercentage,
       answers,
     })

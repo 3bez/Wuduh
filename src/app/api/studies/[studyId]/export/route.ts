@@ -47,7 +47,7 @@ export async function POST(
     )
 
     const answers = Object.fromEntries(
-      answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status }])
+      answersRaw.map(a => [a.card_id, { answer: a.answer, status: a.status as 'done' | 'skipped' }])
     )
 
     const startupName = (answers['C2']?.answer as string) ?? study.startupName ?? null
@@ -83,7 +83,7 @@ export async function POST(
       startup_name: startupName,
       founder_name: founderName,
       logo_url: logoDataUri,
-      language: study.language,
+      language: study.language as Language,
       completion_percentage: study.completionPercentage,
       answers,
     })
