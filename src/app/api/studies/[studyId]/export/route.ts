@@ -6,25 +6,7 @@ import { getVerifiedUser } from '@/lib/auth/session'
 import { query, queryOne } from '@/lib/db'
 import { buildPdfHtml, buildPdfFooter } from '@/lib/pdf/template'
 import type { Language } from '@/types/cards'
-import * as Minio from 'minio'
-
-function getMinioClient() {
-  const endPoint  = process.env.MINIO_ENDPOINT
-  const accessKey = process.env.MINIO_ACCESS_KEY
-  const secretKey = process.env.MINIO_SECRET_KEY
-  if (!endPoint || !accessKey || !secretKey) {
-    throw new Error('MinIO is not configured: set MINIO_ENDPOINT, MINIO_ACCESS_KEY and MINIO_SECRET_KEY')
-  }
-  return new Minio.Client({
-    endPoint,
-    port:      parseInt(process.env.MINIO_PORT ?? '9000'),
-    useSSL:    false,
-    accessKey,
-    secretKey,
-  })
-}
-
-const BUCKET = process.env.MINIO_BUCKET ?? 'wuduh-uploads'
+import { getMinioClient, BUCKET } from '@/lib/storage'
 
 async function urlToBase64(url: string): Promise<string | null> {
   try {
