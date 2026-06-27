@@ -53,6 +53,20 @@ export async function act(url: string, method: string, body?: unknown): Promise<
   } catch { return false }
 }
 
+/** Like act() but returns { ok, error } with the server's error message. */
+export async function actWithError(url: string, method: string, body?: unknown): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const r = await fetch(url, {
+      method,
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    })
+    if (r.ok) return { ok: true }
+    const j = await r.json().catch(() => ({}))
+    return { ok: false, error: j.error || `Request failed (${r.status})` }
+  } catch { return { ok: false, error: 'Network error' } }
+}
+
 // ── shared bits ────────────────────────────────────────────────────
 export function Pill({ text, bg, fg }: { text: string; bg: string; fg: string }) {
   return <span style={{ fontFamily: 'var(--font-mono), monospace', fontSize: 10, letterSpacing: '0.06em', padding: '3px 8px', borderRadius: 99, background: bg, color: fg, whiteSpace: 'nowrap' }}>{text}</span>
@@ -194,6 +208,32 @@ export const btnWarn: React.CSSProperties = { background: 'transparent', border:
 
 export function BannedPill() {
   return <Pill text="Banned" bg="var(--danger-100)" fg="var(--danger-500)" />
+}
+
+export function SortHeader({ label, field, current, dir, onSort }: {
+  label: string; field: string; current: string; dir: 'asc' | 'desc'; onSort: (field: string, dir: 'asc' | 'desc') => void
+}) {
+  const active = current === field
+  const arrow = active ? (dir === 'asc' ? ' ↑' : ' ↓') : ''
+  return (
+    <th style={{ ...thStyle, cursor: 'pointer', userSelect: 'none' }}
+      onClick={() => onSort(field, active && dir === 'desc' ? 'asc' : 'desc')}>
+      {label}{arrow}
+    </th>
+  )
+}
+
+export function DateRangeFilter({ from, to, onFrom, onTo }: {
+  from: string; to: string; onFrom: (v: string) => void; onTo: (v: string) => void
+}) {
+  return (
+    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+      <input type="date" className="wb-input" style={{ width: 140, padding: '5px 8px', fontSize: 12 }} value={from} onChange={e => onFrom(e.target.value)} />
+      <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>to</span>
+      <input type="date" className="wb-input" style={{ width: 140, padding: '5px 8px', fontSize: 12 }} value={to} onChange={e => onTo(e.target.value)} />
+      {(from || to) && <button style={{ ...btnGhost, padding: '4px 8px', fontSize: 11 }} onClick={() => { onFrom(''); onTo('') }}>Clear</button>}
+    </div>
+  )
 }
 
 export function ExportCsvButton({ href, label }: { href: string; label?: string }) {

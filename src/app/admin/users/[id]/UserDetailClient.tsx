@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Shell, useJson, act, fmt, n, formatDate, formatDateTime, VerifiedPill, BannedPill, StatusPill, btnGhost, btnDanger, btnWarn, thStyle, tdStyle, Loading, ErrorCard } from '../../_shared'
+import { Shell, useJson, act, actWithError, fmt, n, formatDate, formatDateTime, VerifiedPill, BannedPill, StatusPill, btnGhost, btnDanger, btnWarn, thStyle, tdStyle, Loading, ErrorCard } from '../../_shared'
 
 type User = { id: string; email: string; name: string | null; emailVerified: boolean; banned: boolean; banReason: string | null; createdAt: string; updatedAt: string }
 type Study = { id: string; startupName: string | null; language: string; status: string; completionPercentage: number; createdAt: string; updatedAt: string; exports: number }
@@ -33,11 +33,9 @@ function Inner({ id, data, reload }: { id: string; data: Resp; reload: () => voi
 
   async function saveProfile() {
     setBusy(true); setMsg('')
-    try {
-      const r = await fetch(`/api/admin/users/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email }) })
-      if (!r.ok) { const j = await r.json().catch(() => ({})); setMsg(j.error || 'Save failed') }
-      else { setMsg('Saved'); reload(); setTimeout(() => setMsg(''), 1500) }
-    } catch { setMsg('Save failed') }
+    const { ok, error } = await actWithError(`/api/admin/users/${id}`, 'PATCH', { name, email })
+    if (ok) { setMsg('Saved'); reload(); setTimeout(() => setMsg(''), 1500) }
+    else setMsg(error || 'Save failed')
     setBusy(false)
   }
   async function userAct(method: string, body?: unknown, confirmMsg?: string) {

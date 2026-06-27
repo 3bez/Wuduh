@@ -4,6 +4,11 @@ import { query, queryOne } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
+const SORT_COLS: Record<string, string> = {
+  email: 'u.email', name: 'u.name', createdAt: 'u."createdAt"',
+  studies: 'studies', exports: 'exports',
+}
+
 export async function GET(req: Request) {
   if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { searchParams } = new URL(req.url)
@@ -11,6 +16,10 @@ export async function GET(req: Request) {
   const filter = searchParams.get('filter') || 'all'
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
   const offset = Math.max(0, parseInt(searchParams.get('offset') || '0', 10))
+  const sortCol = SORT_COLS[searchParams.get('sort') || ''] || 'u."createdAt"'
+  const sortDir = searchParams.get('dir') === 'asc' ? 'ASC' : 'DESC'
+  const dateFrom = searchParams.get('from') || ''
+  const dateTo = searchParams.get('to') || ''
 
   const where: string[] = []
   const params: unknown[] = []
@@ -18,6 +27,8 @@ export async function GET(req: Request) {
   if (filter === 'verified') where.push(`u."emailVerified" = true`)
   if (filter === 'unverified') where.push(`u."emailVerified" = false`)
   if (filter === 'banned') where.push(`u.banned = true`)
+  if (dateFrom) { params.push(dateFrom); where.push(`u."createdAt" >= $${params.length}::date`) }
+  if (dateTo) { params.push(dateTo); where.push(`u."createdAt" < ($${params.length}::date + interval '1 day')`) }
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : ''
 
   const totalRow = await queryOne<{ c: string }>(`SELECT count(*)::int AS c FROM users u ${whereSql}`, params)
@@ -28,7 +39,7 @@ export async function GET(req: Request) {
       (SELECT max(x."createdAt") FROM sessions x WHERE x."userId" = u.id) AS "lastActive"
     FROM users u
     ${whereSql}
-    ORDER BY u."createdAt" DESC
+    ORDER BY ${sortCol} ${sortDir} NULLS LAST
     LIMIT ${limit} OFFSET ${offset}
   `, params)
 

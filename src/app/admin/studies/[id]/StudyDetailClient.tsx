@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Shell, useJson, act, n, btnGhost, btnDanger, Loading, ErrorCard } from '../../_shared'
+import { Shell, useJson, act, actWithError, n, btnGhost, btnDanger, ExportCsvButton, Loading, ErrorCard } from '../../_shared'
 
 type Item = {
   cardId: string; section: string; order: number; type: string; required: boolean
@@ -35,11 +35,11 @@ function Inner({ data, reload }: { data: Resp; reload: () => void }) {
 
   async function saveMeta() {
     setSavingMeta(true); setMetaMsg('')
-    const ok = await act(`/api/admin/studies/${study.id}`, 'PATCH', {
+    const { ok, error } = await actWithError(`/api/admin/studies/${study.id}`, 'PATCH', {
       startupName: name, language, status, completionPercentage: parseInt(completion, 10) || 0,
     })
     setSavingMeta(false)
-    setMetaMsg(ok ? 'Saved' : 'Save failed')
+    setMetaMsg(ok ? 'Saved' : (error || 'Save failed'))
     if (ok) setTimeout(() => setMetaMsg(''), 1500)
   }
   async function deleteStudy() {
@@ -98,9 +98,12 @@ function Inner({ data, reload }: { data: Resp; reload: () => void }) {
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, gap: 12 }}>
         <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 18, fontWeight: 600, color: 'var(--text-primary)' }}>Answers</h2>
-        <span style={{ fontSize: 12, color: 'var(--text-faint)', fontFamily: 'var(--font-mono), monospace' }}>{answeredCount} / {items.length} cards answered</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-faint)', fontFamily: 'var(--font-mono), monospace' }}>{answeredCount} / {items.length} cards answered</span>
+          <ExportCsvButton href={`/api/admin/studies/${study.id}/answers/export`} label="Export answers" />
+        </div>
       </div>
 
       {groups.map(g => (
@@ -131,10 +134,10 @@ function AnswerEditor({ studyId, item, onSaved }: { studyId: string; item: Item;
       try { value = JSON.parse(text) } catch { setMsg('Invalid JSON'); return }
     }
     setSaving(true); setMsg('')
-    const ok = await act(`/api/admin/studies/${studyId}/answers`, 'PATCH', { cardId: item.cardId, value, status: 'done' })
+    const { ok, error } = await actWithError(`/api/admin/studies/${studyId}/answers`, 'PATCH', { cardId: item.cardId, value, status: 'done' })
     setSaving(false)
     if (ok) { setMsg('Saved'); setTimeout(() => setMsg(''), 1400); onSaved() }
-    else setMsg('Save failed')
+    else setMsg(error || 'Save failed')
   }
 
   return (
