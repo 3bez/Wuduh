@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { isAdmin } from '@/lib/auth/admin'
-import { query } from '@/lib/db'
+import { query, queryOne } from '@/lib/db'
+import { auditLog } from '@/lib/admin/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,12 +33,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   if (sets.length === 0) return NextResponse.json({ error: 'nothing to update' }, { status: 400 })
   vals.push(id)
   await query(`UPDATE studies SET ${sets.join(', ')} WHERE id = $${vals.length}`, vals)
+  await auditLog('study.edit', 'study', id, { fields: sets.map(s => s.split(' = ')[0].replace(/"/g, '')) })
   return NextResponse.json({ ok: true })
 }
 
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { id } = await params
+  const study = await queryOne<{ startupName: string | null }>(`SELECT "startupName" FROM studies WHERE id = $1`, [id])
   await query(`DELETE FROM studies WHERE id = $1`, [id])
+  await auditLog('study.delete', 'study', id, { startupName: study?.startupName })
   return NextResponse.json({ ok: true })
 }

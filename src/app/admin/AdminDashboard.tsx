@@ -1,6 +1,7 @@
 'use client'
 
-import { Shell, useJson, n, fmt, pct, formatDate, formatDateTime, Pill, VerifiedPill, Loading, ErrorCard, thStyle, tdStyle } from './_shared'
+import { useState } from 'react'
+import { Shell, useJson, n, fmt, pct, formatDate, formatDateTime, Pill, VerifiedPill, Loading, ErrorCard, thStyle, tdStyle, Pagination } from './_shared'
 
 type Row = Record<string, unknown>
 interface Stats {
@@ -8,6 +9,9 @@ interface Stats {
   byStatus: Row[]; studiesByLang: Row[]; exportsByLang: Row[]
   daily: Row[]; skippedCards: Row[]; recentUsers: Row[]; recentExports: Row[]
 }
+
+type AuditRow = { id: string; action: string; target_type: string; target_id: string; detail: Record<string, unknown> | null; ip: string | null; createdAt: string }
+interface AuditResp { logs: AuditRow[]; total: number }
 
 export default function AdminDashboard() {
   const { data, error } = useJson<Stats>('/api/admin/stats')
@@ -232,7 +236,7 @@ function Dashboard({ data }: { data: Stats }) {
         </div>
       </Panel>
 
-      <Panel title="Recent exports" subtitle="Newest 12 PDF exports">
+      <Panel title="Recent exports" subtitle="Newest 12 PDF exports" style={{ marginBottom: 32 }}>
         <div className="wb-tablewrap">
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 540 }}>
             <thead><tr>{['Study', 'Founder', 'Lang', 'Completion', 'When'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
@@ -252,6 +256,56 @@ function Dashboard({ data }: { data: Stats }) {
           </table>
         </div>
       </Panel>
+
+      <AuditLogPanel />
     </>
+  )
+}
+
+function AuditLogPanel() {
+  const [offset, setOffset] = useState(0)
+  const { data, error, loading } = useJson<AuditResp>(`/api/admin/audit?limit=20&offset=${offset}`)
+
+  const actionColors: Record<string, [string, string]> = {
+    'user.delete': ['var(--danger-100)', 'var(--danger-500)'],
+    'user.ban': ['var(--danger-100)', 'var(--danger-500)'],
+    'user.unban': ['var(--teal-100)', 'var(--teal-700)'],
+    'study.delete': ['var(--danger-100)', 'var(--danger-500)'],
+  }
+
+  function actionPill(action: string) {
+    const [bg, fg] = actionColors[action] ?? ['var(--bg-subtle)', 'var(--text-faint)']
+    return <Pill text={action} bg={bg} fg={fg} />
+  }
+
+  return (
+    <Panel title="Audit log" subtitle="Admin actions — who did what">
+      {error ? <span style={{ fontSize: 13, color: 'var(--danger-500)' }}>Failed to load audit log.</span>
+        : loading && !data ? <span style={{ fontSize: 13, color: 'var(--text-faint)' }}>Loading…</span>
+        : !data?.logs?.length ? <p style={{ fontSize: 13, color: 'var(--text-faint)', padding: '8px 0' }}>No admin actions recorded yet.</p>
+        : (
+          <>
+            <div className="wb-tablewrap">
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 540 }}>
+                <thead><tr>{['Action', 'Target', 'Detail', 'IP', 'When'].map(h => <th key={h} style={thStyle}>{h}</th>)}</tr></thead>
+                <tbody>
+                  {data.logs.map(row => (
+                    <tr key={row.id} className="wb-row" style={{ borderTop: '1px solid var(--border-default)' }}>
+                      <td style={tdStyle}>{actionPill(row.action)}</td>
+                      <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace', fontSize: 11 }}>{row.target_type}/{row.target_id.slice(0, 8)}</td>
+                      <td style={{ ...tdStyle, fontSize: 11, color: 'var(--text-faint)', maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {row.detail ? Object.entries(row.detail).map(([k, v]) => `${k}: ${v}`).join(', ') : '—'}
+                      </td>
+                      <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace', fontSize: 11, color: 'var(--text-faint)' }}>{row.ip || '—'}</td>
+                      <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{formatDateTime(row.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pagination total={data.total} offset={offset} pageSize={20} onPage={setOffset} />
+          </>
+        )}
+    </Panel>
   )
 }

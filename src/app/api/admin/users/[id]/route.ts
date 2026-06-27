@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
 import { isAdmin } from '@/lib/auth/admin'
 import { query, queryOne } from '@/lib/db'
+import { auditLog } from '@/lib/admin/audit'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { id } = await params
-  const user = await queryOne(`SELECT id, email, name, "emailVerified", "createdAt", "updatedAt" FROM users WHERE id = $1`, [id])
+  const user = await queryOne(`SELECT id, email, name, "emailVerified", banned, "banReason", "createdAt", "updatedAt" FROM users WHERE id = $1`, [id])
   if (!user) return NextResponse.json({ error: 'not found' }, { status: 404 })
   const studies = await query(`
     SELECT id, "startupName", language, status, "completionPercentage", "createdAt", "updatedAt",
@@ -34,6 +35,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   // verify / unverify
   if (body?.action === 'verify' || body?.action === 'unverify') {
     await query(`UPDATE users SET "emailVerified" = $1 WHERE id = $2`, [body.action === 'verify', id])
+    await auditLog(`user.${body.action}`, 'user', id)
+    return NextResponse.json({ ok: true })
+  }
+
+  // ban / unban
+  if (body?.action === 'ban' || body?.action === 'unban') {
+    const reason = typeof body?.reason === 'string' ? body.reason.trim() || null : null
+    await query(`UPDATE users SET banned = $1, "banReason" = $2 WHERE id = $3`, [body.action === 'ban', body.action === 'ban' ? reason : null, id])
+    if (body.action === 'ban') {
+      // Revoke all sessions on ban
+      await query(`DELETE FROM sessions WHERE "userId" = $1`, [id])
+    }
+    await auditLog(`user.${body.action}`, 'user', id, { reason })
     return NextResponse.json({ ok: true })
   }
 
@@ -50,6 +64,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   vals.push(id)
   try {
     await query(`UPDATE users SET ${sets.join(', ')} WHERE id = $${vals.length}`, vals)
+    await auditLog('user.edit', 'user', id, { fields: sets.map(s => s.split(' = ')[0]) })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'update failed'
     if (msg.includes('unique') || msg.includes('duplicate')) return NextResponse.json({ error: 'That email is already in use.' }, { status: 409 })
@@ -61,6 +76,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdmin())) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   const { id } = await params
+  // Grab email for audit before deleting
+  const user = await queryOne<{ email: string }>(`SELECT email FROM users WHERE id = $1`, [id])
   await query(`DELETE FROM users WHERE id = $1`, [id])
+  await auditLog('user.delete', 'user', id, { email: user?.email })
   return NextResponse.json({ ok: true })
 }

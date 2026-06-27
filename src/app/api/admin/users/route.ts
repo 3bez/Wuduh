@@ -17,11 +17,12 @@ export async function GET(req: Request) {
   if (q) { params.push(`%${q}%`); where.push(`(u.email ILIKE $${params.length} OR u.name ILIKE $${params.length})`) }
   if (filter === 'verified') where.push(`u."emailVerified" = true`)
   if (filter === 'unverified') where.push(`u."emailVerified" = false`)
+  if (filter === 'banned') where.push(`u.banned = true`)
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : ''
 
   const totalRow = await queryOne<{ c: string }>(`SELECT count(*)::int AS c FROM users u ${whereSql}`, params)
   const users = await query(`
-    SELECT u.id, u.email, u.name, u."emailVerified", u."createdAt",
+    SELECT u.id, u.email, u.name, u."emailVerified", u.banned, u."createdAt",
       (SELECT count(*) FROM studies s WHERE s."userId" = u.id)::int AS studies,
       (SELECT count(*) FROM exports e WHERE e."userId" = u.id)::int AS exports,
       (SELECT max(x."createdAt") FROM sessions x WHERE x."userId" = u.id) AS "lastActive"

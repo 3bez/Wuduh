@@ -170,3 +170,37 @@ export function Loading() {
 export function ErrorCard({ error }: { error: string }) {
   return <div className="wb-card" style={{ padding: 22, color: 'var(--danger-500)', fontSize: 14 }}>Couldn&apos;t load: {error}</div>
 }
+
+export const PAGE_SIZE = 50
+
+export function Pagination({ total, offset, pageSize, onPage }: { total: number; offset: number; pageSize: number; onPage: (offset: number) => void }) {
+  const pages = Math.ceil(total / pageSize)
+  const current = Math.floor(offset / pageSize)
+  if (pages <= 1) return null
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 12px 4px', fontSize: 13 }}>
+      <span style={{ color: 'var(--text-faint)', fontFamily: 'var(--font-mono), monospace', fontSize: 11 }}>
+        {fmt(offset + 1)}–{fmt(Math.min(offset + pageSize, total))} of {fmt(total)}
+      </span>
+      <div style={{ display: 'flex', gap: 6 }}>
+        <button style={{ ...btnGhost, opacity: current === 0 ? 0.4 : 1 }} disabled={current === 0} onClick={() => onPage(Math.max(0, offset - pageSize))}>← Prev</button>
+        <button style={{ ...btnGhost, opacity: current >= pages - 1 ? 0.4 : 1 }} disabled={current >= pages - 1} onClick={() => onPage(offset + pageSize)}>Next →</button>
+      </div>
+    </div>
+  )
+}
+
+export const btnWarn: React.CSSProperties = { background: 'transparent', border: '1px solid var(--warning-500)', color: 'var(--warning-500)', fontSize: 12, padding: '5px 10px', borderRadius: 7, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }
+
+export function BannedPill() {
+  return <Pill text="Banned" bg="var(--danger-100)" fg="var(--danger-500)" />
+}
+
+export function ExportCsvButton({ href, label }: { href: string; label?: string }) {
+  return (
+    <a href={href} download style={{ ...btnGhost, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      {label || 'Export CSV'}
+    </a>
+  )
+}

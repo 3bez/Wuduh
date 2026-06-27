@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Shell, useJson, act, fmt, n, formatDate, StatusPill, btnGhost, btnDanger, thStyle, tdStyle, Loading, ErrorCard } from '../_shared'
+import { Shell, useJson, act, fmt, n, formatDate, StatusPill, Pagination, ExportCsvButton, PAGE_SIZE, btnGhost, btnDanger, thStyle, tdStyle, Loading, ErrorCard } from '../_shared'
 
 type StudyRow = {
   id: string; startupName: string | null; language: string; status: string
@@ -15,10 +15,12 @@ export default function StudiesClient() {
   const [q, setQ] = useState('')
   const [aq, setAq] = useState('')
   const [status, setStatus] = useState<'all' | 'draft' | 'complete' | 'exported'>('all')
+  const [offset, setOffset] = useState(0)
   const [busy, setBusy] = useState<string | null>(null)
 
-  useEffect(() => { const t = setTimeout(() => setAq(q), 300); return () => clearTimeout(t) }, [q])
-  const { data, error, loading, reload } = useJson<Resp>(`/api/admin/studies?q=${encodeURIComponent(aq)}&status=${status}&limit=100`)
+  useEffect(() => { const t = setTimeout(() => { setAq(q); setOffset(0) }, 300); return () => clearTimeout(t) }, [q])
+  useEffect(() => { setOffset(0) }, [status])
+  const { data, error, loading, reload } = useJson<Resp>(`/api/admin/studies?q=${encodeURIComponent(aq)}&status=${status}&limit=${PAGE_SIZE}&offset=${offset}`)
 
   async function run(id: string, method: string, body?: unknown, confirmMsg?: string) {
     if (confirmMsg && !window.confirm(confirmMsg)) return
@@ -32,7 +34,7 @@ export default function StudiesClient() {
 
   return (
     <Shell active="studies" eyebrow="Back office" title="Studies" subtitle={data ? `${fmt(data.total)} total` : 'Every feasibility study across all founders'}>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <input className="wb-input" style={{ maxWidth: 320 }} placeholder="Search by startup or owner email…" value={q} onChange={e => setQ(e.target.value)} />
         <div style={{ display: 'flex', gap: 6 }}>
           {(['all', 'draft', 'complete', 'exported'] as const).map(f => (
@@ -44,6 +46,8 @@ export default function StudiesClient() {
             }}>{f}</button>
           ))}
         </div>
+        <div style={{ flex: 1 }} />
+        <ExportCsvButton href="/api/admin/studies/export" />
       </div>
 
       {error ? <ErrorCard error={error} /> : loading && !data ? <Loading /> : (
@@ -85,6 +89,7 @@ export default function StudiesClient() {
               </tbody>
             </table>
           </div>
+          {data && <Pagination total={data.total} offset={offset} pageSize={PAGE_SIZE} onPage={setOffset} />}
         </div>
       )}
     </Shell>

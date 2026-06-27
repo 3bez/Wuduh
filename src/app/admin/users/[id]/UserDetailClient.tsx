@@ -3,9 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Shell, useJson, act, fmt, n, formatDate, formatDateTime, VerifiedPill, StatusPill, btnGhost, btnDanger, thStyle, tdStyle, Loading, ErrorCard } from '../../_shared'
+import { Shell, useJson, act, fmt, n, formatDate, formatDateTime, VerifiedPill, BannedPill, StatusPill, btnGhost, btnDanger, btnWarn, thStyle, tdStyle, Loading, ErrorCard } from '../../_shared'
 
-type User = { id: string; email: string; name: string | null; emailVerified: boolean; createdAt: string; updatedAt: string }
+type User = { id: string; email: string; name: string | null; emailVerified: boolean; banned: boolean; banReason: string | null; createdAt: string; updatedAt: string }
 type Study = { id: string; startupName: string | null; language: string; status: string; completionPercentage: number; createdAt: string; updatedAt: string; exports: number }
 type Export = { id: string; language: string; completionSnapshot: number; pdf_url: string | null; createdAt: string; startupName: string | null }
 type Session = { id: string; ipAddress: string | null; userAgent: string | null; createdAt: string; expiresAt: string; active: boolean }
@@ -77,10 +77,15 @@ function Inner({ id, data, reload }: { id: string; data: Resp; reload: () => voi
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, gap: 12, flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <h2 style={{ fontFamily: 'var(--font-display), serif', fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>Profile</h2>
-            <VerifiedPill verified={user.emailVerified} />
+            {user.banned ? <BannedPill /> : <VerifiedPill verified={user.emailVerified} />}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button style={btnGhost} disabled={busy} onClick={() => userAct('PATCH', { action: user.emailVerified ? 'unverify' : 'verify' })}>{user.emailVerified ? 'Unverify email' : 'Verify email'}</button>
+            {user.banned ? (
+              <button style={btnWarn} disabled={busy} onClick={() => userAct('PATCH', { action: 'unban' })}>Unban user</button>
+            ) : (
+              <button style={btnWarn} disabled={busy} onClick={() => userAct('PATCH', { action: 'ban' }, `Ban ${user.email}? They will be logged out and unable to access their account.`)}>Ban user</button>
+            )}
             <button style={btnDanger} disabled={busy} onClick={() => userAct('DELETE', undefined, `Delete ${user.email}? This permanently removes their account, studies, and exports. This cannot be undone.`)}>Delete user</button>
           </div>
         </div>
@@ -94,6 +99,11 @@ function Inner({ id, data, reload }: { id: string; data: Resp; reload: () => voi
             <input className="wb-input" value={email} onChange={e => setEmail(e.target.value)} />
           </div>
         </div>
+        {user.banned && user.banReason && (
+          <div style={{ marginTop: 14, padding: '10px 14px', background: 'var(--danger-100)', borderRadius: 8, fontSize: 13, color: 'var(--danger-500)' }}>
+            <strong>Ban reason:</strong> {user.banReason}
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
           <button style={{ ...btnPrimary, opacity: dirty ? 1 : 0.5 }} disabled={busy || !dirty} onClick={saveProfile}>Save profile</button>
           {msg && <span style={{ fontSize: 12, color: msg === 'Saved' ? 'var(--success-500)' : 'var(--danger-500)' }}>{msg}</span>}

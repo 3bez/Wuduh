@@ -2,22 +2,24 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Shell, useJson, act, fmt, n, formatDate, VerifiedPill, btnGhost, btnDanger, thStyle, tdStyle, Loading, ErrorCard } from '../_shared'
+import { Shell, useJson, act, fmt, n, formatDate, VerifiedPill, BannedPill, Pagination, ExportCsvButton, PAGE_SIZE, btnGhost, btnDanger, btnWarn, thStyle, tdStyle, Loading, ErrorCard } from '../_shared'
 
 type UserRow = {
   id: string; email: string; name: string | null; emailVerified: boolean
-  createdAt: string; studies: number; exports: number; lastActive: string | null
+  banned: boolean; createdAt: string; studies: number; exports: number; lastActive: string | null
 }
 interface Resp { users: UserRow[]; total: number }
 
 export default function UsersClient() {
   const [q, setQ] = useState('')
   const [aq, setAq] = useState('')
-  const [filter, setFilter] = useState<'all' | 'verified' | 'unverified'>('all')
+  const [filter, setFilter] = useState<'all' | 'verified' | 'unverified' | 'banned'>('all')
+  const [offset, setOffset] = useState(0)
   const [busy, setBusy] = useState<string | null>(null)
 
-  useEffect(() => { const t = setTimeout(() => setAq(q), 300); return () => clearTimeout(t) }, [q])
-  const { data, error, loading, reload } = useJson<Resp>(`/api/admin/users?q=${encodeURIComponent(aq)}&filter=${filter}&limit=100`)
+  useEffect(() => { const t = setTimeout(() => { setAq(q); setOffset(0) }, 300); return () => clearTimeout(t) }, [q])
+  useEffect(() => { setOffset(0) }, [filter])
+  const { data, error, loading, reload } = useJson<Resp>(`/api/admin/users?q=${encodeURIComponent(aq)}&filter=${filter}&limit=${PAGE_SIZE}&offset=${offset}`)
 
   async function run(id: string, method: string, body?: unknown, confirmMsg?: string) {
     if (confirmMsg && !window.confirm(confirmMsg)) return
@@ -32,10 +34,10 @@ export default function UsersClient() {
 
   return (
     <Shell active="users" eyebrow="Back office" title="Users" subtitle={data ? `${fmt(data.total)} total` : 'Manage everyone who has signed up'}>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 12, marginBottom: 18, flexWrap: 'wrap', alignItems: 'center' }}>
         <input className="wb-input" style={{ maxWidth: 320 }} placeholder="Search by email or name…" value={q} onChange={e => setQ(e.target.value)} />
         <div style={{ display: 'flex', gap: 6 }}>
-          {(['all', 'verified', 'unverified'] as const).map(f => (
+          {(['all', 'verified', 'unverified', 'banned'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)} style={{
               ...btnGhost, textTransform: 'capitalize',
               borderColor: filter === f ? 'var(--gold-500)' : 'var(--border-default)',
@@ -44,6 +46,8 @@ export default function UsersClient() {
             }}>{f}</button>
           ))}
         </div>
+        <div style={{ flex: 1 }} />
+        <ExportCsvButton href="/api/admin/users/export" />
       </div>
 
       {error ? <ErrorCard error={error} /> : loading && !data ? <Loading /> : (
@@ -60,7 +64,9 @@ export default function UsersClient() {
                       <Link href={`/admin/users/${u.id}`} style={{ color: 'var(--text-primary)', fontWeight: 500, textDecoration: 'none', fontSize: 13 }}>{u.email}</Link>
                       {u.name && <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{u.name}</div>}
                     </td>
-                    <td style={tdStyle}><VerifiedPill verified={u.emailVerified} /></td>
+                    <td style={{ ...tdStyle, whiteSpace: 'nowrap' }}>
+                      {u.banned ? <BannedPill /> : <VerifiedPill verified={u.emailVerified} />}
+                    </td>
                     <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{fmt(n(u.studies))}</td>
                     <td style={{ ...tdStyle, fontFamily: 'var(--font-mono), monospace' }}>{fmt(n(u.exports))}</td>
                     <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{formatDate(u.createdAt)}</td>
@@ -70,6 +76,13 @@ export default function UsersClient() {
                         onClick={() => run(u.id, 'PATCH', { action: u.emailVerified ? 'unverify' : 'verify' })}>
                         {u.emailVerified ? 'Unverify' : 'Verify'}
                       </button>
+                      {u.banned ? (
+                        <button style={{ ...btnWarn, marginRight: 6 }} disabled={busy === u.id}
+                          onClick={() => run(u.id, 'PATCH', { action: 'unban' })}>Unban</button>
+                      ) : (
+                        <button style={{ ...btnWarn, marginRight: 6 }} disabled={busy === u.id}
+                          onClick={() => run(u.id, 'PATCH', { action: 'ban' }, `Ban ${u.email}? They will be logged out and unable to access their account.`)}>Ban</button>
+                      )}
                       <button style={btnDanger} disabled={busy === u.id}
                         onClick={() => run(u.id, 'DELETE', undefined, `Delete ${u.email}? This permanently removes their account, studies, and exports. This cannot be undone.`)}>
                         Delete
@@ -80,6 +93,7 @@ export default function UsersClient() {
               </tbody>
             </table>
           </div>
+          {data && <Pagination total={data.total} offset={offset} pageSize={PAGE_SIZE} onPage={setOffset} />}
         </div>
       )}
     </Shell>
