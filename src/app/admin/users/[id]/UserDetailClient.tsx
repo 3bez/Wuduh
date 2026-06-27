@@ -112,7 +112,7 @@ export default function UserDetailClient({ id }: { id: string }) {
                   <td style={{ ...tdStyle, color: 'var(--text-faint)' }}>{formatDateTime(e.createdAt)}</td>
                   <td style={{ ...tdStyle, textAlign: 'right', whiteSpace: 'nowrap' }}>
                     {e.pdf_url
-                      ? <a href={e.pdf_url} target="_blank" rel="noreferrer" style={{ ...btnGhost, textDecoration: 'none', marginRight: 6 }}>Download</a>
+                      ? <a href={`/api/admin/exports/${e.id}/download`} target="_blank" rel="noreferrer" style={{ ...btnGhost, textDecoration: 'none', marginRight: 6 }}>Download</a>
                       : <span style={{ fontSize: 11, color: 'var(--text-hint)', marginRight: 6 }}>no file</span>}
                     <button style={btnDanger} onClick={() => exportAct(e.id, 'Delete this export record? This cannot be undone.')}>Delete</button>
                   </td>
